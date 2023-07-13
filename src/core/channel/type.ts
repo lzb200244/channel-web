@@ -1,4 +1,5 @@
 import { IAccount } from '@src/core/account/type';
+
 /**
  * 操作类型：撤回，删除，点赞，回复，@
  */
@@ -21,12 +22,16 @@ export enum MessageTypeEnum {
 }
 
 export interface MessageItem {
+
     // 内容
     content: string
     // 发送时间
     time: number
     type: number
-    id: number
+    optUser: string
+    optUserID: number | string
+    optID: number
+
 }
 
 /**
@@ -50,8 +55,8 @@ export interface PushMessage {
 export interface OptMessageItem {
     optUser: string;
     optUserID: number;
-    optID:number
-    msg?:string
+    optID: number
+    msg?: string
 
 }
 

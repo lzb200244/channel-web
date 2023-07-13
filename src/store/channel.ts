@@ -21,10 +21,10 @@ const useChannelStore = defineStore(
       },
       /**
        * 进行撤回
-       * @param id
+       * @param optID
        */
-      deleteRecord(id: number) {
-        this.messageList = this.messageList.filter((item) => item.message.id !== id);
+      deleteRecord(optID: number) {
+        this.messageList = this.messageList.filter((item) => item.message.optID !== optID);
       },
       /**
        * 请求跟多的历史记录
