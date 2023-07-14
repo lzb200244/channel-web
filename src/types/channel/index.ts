@@ -8,15 +8,24 @@ export interface MessageStatus {
     isDrop: boolean
 }
 
+export interface Replay extends Pick<Account, 'name' | 'userID'> {
+    msgID: number;
+    content: string;
+}
+
 export interface MessageItemType {
     content: string;
-    msgID?: number;
+    msgID: number;
     messageStatus?: MessageStatus;
     time: number;
     type: MessageContentEnum;
+    // 回复
+
+    replay?: Replay
 }
 
 export interface MessageType {
+    id?:number
     user: Account;
     message: MessageItemType;
     type: MessageTypeEnum;

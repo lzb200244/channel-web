@@ -31,11 +31,11 @@
   </a-card>
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, defineAsyncComponent, ref } from 'vue';
 
 import useAccountStore from '@/store/account';
-import Account from '@/views/account.vue';
-// const Account = defineAsyncComponent(() => import('@/views/account.vue'));
+// import Account from '@/views/account.vue';
+const Account = defineAsyncComponent(() => import('@/views/account.vue'));
 const user = useAccountStore();
 user.asyncUser();
 const userObj = computed(() => user.user);

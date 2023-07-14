@@ -1,12 +1,20 @@
 <template>
-  <a-row v-if="Object.keys(messageItem).length!==0">
+  <a-row
+    v-if="Object.keys(messageItem).length!==0"
+    :id="'record:'+messageItem.message.msgID"
+  >
     <a-col v-if="!isSend">
       <a-avatar
         :src="messageItem.user.avatar"
         :class="['message-avatar', 'avatar-left']"
       />
     </a-col>
-    <div>
+    <div
+
+      style="position: relative;"
+      @mouseover="isHovered=true"
+      @mouseleave="isHovered=false"
+    >
       <a-typography-text
         style="height: 22px"
         :class="['chat-info', isSend?'chat-info-right':'chat-info-left' ]"
@@ -14,18 +22,67 @@
         <span class="chat-time">{{ formatTime(messageItem.message.time) }}</span>
         <span class="chat-name">{{ messageItem.user.name || messageItem.user.username }}</span>
       </a-typography-text>
+
+      <a-anchor-link
+        v-if="messageItem.message.replay"
+        :class="['replay-card', ]"
+        :href="'#record:'+messageItem.message.replay?.msgID"
+        :title="'@'+ messageItem.message.replay.name"
+        @click="findRecordLight(messageItem.message.replay?.msgID)"
+      >
+        <a-typography-paragraph
+          :ellipsis="ellipsis"
+          :copyable="true"
+
+          :content="messageItem.message.replay.content "
+        />
+      </a-anchor-link>
+
       <a-typography-paragraph
+
         :class="['message-card', 'chat-bubble',isSend?'message-card-right': 'message-card-left']"
         :ellipsis="ellipsis"
         :copyable="true"
         :content="messageItem.message.content"
       />
+
+      <a-row
+
+        v-if="isHovered"
+
+        class="opt-box"
+      >
+        <!-- 使用 Tooltip 组件包裹需要悬浮显示的内容 -->
+        <span
+          class="opt"
+          @click="Opt(messageItem,MessageTypeEnum.THUMB_PUSH)"
+        >
+          <a-tooltip
+            placement="topLeft"
+            title="赞"
+          >
+            <like-filled v-show="messageItem.message.messageStatus?.userIsLike" />
+            <like-outlined
+              v-show="!messageItem.message.messageStatus?.userIsLike"
+            />
+          </a-tooltip>
+        </span>
+        <span class="opt">
+          <a-tooltip
+            placement="topLeft"
+            title="回复"
+          >
+            <message-outlined @click="Opt(messageItem,MessageTypeEnum.REPLAY_PUSH)" />
+          </a-tooltip>
+        </span>
+      </a-row>
+
       <a-button
         v-if="isSend"
         size="small"
         type="link"
         style="color: #999999;font-size: 8px;float: right"
-        @click="Opt(messageItem.message,MessageTypeEnum.DROP_PUSH)"
+        @click="Opt(messageItem,MessageTypeEnum.DROP_PUSH)"
       >
         撤回
       </a-button>
@@ -41,11 +98,14 @@
 </template>
 <script lang="ts" setup>
 import dayjs from 'dayjs';
-import { defineProps, withDefaults } from 'vue';
-
-import { MessageType, MessageItemType } from '@src/types/channel';
+import { defineProps, ref, withDefaults } from 'vue';
+import {
+  LikeOutlined, MessageOutlined, LikeFilled,
+} from '@ant-design/icons-vue';
+import { MessageType } from '@src/types/channel';
 import { MessageTypeEnum } from '@/types/channel/enum';
 
+const isHovered = ref(false);
 withDefaults(defineProps<{
     isSend: boolean, // 是否是回复
     messageItem: MessageType // 消息体
@@ -57,10 +117,9 @@ withDefaults(defineProps<{
  *  撤回，点赞，回复，@
  */
 const emit = defineEmits(['opt']);
-
 const ellipsis = {
   expandable: true,
-  rows: 5,
+  rows: 3,
   symbol: '更多',
 };
 
@@ -78,18 +137,40 @@ const formatTime = (timestamp: number) => (timestamp + oneDayTimestamp < Date.no
  * @param message 消息id
  * @param tp 操作类型
  */
-const Opt = (message: MessageItemType, tp:number) => {
+const Opt = (message: MessageType, tp: number) => {
   //   判断是否过了两分钟
   //   发给父组件
 
   emit('opt', message, tp);
 };
+/**
+ * 点击@是进行语法高亮
+ *
+ */
+const findRecordLight = (id: number) => {
+  console.log(id);
+  let domID = `record:${id}`;
+  let dom = document.getElementById(domID);
+  // console.log(dom);
+  // dom.style.background = 'red';
+};
 </script>
 <style lang="scss" scoped>
-.message-card {
+.replay-card {
   max-width: 200px;
   margin-top: 3px;
-  margin-bottom: 0!important;
+  margin-bottom: 0 !important;
+  padding: 5px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px 0, rgba(0, 0, 0, 0.06) 0 1px 2px 0;
+  border-radius: 0 7px 7px 0;
+  border-left: 5px solid #dadada;
+}
+
+.message-card {
+
+  max-width: 200px;
+  margin-top: 3px;
+  margin-bottom: 0 !important;
   padding: 8px;
   box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px 0, rgba(0, 0, 0, 0.06) 0 1px 2px 0;
   border-radius: 7px;
@@ -105,6 +186,22 @@ const Opt = (message: MessageItemType, tp:number) => {
     color: white;
     border-top-right-radius: 0;
   }
+}
+
+.opt {
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.opt-box {
+  padding: 0 3px;
+  position: absolute;
+  left: 0;
+  //margin-top: 8px;
+
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16); /* 添加阴影效果 */
 }
 
 .chat-info {

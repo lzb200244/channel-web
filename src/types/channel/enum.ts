@@ -19,4 +19,5 @@ export enum MessageContentEnum {
     FILE,
     IMAGE,
     VIDEO,
+    REPLAY
 }
