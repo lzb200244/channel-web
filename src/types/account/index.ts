@@ -1,3 +1,15 @@
+export interface User {
+    userID: number
+}
+export interface Account {
+    username: string,
+    email: string,
+    name: string,
+    desc:string,
+    userID: number | string,
+    avatar: string,
+    token?: string
+}
 /**
  * 登录与注册接口
  */

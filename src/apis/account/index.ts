@@ -1,4 +1,5 @@
-import { AccountFormAble } from '@src/core/account/type';
+import { AccountFormAble } from '@src/types/account';
+
 import instance from '@/apis/index';
 
 /**

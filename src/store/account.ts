@@ -1,18 +1,19 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { IAccount } from '@src/core/account/type';
+
+import { Account } from '@src/types/account';
 import { account } from '@/apis/account';
 
 const useAccountStore = defineStore(
   'account', {
     // 推荐使用 完整类型推断的箭头函数
     state: () => ({
-      user: {} as IAccount,
+      user: {} as Account,
       isAdmin: true,
     }),
     actions: {
       // 删除用户
       removeUser() {
-        this.user = {} as IAccount;
+        this.user = {} as Account;
       },
       // 请求用户
       async asyncUser() {
@@ -21,7 +22,7 @@ const useAccountStore = defineStore(
         this.setUser(res.data);
       },
       //   b保存用户
-      setUser(user: IAccount) {
+      setUser(user: Account) {
         this.user = user;
       },
     },

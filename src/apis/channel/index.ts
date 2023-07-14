@@ -1,17 +1,5 @@
 import instance from '@/apis/index';
 
-import { IjoinState } from '@/router/type';
-
-// @ts-ignore
-const joinChannelAPi = async (form: IjoinState) => instance.post(
-  {
-    url: 'record/',
-    data: {
-      ...form,
-    },
-
-  },
-);
 /**
  * 获取聊天记录
  * @param page 页
@@ -39,5 +27,5 @@ const getOnlineAPI = async () =>
   );
 export {
   // eslint-disable-next-line import/prefer-default-export
-  joinChannelAPi, getRecordAPi, getOnlineAPI,
+  getRecordAPi, getOnlineAPI,
 };
