@@ -12,8 +12,6 @@ dist
 dist-ssr
 *.local
 test*
-*.vue
-*.html
 
 # Editor directories and files
 .vscode/*

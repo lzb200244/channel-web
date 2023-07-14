@@ -1,0 +1,277 @@
+<template>
+  <a-card size="small">
+    <div class="chatroom-container">
+      <div
+        ref="boxRef"
+        class="chatroom-messages"
+        @scroll="LoadMoreRecord"
+      >
+        <div
+          v-if="pageConf.isLoading && !pageConf.stop"
+          style="text-align: center;color: #4ba8ff"
+        >
+          <a-spin
+
+            tip="Loading..."
+            size="small"
+          />
+        </div>
+
+        <div
+          v-for="item in messageList"
+          :key="item.message.time"
+        >
+          <a-row
+            style="margin-bottom: 50px"
+            :justify="item.user?.userID===user.userID?'end':'start'"
+          >
+            <channel-card
+              :message-item="item"
+              :is-send="item.user?.userID===user.userID"
+              @opt="handleOpt"
+            />
+          </a-row>
+        </div>
+      </div>
+
+      <div class="chatroom-input">
+        <a-mentions
+          v-model:value="msg.message.content"
+
+          :rows="2"
+
+          placeholder="输入消息..."
+        >
+          <a-mentions-option
+            v-for="member in onlineList"
+            :key="member.message.userID"
+            :value="member.message.name"
+          >
+            {{ member.message.name }}
+          </a-mentions-option>
+        </a-mentions>
+
+        <a-button
+          type="primary"
+          :disabled="!user.userID"
+          style="margin-left: 20px;"
+          @click="sendMessage"
+        >
+          发送
+        </a-button>
+      </div>
+    </div>
+  </a-card>
+</template>
+
+<script setup lang="ts">
+import {
+  computed, nextTick, onMounted, onUnmounted, reactive, ref,
+} from 'vue';
+import { useRoute } from 'vue-router';
+import { message } from 'ant-design-vue';
+import { PushMessage } from '@src/core/channel/type';
+import { MessageItemType, MessageType } from '@src/types/channel';
+
+import { MessageContentEnum, MessageTypeEnum } from '@/types/channel/enum';
+import ChannelCard from '@/components/channel/channelCard.vue';
+import useChannelStore from '@/store/channel';
+import useAccountStore from '@/store/account';
+import isTimeElapsed from '@/utils/elapsed';
+import { getRecordAPi } from '@/apis/channel';
+
+// 消息内容
+const route = useRoute();
+const socket = new WebSocket(`ws://127.0.0.1:8000/room/${route.params.room ?? 0}/`);
+const accountStore = useAccountStore();
+const channelStore = useChannelStore();
+channelStore.asyncRecord();
+const boxRef = ref();
+// 当前页数
+const pageConf = reactive({
+  isLoading: false,
+  currentPage: 1,
+  stop: false,
+});
+const onlineList = computed(() => channelStore.onlineList);
+const user = computed(() => accountStore.user);
+/**
+ * 滑动到底部
+ */
+const scrollToBottom = () => {
+  boxRef.value.scrollTop = boxRef.value.scrollHeight;
+};
+const msg = reactive<MessageType>({
+  type: MessageTypeEnum.MESSAGE_PUSH,
+  message: {
+    content: '',
+    time: Date.now(),
+    type: MessageContentEnum.MSG,
+    messageStatus: {
+      dislikeCount: 0,
+      likeCount: 0,
+      userIsLike: false,
+      isDrop: false,
+    },
+    msgID: 0,
+  },
+  user: {
+    userID: user.value.userID,
+  },
+} as MessageType);
+
+/**
+ * 聊天记录，进行翻转
+ */
+const messageList = computed(() => channelStore.messageList.slice().reverse());
+const handleMentions = (str: string): string => str.replace(/@([^ ]+)/g, '<span class="mention">@$1</span>');
+/**
+ * 发送消息
+ */
+const sendMessage = () => {
+  // 匿名用户
+  if (!user.value.userID || !msg.message.content) return;
+  //   消息类型
+  msg.message.type = MessageContentEnum.MSG;
+  msg.type = MessageTypeEnum.MESSAGE_PUSH;
+  msg.user = user.value;
+  msg.message.content = handleMentions(msg.message.content);
+
+  let parse = JSON.stringify(msg);
+  socket.send(parse);
+  msg.message.content = '';
+  setTimeout(() => {
+    // 延迟一段时间再滚动到底部
+    scrollToBottom();
+  }, 100); // 可根据实际情况调整延迟时间
+};
+socket.onmessage = (event) => {
+  let message: MessageType | PushMessage = JSON.parse(event.data);
+  switch (message.type) {
+    //   消息推送
+    case MessageTypeEnum.MESSAGE_PUSH: {
+      channelStore.pushRecordMessage(message as MessageType);
+      break;
+    }
+    case MessageTypeEnum.ONLINE_PUSH: {
+      channelStore.pushOnline(message as PushMessage);
+      break;
+    }
+    case MessageTypeEnum.LEVEL_PUSH: {
+      channelStore.popOnline(message as PushMessage);
+      break;
+    }
+    case MessageTypeEnum.DROP_PUSH: {
+      channelStore.deleteRecord((message as MessageType).message.msgID);
+      break;
+    }
+  }
+  // 放入store
+};
+/**
+ * 加载更多数据
+ * @constructor
+ */
+const LoadMoreRecord = async () => {
+  const { scrollTop } = boxRef.value;
+  if (scrollTop === 0 && !pageConf.isLoading) {
+    pageConf.isLoading = true;
+    getRecordAPi(++pageConf.currentPage, 0).then((res: any) => {
+      setTimeout(() => {
+        channelStore.asyncPushMoreRecord(res.data.results);
+        pageConf.isLoading = false;
+      }, 500);
+      // boxRef.value.scrollTop = 20;
+    }).catch(() => {
+      message.info('已经到达最顶了');
+      pageConf.isLoading = true;
+      pageConf.stop = true;
+    });
+  }
+};
+
+onMounted(async () => {
+  //   每次加载页面到底部
+  await nextTick(() => {
+    setTimeout(scrollToBottom, 200);
+  });
+  boxRef.value.addEventListener('scroll', LoadMoreRecord);
+});
+onUnmounted(() => {
+  boxRef.value.removeEventListener('scroll', LoadMoreRecord);
+});
+
+const handleOpt = (obj: MessageItemType, tp: number) => {
+  switch (tp) {
+    case MessageTypeEnum.DROP_PUSH: {
+      if (isTimeElapsed(obj.time, 2)) {
+        message.warn('暂时不支持超过两分钟的撤回');
+        return;
+      }
+
+      // 删除本地撤回的
+      if (obj.msgID != null) {
+        channelStore.deleteRecord(obj.msgID);
+      }
+
+      // 通知其它chat，撤回
+      const itm: MessageType = {
+        type: MessageTypeEnum.DROP_PUSH,
+        message: obj,
+        user: user.value,
+      };
+      if (itm.message.messageStatus) {
+        itm.message.messageStatus.isDrop = true;
+      }
+      socket.send(JSON.stringify(itm));
+      break;
+    }
+  }
+};
+</script>
+
+<style scoped>
+
+.chatroom-container {
+    scroll-behavior: smooth;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+//background-color: #f2f2f2;
+
+    .chatroom-messages {
+
+        height: 650px;
+        width: 100%;
+        overflow-y: auto;
+        padding: 10px;
+        border-radius: 6px;
+    //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .chatroom-input {
+
+        display: flex;
+        width: 100%;
+        margin-top: 20px;
+
+        .chat-textarea {
+            resize: none; /* 禁止用户手动调整大小 */
+            overflow: hidden; /* 隐藏溢出的内容 */
+            min-height: 50px; /* 设置textarea的最小高度 */
+            height: auto;
+            padding: 0;
+
+        }
+
+        input {
+            flex-grow: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    }
+}
+
+</style>
