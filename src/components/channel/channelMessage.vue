@@ -19,8 +19,8 @@
 
         <DynamicScroller
           :items="messageList"
-          :min-item-size="62"
-          style="height: 620px"
+          :min-item-size="65"
+          style="height: 650px"
           class="virtual-list"
         >
           <template #default="{ item, index, active }">
@@ -65,127 +65,41 @@
         </a-tag>
       </div>
 
-      <div class="chatroom-input">
-        <a-mentions
-          ref="toFocus"
-          v-model:value="msg.message.content"
-          :rows="2"
-          placeholder="输入消息..."
-        >
-          <a-mentions-option
-            v-for="member in onlineList"
-            :key="member.message.userID"
-            :value="member.message.name"
-          >
-            {{ member.message.name }}
-          </a-mentions-option>
-        </a-mentions>
-
-        <a-button
-          type="primary"
-          :disabled="!user.userID"
-          style="margin-left: 20px;"
-          @click="sendMessage"
-        >
-          发送
-        </a-button>
-      </div>
+      <channel-input
+        ref="channelFocus"
+        v-model:value="msg.message.content"
+        :mention-list="onlineList"
+        @send-message="sendMessage"
+      />
     </div>
   </a-card>
 </template>
 
 <script setup lang="ts">
-import {
-  computed, nextTick, onMounted, onUnmounted, reactive, ref,
-} from 'vue';
-import { useRoute } from 'vue-router';
-import { message } from 'ant-design-vue';
+
 import { MessageType, PushMessage } from '@src/types/channel';
-import dayjs from 'dayjs';
-import { MessageContentEnum, MessageTypeEnum } from '@/types/channel/enum';
+import useChannelMessage from '@/core/channel/channel-message';
+import { MessageTypeEnum } from '@/types/channel/enum';
 import ChannelCard from '@/components/channel/channelCard.vue';
+import ChannelInput from '@/components/channel/channelInput.vue';
 import useChannelStore from '@/store/channel';
-import useAccountStore from '@/store/account';
-import isTimeElapsed from '@/utils/elapsed';
-import { getRecordAPi } from '@/apis/channel';
 
-let virtual: HTMLElement;
-
-// 消息内容
-const route = useRoute();
-const socket = new WebSocket(`ws://127.0.0.1:8000/room/${route.params.room ?? 0}/`);
-const accountStore = useAccountStore();
 const channelStore = useChannelStore();
-// 请求聊天记录
-channelStore.asyncRecord();
-// 当前页数
-const pageConf = reactive({
-  isLoading: false,
-  currentPage: 1,
-  stop: false,
-});
-const toFocus = ref();
-const onlineList = computed(() => channelStore.onlineList);
-const user = computed(() => accountStore.user);
-/**
- * 滑动到底部
- */
-const scrollToBottom = () => {
-  virtual.scrollTop = virtual.scrollHeight;
-};
-const msg = reactive<MessageType>({
-  type: MessageTypeEnum.MESSAGE_PUSH,
-  message: {
-    content: '',
-    time: Date.now(),
-    type: MessageContentEnum.MSG,
-    messageStatus: {
-      dislikeCount: 0,
-      likeCount: 0,
-      userIsLike: false,
-      isDrop: false,
-    },
-    msgID: 0,
-  },
-  user: {
-    userID: user.value.userID,
-  },
-} as MessageType);
+const {
+  pageConf,
+  user,
+  msg,
+  socket,
+  channelFocus,
+  onlineList,
+  messageList,
+  LoadMoreRecord,
+  handleOpt,
+  cancelReplay,
+  sendMessage,
+} = useChannelMessage();
 
-/**
- * 聊天记录，进行翻转
- */
-const messageList = computed(() => {
-  let c = [];
-  channelStore.messageList.forEach((item, idx) => {
-    let message = { ...item }; // 创建一个副本以避免直接修改原始对象
-    message.id = idx + 1; // 为每个对象生成ID，索引值加1
-    c.push(message);
-  });
-  return c.reverse();
-});
-const handleMentions = (str: string): string => str.replace(/@([^ ]+)/g, '<span class="mention">@$1</span>');
-/**
- * 发送消息
- */
-const sendMessage = () => {
-  // 匿名用户
-  if (!user.value.userID || !msg.message.content) return;
-  //   消息类型
-  msg.message.type = MessageContentEnum.MSG;
-  msg.type = MessageTypeEnum.MESSAGE_PUSH;
-  msg.user = user.value;
-  msg.message.content = handleMentions(msg.message.content);
-
-  let parse = JSON.stringify(msg);
-  socket.send(parse);
-  msg.message.content = '';
-  setTimeout(() => {
-    // 延迟一段时间再滚动到底部
-    scrollToBottom();
-  }, 100); // 可根据实际情况调整延迟时间
-};
-socket.onmessage = (event) => {
+socket.onmessage = (event:any) => {
   let message: MessageType | PushMessage = JSON.parse(event.data);
   switch (message.type) {
     //   消息推送
@@ -209,94 +123,7 @@ socket.onmessage = (event) => {
   }
   // 放入store
 };
-/**
- * 加载更多数据
- * @constructor
- */
-const LoadMoreRecord = async () => {
-  const { scrollTop } = virtual;
-  if (scrollTop === 0 && !pageConf.isLoading) {
-    pageConf.isLoading = true;
-    getRecordAPi(++pageConf.currentPage, 0).then((res: any) => {
-      setTimeout(() => {
-        channelStore.asyncPushMoreRecord(res.data.results);
-        pageConf.isLoading = false;
-      }, 500);
-      // virtual.scrollTop = 20;
-    }).catch(() => {
-      message.info('已经到达最顶了');
-      pageConf.isLoading = true;
-      pageConf.stop = true;
-    });
-  }
-};
 
-onMounted(async () => {
-  //   每次加载页面到底部
-  await nextTick(() => {
-    setTimeout(scrollToBottom, 200);
-  });
-  virtual = document.querySelector('.virtual-list') as HTMLElement;
-  virtual.addEventListener('scroll', LoadMoreRecord);
-});
-onUnmounted(() => {
-  virtual.removeEventListener('scroll', LoadMoreRecord);
-});
-
-const handleOpt = (obj: MessageType, tp: number) => {
-  switch (tp) {
-    case MessageTypeEnum.DROP_PUSH: {
-      if (isTimeElapsed(obj.message.time, 2)) {
-        message.warn('暂时不支持超过两分钟的撤回');
-        return;
-      }
-      // 删除本地撤回的
-
-      // channelStore.deleteRecord(obj.message.msgID);
-      obj.message.content = ` ${dayjs(`${new Date()} `).format('HH:mm')} ${user.value.username} 撤回了一条消息`;
-      // 表记为已经撤销
-      if (obj.message.messageStatus) {
-        obj.message.messageStatus.isDrop = true;
-      }
-      // 通知其它chat，撤回
-      const itm: MessageType = {
-        type: MessageTypeEnum.DROP_PUSH,
-        message: obj.message,
-        user: user.value,
-      };
-      socket.send(JSON.stringify(itm));
-      break;
-    }
-    case MessageTypeEnum.THUMB_PUSH: {
-      if (obj.message.messageStatus) {
-        obj.message.messageStatus.userIsLike = !obj.message.messageStatus.userIsLike;
-        obj.message.messageStatus.likeCount++;
-      }
-      break;
-    }
-    // TODO 回复
-    case MessageTypeEnum.REPLAY_PUSH: {
-      // 1.构造回复体
-      msg.message.replay = {
-        userID: user.value.userID,
-        name: user.value.name,
-        content: obj.message.content,
-        msgID: obj.message.msgID,
-      };
-      msg.type = MessageTypeEnum.REPLAY_PUSH;
-      // 2. 聚焦
-      toFocus.value.focus();
-
-      break;
-    }
-  }
-};
-/**
- * 取消回复
- */
-const cancelReplay = () => {
-  msg.message.replay = undefined;
-};
 </script>
 
 <style scoped>

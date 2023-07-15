@@ -10,4 +10,5 @@ declare module '*.vue' {
 declare module '@/apis/*'
 declare module 'vue3-virtual-scroller'
 declare module '@/store/account'
+declare module 'vue3-emoji-picker'
 declare module '@/*'

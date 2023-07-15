@@ -11,7 +11,7 @@ const useChannelStore = defineStore(
       //   聊天消息列表
       messageList: [] as MessageType[],
       onlineList: [] as PushMessage[],
-      OnlineListSet: new Set(),
+
     }),
     actions: {
       /**
@@ -60,36 +60,43 @@ const useChannelStore = defineStore(
       },
       /**
        *  更新加入群聊的新人
-       * @param item
+       * @param msg
        */
-      pushOnline(item: PushMessage) {
-        if (!this.OnlineListSet.has(item.message.userID)) {
-          this.OnlineListSet.add(item.message.userID);
-          this.onlineList.push(item);
-        }
+      pushOnline(msg: PushMessage) {
+        this.onlineList.forEach((item, idx) => {
+          if (item.message.userID === msg.message.userID) {
+            item.message.isActive = true;
+          }
+        });
       },
       /**
        * 退出群聊通知
        * @param msg
        */
       popOnline(msg: PushMessage) {
-        this.onlineList = this.onlineList.filter((
-          item,
-        ) => item.message.userID !== msg.message.userID);
-        // 退出集合
-        this.OnlineListSet.delete(msg.message.userID);
+        this.onlineList.forEach((item, idx) => {
+          if (item.message.userID === msg.message.userID) {
+            item.message.isActive = false;
+          }
+        });
+      },
+      /**
+       * 实时更新在线状态
+       * @param msg
+       */
+      updateOnlineStatus(msg: PushMessage) {
+        this.onlineList.forEach((item, idx) => {
+          if (item.message.userID === msg.message.userID) {
+            item.message.isActive = false;
+          }
+        });
       },
       /**
        * 获取当前在线人数
        */
       async getOnline() {
         const { data } = await getOnlineAPI();
-        data.forEach((item:PushMessage, idx:number) => {
-          if (!this.OnlineListSet.has(item.message.userID)) {
-            this.OnlineListSet.add(item.message.userID);
-            this.onlineList.push(item);
-          }
-        });
+        this.onlineList = data;
       },
       /**
        * 获取历史记录

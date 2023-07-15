@@ -1,10 +1,9 @@
 <template>
   <a-card
     size="small"
-    title="在线人数"
+    :title="`在线人数 ${onlineList.length}人`"
   >
     <a-list
-
       class="chat-status-list"
       :loading="onlineList.length===0"
 
@@ -27,8 +26,9 @@
                 #avatar
               >
                 <a-avatar
-
                   :src="item.message.avatar"
+                  :size="35"
+                  :class="item.message.isActive?'avatar-online':'avatar-status'"
                 />
               </template>
             </a-list-item-meta>
@@ -43,9 +43,7 @@ import { computed } from 'vue';
 import useChannelStore from '@/store/channel';
 
 const channelStore = useChannelStore();
-
 const onlineList = computed(() => channelStore.onlineList);
-
 const onLoadMore = () => {
   console.log(1);
 };
@@ -59,32 +57,39 @@ channelStore.getOnline();
     overflow-y: auto;
 
     .chat-status-item {
+        padding: 8px;
     //box-shadow: 0 2px 4px rgba(147, 127, 127, 0.1); border-bottom: 1px solid #efefef;
+    }
+
+    .avatar-online {
+        position: relative;
+        display: inline-block;
+        &::after {
+            content: "";
+            position: absolute;
+            bottom: 3px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            background-color: #b8ff79;
+            border-radius: 50%;
+        }
+
+    }
+    .avatar-status {
+        position: relative;
+        display: inline-block;
+        &::after {
+            content: "";
+            position: absolute;
+            bottom: 3px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            background-color: #bbbbbb;
+            border-radius: 50%;
+        }
     }
 }
 
-/* 设置滚动条的宽度和高度 */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-/* 设置滚动条的背景颜色 */
-::-webkit-scrollbar-track {
-    background-color: #f1f1f1;
-}
-
-/* 设置滚动条thumb（滚动条上可拖动的部分）的背景颜色 */
-::-webkit-scrollbar-thumb {
-    background-color: #d0d0d0;
-    border-radius: 5px;
-    min-height: 50px;
-
-}
-
-/* 鼠标悬停在滚动条上时的样式 */
-::-webkit-scrollbar-thumb:hover {
-    background-color: #c7c7c7;
-    border-radius: 5px;
-}
 </style>

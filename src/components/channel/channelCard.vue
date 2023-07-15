@@ -2,6 +2,7 @@
   <a-row
     v-if="Object.keys(messageItem).length!==0"
     :id="'record:'+messageItem.message.msgID"
+    style="margin-bottom: 30px"
   >
     <a-col v-if="!isSend">
       <a-avatar
@@ -10,7 +11,6 @@
       />
     </a-col>
     <div
-
       style="position: relative;"
       @mouseover="isHovered=true"
       @mouseleave="isHovered=false"
@@ -37,7 +37,6 @@
           :content="messageItem.message.replay.content "
         />
       </a-anchor-link>
-
       <a-typography-paragraph
 
         :class="['message-card', 'chat-bubble',isSend?'message-card-right': 'message-card-left']"
@@ -47,9 +46,7 @@
       />
 
       <a-row
-
         v-if="isHovered"
-
         class="opt-box"
       >
         <!-- 使用 Tooltip 组件包裹需要悬浮显示的内容 -->
@@ -81,7 +78,7 @@
         v-if="isSend"
         size="small"
         type="link"
-        style="color: #999999;font-size: 8px;float: right"
+        style="color: #999999;font-size: 8px;float: right;height: 20px"
         @click="Opt(messageItem,MessageTypeEnum.DROP_PUSH)"
       >
         撤回
@@ -245,6 +242,7 @@ const findRecordLight = (id: number) => {
 }
 
 .message-avatar {
+
   margin: 10px;
 
   &.avatar-left {

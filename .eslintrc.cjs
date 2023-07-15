@@ -40,6 +40,7 @@ module.exports = {
     'consistent-return': 'off',
     'default-case': 'off',
     'implicit-arrow-linebreak': 'off',
+    'function-paren-newline': 'off',
 
 
   }
