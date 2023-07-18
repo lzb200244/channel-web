@@ -14,6 +14,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/chat',
     redirect: '/',
+
   },
 ];
 

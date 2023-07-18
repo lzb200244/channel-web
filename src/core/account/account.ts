@@ -9,8 +9,8 @@
 import { message } from 'ant-design-vue';
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { AccountFormReadonly } from '@src/types/account';
-import { register, login } from '@/apis/account/index';
+import { AccountFormReadonly } from '@/types/account';
+import { register, login } from '@/apis/account/';
 import { setToken } from '@/utils/cookies';
 
 import useAccountStore from '@/store/account';

@@ -4,6 +4,7 @@
     :id="'record:'+messageItem.message.msgID"
     style="margin-bottom: 30px"
   >
+    <!--      本人-->
     <a-col v-if="!isSend">
       <a-avatar
         :src="messageItem.user.avatar"
@@ -20,56 +21,88 @@
         :class="['chat-info', isSend?'chat-info-right':'chat-info-left' ]"
       >
         <span class="chat-time">{{ formatTime(messageItem.message.time) }}</span>
-        <span class="chat-name">{{ messageItem.user.name || messageItem.user.username }}</span>
+        <span class="chat-name">{{ messageItem.user.username }}</span>
       </a-typography-text>
-
+      <!--    存在回复对象-->
       <a-anchor-link
         v-if="messageItem.message.replay"
         :class="['replay-card', ]"
         :href="'#record:'+messageItem.message.replay?.msgID"
-        :title="'@'+ messageItem.message.replay.name"
+        :title="'@'+ messageItem.message.replay.username"
         @click="findRecordLight(messageItem.message.replay?.msgID)"
       >
+        <template v-if="messageItem.message.replay.type===MessageTypeEnum.TEXT">
+          <a-typography-paragraph
+            :ellipsis="ellipsis"
+            :copyable="true"
+            :content="messageItem.message.replay.content "
+          />
+        </template>
+        <!--    回复图片-->
+        <template v-else-if="messageItem.message.replay.type===MessageTypeEnum.IMAGE">
+          <a-image
+            :width="100"
+            :src="messageItem.message.replay.fileInfo.filePath"
+            :alt="messageItem.message.replay.fileInfo.fileName"
+          />
+        </template>
+      </a-anchor-link>
+
+      <!-- TODO   消息体-->
+
+      <template v-if="messageItem.message.type===MessageTypeEnum.TEXT">
         <a-typography-paragraph
+          :class="['message-card', 'chat-bubble',isSend?'message-card-right': 'message-card-left']"
           :ellipsis="ellipsis"
           :copyable="true"
-
-          :content="messageItem.message.replay.content "
+        >
+          {{ messageItem.message.content }}
+        </a-typography-paragraph>
+      </template>
+      <!--          文件类型-->
+      <template v-else-if="messageItem.message.type===MessageTypeEnum.IMAGE">
+        <a-image
+          :width="200"
+          :src="messageItem.message.fileInfo.filePath"
+          :alt="messageItem.message.fileInfo?.fileName"
         />
-      </a-anchor-link>
-      <a-typography-paragraph
-
-        :class="['message-card', 'chat-bubble',isSend?'message-card-right': 'message-card-left']"
-        :ellipsis="ellipsis"
-        :copyable="true"
-        :content="messageItem.message.content"
-      />
+      </template>
+      <!--        回复-->
+      <template v-else-if="messageItem.message.type===5">
+        <a-typography-paragraph
+          :class="['message-card', 'chat-bubble',isSend?'message-card-right': 'message-card-left']"
+          :ellipsis="ellipsis"
+          :copyable="true"
+        >
+          {{ messageItem.message.content }}
+        </a-typography-paragraph>
+      </template>
 
       <a-row
         v-if="isHovered"
         class="opt-box"
       >
         <!-- 使用 Tooltip 组件包裹需要悬浮显示的内容 -->
-        <span
-          class="opt"
-          @click="Opt(messageItem,MessageTypeEnum.THUMB_PUSH)"
-        >
-          <a-tooltip
-            placement="topLeft"
-            title="赞"
-          >
-            <like-filled v-show="messageItem.message.messageStatus?.userIsLike" />
-            <like-outlined
-              v-show="!messageItem.message.messageStatus?.userIsLike"
-            />
-          </a-tooltip>
-        </span>
+        <!--        <span-->
+        <!--          class="opt"-->
+        <!--          @click="Opt(messageItem,PushTypeEnum.THUMB_PUSH)"-->
+        <!--        >-->
+        <!--          <a-tooltip-->
+        <!--            placement="topLeft"-->
+        <!--            title="赞"-->
+        <!--          >-->
+        <!--            <like-filled v-show="messageItem.message.messageStatus?.userIsLike" />-->
+        <!--            <like-outlined-->
+        <!--              v-show="!messageItem.message.messageStatus?.userIsLike"-->
+        <!--            />-->
+        <!--          </a-tooltip>-->
+        <!--        </span>-->
         <span class="opt">
           <a-tooltip
             placement="topLeft"
             title="回复"
           >
-            <message-outlined @click="Opt(messageItem,MessageTypeEnum.REPLAY_PUSH)" />
+            <message-outlined @click="Opt(messageItem,PushTypeEnum.REPLAY_PUSH)" />
           </a-tooltip>
         </span>
       </a-row>
@@ -79,7 +112,7 @@
         size="small"
         type="link"
         style="color: #999999;font-size: 8px;float: right;height: 20px"
-        @click="Opt(messageItem,MessageTypeEnum.DROP_PUSH)"
+        @click="Opt(messageItem,PushTypeEnum.RECALL_PUSH)"
       >
         撤回
       </a-button>
@@ -93,19 +126,19 @@
     </a-col>
   </a-row>
 </template>
-<script lang="ts" setup>
+<script  setup lang="ts">
 import dayjs from 'dayjs';
 import { defineProps, ref, withDefaults } from 'vue';
 import {
-  LikeOutlined, MessageOutlined, LikeFilled,
+  MessageOutlined,
 } from '@ant-design/icons-vue';
-import { MessageType } from '@src/types/channel';
-import { MessageTypeEnum } from '@/types/channel/enum';
+import { BaseRecord } from '@/types/channel';
+import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 
 const isHovered = ref(false);
 withDefaults(defineProps<{
     isSend: boolean, // 是否是回复
-    messageItem: MessageType // 消息体
+    messageItem: BaseRecord // 消息体
 }>(), {
   isSend: true,
 });
@@ -134,7 +167,7 @@ const formatTime = (timestamp: number) => (timestamp + oneDayTimestamp < Date.no
  * @param message 消息id
  * @param tp 操作类型
  */
-const Opt = (message: MessageType, tp: number) => {
+const Opt = (message: BaseRecord, tp: number) => {
   //   判断是否过了两分钟
   //   发给父组件
 
@@ -145,9 +178,8 @@ const Opt = (message: MessageType, tp: number) => {
  *
  */
 const findRecordLight = (id: number) => {
-  console.log(id);
   let domID = `record:${id}`;
-  let dom = document.getElementById(domID);
+  // let dom = document.getElementById(domID);
   // console.log(dom);
   // dom.style.background = 'red';
 };

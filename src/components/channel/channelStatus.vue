@@ -5,30 +5,30 @@
   >
     <a-list
       class="chat-status-list"
-      :loading="onlineList.length===0"
+      :loading="memberList.length===0"
 
       item-layout="horizontal"
-      :data-source="onlineList"
+      :data-source="memberList"
     >
       <template #renderItem="{ item }">
         <a-list-item class="chat-status-item">
           <a-skeleton
             avatar
             :title="false"
-            :loading="!item.message"
+            :loading="!item.user"
             active
           >
             <a-list-item-meta>
               <template #title>
-                <a href="#">{{ item.message.name }}</a>
+                <a href="#">{{ item.user.username }}</a>
               </template>
               <template
                 #avatar
               >
                 <a-avatar
-                  :src="item.message.avatar"
+                  :src="item.user.avatar"
                   :size="35"
-                  :class="item.message.isActive?'avatar-online':'avatar-status'"
+                  :class="item.user.isActive?'avatar-online':'avatar-status'"
                 />
               </template>
             </a-list-item-meta>
@@ -40,10 +40,16 @@
 </template>
 <script lang="ts" setup>
 import { computed } from 'vue';
+
+import { PushType } from '@/types/t/push';
 import useChannelStore from '@/store/channel';
 
 const channelStore = useChannelStore();
-const onlineList = computed(() => channelStore.onlineList);
+// 群成员
+const memberList = computed<PushType[]>(() => channelStore.onlineList);
+// 在线成员
+const onlineList = computed<PushType[]>(() => channelStore.onlineList.filter((item:PushType) =>
+  item.user.isActive));
 const onLoadMore = () => {
   console.log(1);
 };
@@ -64,6 +70,7 @@ channelStore.getOnline();
     .avatar-online {
         position: relative;
         display: inline-block;
+
         &::after {
             content: "";
             position: absolute;
@@ -76,9 +83,11 @@ channelStore.getOnline();
         }
 
     }
+
     .avatar-status {
         position: relative;
         display: inline-block;
+
         &::after {
             content: "";
             position: absolute;

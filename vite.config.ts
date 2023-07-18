@@ -5,6 +5,7 @@ import vue from '@vitejs/plugin-vue';
 import {
   AntDesignVueResolver,
 } from 'unplugin-vue-components/resolvers';
+import { resolve } from 'path';
 
 export default defineConfig({
 
@@ -20,7 +21,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': '/src', // 设置@为/src的别名
+      '@': resolve(__dirname, './src'),
+
       components: '/src/components', // 设置components为/src/components的别名
       views: '/src/views', // 设置components为/src/components的别名
     },

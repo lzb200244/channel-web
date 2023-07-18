@@ -1,39 +1,62 @@
-import { Account } from '@src/types/account';
-import { MessageContentEnum, MessageTypeEnum } from '@src/types/channel/enum';
+import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 
-export interface MessageStatus {
-    dislikeCount: number;
-    likeCount: number;
-    userIsLike: boolean;
-    isDrop: boolean
+export interface FileInfo {
+    fileName: string;
+    fileSize: number;
+    filePath: string;
 }
 
-export interface Replay extends Pick<Account, 'name' | 'userID'> {
-    msgID: number;
-    content: string;
+interface MessageStatus {
+    drop: string;
+    likes: number;
+    isDrop: boolean;
 }
-
-export interface MessageItemType {
-    content: string;
-    msgID: number;
-    messageStatus?: MessageStatus;
-    time: number;
-    type: MessageContentEnum;
-    // 回复
-
-    replay?: Replay
-}
-
-export interface MessageType {
-    id?:number
-    user: Account;
-    message: MessageItemType;
+interface BaseMessage {
     type: MessageTypeEnum;
+    time: number;
+    msgID: number;
+    messageStatus: MessageStatus;
+    roomID: number;
 }
 
-export type PushMessageItem = Pick<Account, | 'name' | 'userID' | 'avatar'>;
+export interface TextMessage extends BaseMessage {
+    content: string;
+}
 
-export interface PushMessage {
-    type: MessageTypeEnum
-    message: PushMessageItem
+export interface ImageMessage extends BaseMessage {
+    fileInfo: FileInfo;
+}
+
+export type Message = TextMessage | ImageMessage;
+
+export interface ReplayMessage {
+    type: MessageTypeEnum;
+    time: number;
+    msgID: number;
+    roomID: number;
+    replay: Message|null;
+    username:string,
+    messageStatus: MessageStatus;
+}
+
+export interface BaseUserItem {
+    username: string;
+    avatar: string;
+    userID: number;
+    isActive: boolean;
+}
+export type BaseRecord = {
+    type: PushTypeEnum;
+    message: ReplayMessage | TextMessage | ImageMessage
+    user: BaseUserItem;
+};
+
+export interface UserMessage {
+    type: PushTypeEnum;
+    user: BaseUserItem;
+}
+export interface RecordItemType{
+    type: PushTypeEnum;
+    message:BaseMessage
+
 }

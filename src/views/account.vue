@@ -163,6 +163,7 @@
 <script lang='ts' setup>
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 import useAccount from '@/core/account/account';
+
 import Rules from '@/utils/rules/account';
 
 const {

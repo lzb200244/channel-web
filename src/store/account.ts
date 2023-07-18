@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 
-import { Account } from '@src/types/account';
+import { Account } from '@/types/account';
 import { account } from '@/apis/account';
 
 const useAccountStore = defineStore(
@@ -10,6 +10,14 @@ const useAccountStore = defineStore(
       user: {} as Account,
       isAdmin: true,
     }),
+    getters: {
+      channelUser: (state) => ({
+        userID: state.user.userID,
+        username: state.user.username,
+        avatar: state.user.avatar,
+        isActive: false,
+      }),
+    },
     actions: {
       // 删除用户
       removeUser() {

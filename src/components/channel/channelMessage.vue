@@ -35,10 +35,13 @@
                 :justify="item.user?.userID===user.userID?'end':'start'"
               >
                 <template
-                  v-if="item.message.messageStatus?.isDrop"
+                  v-if="item.message.messageStatus.isDrop"
                 >
-                  <div class="drop-record">
-                    {{ item.message.content }}
+                  <!--v-if="item.message.type===MessageTypeEnum.TEXT"-->
+                  <div
+                    class="drop-record"
+                  >
+                    {{ item.message.messageStatus.drop }}
                   </div>
                 </template>
                 <template v-else>
@@ -53,7 +56,6 @@
           </template>
         </DynamicScroller>
       </div>
-
       <div>
         <a-tag
           v-if="msg.message.replay"
@@ -61,15 +63,17 @@
           color="processing"
           @close="cancelReplay"
         >
-          @ {{ msg.message.replay?.name }}
+          @ {{ msg.message.replay?.username }}
         </a-tag>
       </div>
 
       <channel-input
         ref="channelFocus"
         v-model:value="msg.message.content"
+        :is-login="user.isActive"
         :mention-list="onlineList"
         @send-message="sendMessage"
+        @send-file-message="sendFileMessage"
       />
     </div>
   </a-card>
@@ -77,12 +81,12 @@
 
 <script setup lang="ts">
 
-import { MessageType, PushMessage } from '@src/types/channel';
-import useChannelMessage from '@/core/channel/channel-message';
-import { MessageTypeEnum } from '@/types/channel/enum';
+import useChannelMessage from '@/core/channel';
+import { PushTypeEnum } from '@/types/channel/enum';
 import ChannelCard from '@/components/channel/channelCard.vue';
 import ChannelInput from '@/components/channel/channelInput.vue';
 import useChannelStore from '@/store/channel';
+import { BaseRecord } from '@/types/channel';
 
 const channelStore = useChannelStore();
 const {
@@ -97,32 +101,39 @@ const {
   handleOpt,
   cancelReplay,
   sendMessage,
+  sendFileMessage,
 } = useChannelMessage();
 
-socket.onmessage = (event:any) => {
-  let message: MessageType | PushMessage = JSON.parse(event.data);
+socket.onMessage((data:BaseRecord) => {
+  let message:BaseRecord = data;
   switch (message.type) {
+    //  上线推送
+    case PushTypeEnum.ONLINE_PUSH: {
+      channelStore.pushOnline(message);
+      break;
+    }
+    // 下线
+    case PushTypeEnum.LEVEL_PUSH: {
+      channelStore.popOnline(message);
+      break;
+    }
     //   消息推送
-    case MessageTypeEnum.MESSAGE_PUSH: {
-      channelStore.pushRecordMessage(message as MessageType);
+    case PushTypeEnum.MESSAGE_PUSH: {
+      channelStore.pushRecordMessage(message);
       break;
     }
-    case MessageTypeEnum.ONLINE_PUSH: {
-      channelStore.pushOnline(message as PushMessage);
+    // 回复
+    case PushTypeEnum.REPLAY_PUSH: {
+      channelStore.pushRecordMessage(message);
       break;
     }
-    case MessageTypeEnum.LEVEL_PUSH: {
-      channelStore.popOnline(message as PushMessage);
-      break;
-    }
-    // 撤销操作
-    case MessageTypeEnum.DROP_PUSH: {
-      channelStore.deleteRecord(message as MessageType);
+    case PushTypeEnum.RECALL_PUSH: {
+      channelStore.deleteRecord(message);
       break;
     }
   }
   // 放入store
-};
+});
 
 </script>
 

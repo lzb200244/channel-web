@@ -15,12 +15,10 @@
     ],
     "skipLibCheck": true,
     "noEmit": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     //    添加别名
     "paths": {
-      "@src/*": [
-        "src/*"
-      ],
+      "@/*": ["src/*"],
       //      "@components/*": [
       //        "src/components/*"
       //      ],
