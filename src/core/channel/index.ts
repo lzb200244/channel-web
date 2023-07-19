@@ -5,7 +5,7 @@ import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { useRoute } from 'vue-router';
 import {
-  TextMessage, ImageMessage, ReplayMessage, FileInfo, BaseRecord, Message, BaseUserItem,
+  TextMessage, ImageMessage, ReplayMessage, FileInfo, BaseRecord, BaseUserItem,
 } from '@/types/channel';
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 import { getRecordAPi } from '@/apis/channel';
@@ -21,11 +21,11 @@ const useChannelMessage = () => {
   const channelStore = useChannelStore();
   const accountStore = useAccountStore();
   const route = useRoute();
-
+  const roomID = route.query.room ?? 0;
   // 请求聊天记录
   channelStore.asyncRecord();
   // 未携带room默认为0房(大厅
-  const socket = new WS(`ws://127.0.0.1:8000/room/${route.query.room ?? 0}/`);
+  const socket = new WS(`ws://127.0.0.1:8000/room/${roomID}/`);
   socket.connect();
   /**
      * 当前在线
@@ -63,7 +63,7 @@ const useChannelMessage = () => {
         isDrop: false,
       },
       msgID: 0,
-      roomID: 0,
+      roomID: roomID as number,
       fileInfo: undefined,
       replay: undefined,
     },
@@ -86,20 +86,25 @@ const useChannelMessage = () => {
      * @constructor
      */
   const LoadMoreRecord = async () => {
-    const { scrollTop } = virtual;
-    if (scrollTop === 0 && !pageConf.isLoading) {
-      pageConf.isLoading = true;
-      getRecordAPi(++pageConf.currentPage, 0).then((res: any) => {
-        setTimeout(() => {
-          channelStore.asyncPushMoreRecord(res.data.results);
-          pageConf.isLoading = false;
-        }, 500);
-        // virtual.scrollTop = 20;
-      }).catch(() => {
-        message.info('已经到达最顶了');
-        pageConf.isLoading = true;
+    const { scrollTop } = virtual; // 获取滚动条的位置，可能是 window.scrollY 或其他方式获取滚动位置的方法
+
+    // 检查是否满足加载更多的条件
+    if (!pageConf.stop && scrollTop === 0 && !pageConf.isLoading) {
+      pageConf.isLoading = true; // 设置加载状态为 true
+
+      const res = await getRecordAPi(++pageConf.currentPage, roomID as number);
+
+      setTimeout(() => {
+        channelStore.asyncPushMoreRecord(res.data.results);
+        pageConf.isLoading = false; // 加载完成后，将加载状态设置为 false
+      }, 500);
+      if (res.data.count < 10) {
+        message.info('喵的！not more more history');
+        // 没有更多记录
         pageConf.stop = true;
-      });
+        // 这里建议将 isLoading 设置为 true，表示不再继续加载
+        pageConf.isLoading = true;
+      }
     }
   };
   const handleOpt = (obj: BaseRecord, tp: number) => {
@@ -118,7 +123,7 @@ const useChannelMessage = () => {
             likes: obj.message.messageStatus.likes,
           },
           time: Date.now(),
-          roomID: 0,
+          roomID: roomID as number,
         },
       };
       socket.send(recallItem);
@@ -198,7 +203,7 @@ const useChannelMessage = () => {
         type: MessageTypeEnum.IMAGE,
         time: Date.now(),
         msgID: 0,
-        roomID: 0,
+        roomID,
         messageStatus: {
           likes: 0, isDrop: false, drop: '',
         },

@@ -6,11 +6,12 @@ import {
   AntDesignVueResolver,
 } from 'unplugin-vue-components/resolvers';
 import { resolve } from 'path';
+import WindiCSS from 'vite-plugin-windicss';
 
 export default defineConfig({
 
   plugins: [
-    vue(),
+    vue(), WindiCSS(),
     Components({
       dts: true, // 启用ts支持
       resolvers: [
@@ -23,8 +24,6 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, './src'),
 
-      components: '/src/components', // 设置components为/src/components的别名
-      views: '/src/views', // 设置components为/src/components的别名
     },
   },
   server: {

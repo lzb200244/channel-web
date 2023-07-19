@@ -1,4 +1,4 @@
-const useUpload = (cos:any) => {
+const useUpload = (cos:any, bucket:string = 'chat-1311013567') => {
   /**
      * 上传图片
      * @param file file对象
@@ -12,7 +12,7 @@ const useUpload = (cos:any) => {
 
     try {
       await cos.uploadFile(cos.uploadFile({
-        Bucket: 'chat-1311013567',
+        Bucket: bucket,
         Region: 'ap-nanjing',
         Key: fileName,
         Body: file, // 上传文件对象

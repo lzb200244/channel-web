@@ -1,4 +1,8 @@
 <template>
-  <router-view />
+  <div class="bg">
+    <router-view />
+  </div>
 </template>
-<script setup></script>
+<script setup>
+
+</script>

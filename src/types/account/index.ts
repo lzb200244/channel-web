@@ -8,11 +8,11 @@ export interface User {
 export interface Account {
     username: string,
     email: string,
-    name: string,
     desc: string,
     userID: number
     avatar: string,
     token?: string
+    isModify?:boolean
 }
 
 /**
@@ -24,5 +24,8 @@ export interface AccountFormAble {
     email: string, // 邮箱
     rePassword: string // 确认密码
 }
+export interface userInfo extends User{
 
+    isModify?:boolean
+}
 export type AccountFormReadonly = Readonly<AccountFormAble>;

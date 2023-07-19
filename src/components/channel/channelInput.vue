@@ -1,8 +1,7 @@
 <template>
-  <div class="message-container">
+  <div class="relative">
     <div
-      style="display: flex;margin-top: 40px;"
-      :class="{'disabled-input':!isLogin,}"
+      :class="{'blur-1':!isLogin,'flex':true,'mt-12':true}"
     >
       <a-mentions
         ref="toFocus"
@@ -20,9 +19,14 @@
           {{ member.user.username }}
         </a-mentions-option>
       </a-mentions>
+      <div
+        v-show="!isLogin"
+        class="overlay-text"
+      >
+        请登录再发言😀
+      </div>
       <el-row
-        style="display: flex;"
-        :class="{'disabled-element':!isLogin}"
+        :class="{'disabled-element':!isLogin,'flex':true,}"
       >
         <a-popover
           v-model:visible="show"
@@ -39,7 +43,10 @@
               @select="onSelectEmoji"
             />
           </template>
-          <a-button type="text">
+          <a-button
+            class="px-2"
+            type="text"
+          >
             😀
           </a-button>
         </a-popover>
@@ -48,28 +55,26 @@
           :before-upload="beforeUpload"
           name="file"
         >
-          <a-button type="text">
+          <a-button
+            type="text"
+            class="px-2"
+          >
             <file-image-outlined />
           </a-button>
         </a-upload>
-
-        <a-button type="text">
+        <a-button
+          type="text"
+        >
           <folder-add-outlined />
         </a-button>
         <a-button
           type="text"
-          :class="msg.length>0?'rotate-icon':''"
+          :class="{'rotate-icon': msg.length > 0, 'px-2': true}"
           @click="sendMessage"
         >
           <send-outlined />
         </a-button>
       </el-row>
-    </div>
-    <div
-      v-show="!isLogin"
-      class="overlay-text"
-    >
-      请登录再发言😀
     </div>
   </div>
 </template>
@@ -159,15 +164,9 @@ defineExpose({
         transform: rotate(-90deg);
     }
 }
-
 .rotate-icon {
     color: cornflowerblue;
     animation: rotateAnimation .4s forwards;
-}
-
-.disabled-input {
-
-    filter: blur(1px)
 }
 .disabled-element {
     pointer-events: none;
@@ -177,13 +176,10 @@ defineExpose({
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #7d7dff;
+    color: #48b0f1;
     cursor: pointer;
     font-size: 14px;
     z-index: 999;
 }
-.message-container {
-    position: relative;
 
-}
 </style>

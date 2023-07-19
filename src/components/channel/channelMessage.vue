@@ -2,7 +2,6 @@
   <a-card size="small">
     <div class="chatroom-container">
       <div
-
         class="chatroom-messages"
         @scroll="LoadMoreRecord"
       >
@@ -56,36 +55,37 @@
           </template>
         </DynamicScroller>
       </div>
-      <div>
+      <div style="position: relative">
         <a-tag
           v-if="msg.message.replay"
+          style="position: absolute;bottom: 55px"
           closable
           color="processing"
           @close="cancelReplay"
         >
           @ {{ msg.message.replay?.username }}
         </a-tag>
-      </div>
 
-      <channel-input
-        ref="channelFocus"
-        v-model:value="msg.message.content"
-        :is-login="user.isActive"
-        :mention-list="onlineList"
-        @send-message="sendMessage"
-        @send-file-message="sendFileMessage"
-      />
+        <channel-input
+          ref="channelFocus"
+          v-model:value="msg.message.content"
+          :is-login="user.isActive"
+          :mention-list="onlineList"
+          @send-message="sendMessage"
+          @send-file-message="sendFileMessage"
+        />
+      </div>
     </div>
   </a-card>
 </template>
 
 <script setup lang="ts">
-
+import useChannelStore from '@/store/channel';
 import useChannelMessage from '@/core/channel';
 import { PushTypeEnum } from '@/types/channel/enum';
 import ChannelCard from '@/components/channel/channelCard.vue';
 import ChannelInput from '@/components/channel/channelInput.vue';
-import useChannelStore from '@/store/channel';
+
 import { BaseRecord } from '@/types/channel';
 
 const channelStore = useChannelStore();

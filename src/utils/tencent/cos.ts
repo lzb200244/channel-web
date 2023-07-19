@@ -1,5 +1,8 @@
 import COS from 'cos-js-sdk-v5';
 
+function getFileExtension(filename:string) {
+  return filename.slice(filename.lastIndexOf('.') + 1);
+}
 const useCos = (back:string = 'http://127.0.0.1:8000/api/chat/file/') => {
   const cos = new COS({
     getAuthorization(options, callback) {
@@ -25,8 +28,33 @@ const useCos = (back:string = 'http://127.0.0.1:8000/api/chat/file/') => {
       xhr.send();
     },
   });
+
+  const updateFile = async (bucket:string, key:string, file :File, region:string = 'ap-nanjing') => {
+    // https://chat-1311013567.cos.ap-nanjing.myqcloud.com/
+    const fileName = `avatar-${key}.${getFileExtension(file.name)}`;
+    const PATH = `https://${bucket}.cos.${region}.myqcloud.com/${fileName}`;
+    // 这里省略初始化过程和上传参数
+    try {
+      await cos.uploadFile({
+        Bucket: bucket,
+        Region: region,
+        Key: fileName,
+        Body: file, // 上传文件对象
+        SliceSize: 1024 * 1024 * 5,
+
+      });
+    } catch (err) {
+      // console.log(err);
+    }
+    return {
+      filePath: PATH,
+      fileName,
+      fileSize: file.size,
+
+    };
+  };
   return {
-    cos,
+    cos, updateFile,
   };
 };
 export default useCos;

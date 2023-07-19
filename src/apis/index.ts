@@ -105,6 +105,13 @@ class Request<T> {
       });
     }
 
+    put<T>(config: RequestConfig): Promise<T> {
+      return this.request<T>({
+        ...config,
+        method: 'put',
+      });
+    }
+
     delete<T>(config: RequestConfig): Promise<T> {
       return this.request<T>({
         ...config,

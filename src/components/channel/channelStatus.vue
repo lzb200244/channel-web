@@ -59,18 +59,13 @@ channelStore.getOnline();
 
 .chat-status-list {
     height: 680px;
-
     overflow-y: auto;
-
     .chat-status-item {
         padding: 8px;
-    //box-shadow: 0 2px 4px rgba(147, 127, 127, 0.1); border-bottom: 1px solid #efefef;
     }
-
     .avatar-online {
         position: relative;
         display: inline-block;
-
         &::after {
             content: "";
             position: absolute;
@@ -83,11 +78,9 @@ channelStore.getOnline();
         }
 
     }
-
     .avatar-status {
         position: relative;
         display: inline-block;
-
         &::after {
             content: "";
             position: absolute;

@@ -11,10 +11,23 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     component: () => import('@/views/chat.vue'),
   },
+
+  {
+    path: '/login',
+    component: () => import('@/views/login.vue'),
+  },
+  {
+    path: '/register',
+    component: () => import('@/views/register.vue'),
+  },
   {
     path: '/chat',
     redirect: '/',
-
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    redirect: '/',
   },
 ];
 

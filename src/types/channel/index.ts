@@ -16,7 +16,7 @@ interface BaseMessage {
     time: number;
     msgID: number;
     messageStatus: MessageStatus;
-    roomID: number;
+    roomID: number | string;
 }
 
 export interface TextMessage extends BaseMessage {
@@ -33,7 +33,7 @@ export interface ReplayMessage {
     type: MessageTypeEnum;
     time: number;
     msgID: number;
-    roomID: number;
+    roomID: number | string;
     replay: Message|null;
     username:string,
     messageStatus: MessageStatus;

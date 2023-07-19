@@ -66,7 +66,7 @@ export default () => {
     const res = await register(forms);
     if (res.code === 1203) return;
     message.info('注册成功');
-    activeKey.value = 'login';
+  //   用户更新头像和昵称
   };
   return {
     LoginFormState,

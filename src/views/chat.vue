@@ -59,7 +59,7 @@
 
 <style>
 body{
-    background-color: #ffdbc7;
+    background-color: #ffffff;
 }
 .left {
     order: 1;

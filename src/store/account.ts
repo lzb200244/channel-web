@@ -1,7 +1,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 
-import { Account } from '@/types/account';
-import { account } from '@/apis/account';
+import { Account, userInfo } from '@/types/account';
+import { account, updateInfoApi } from '@/apis/account';
 
 const useAccountStore = defineStore(
   'account', {
@@ -15,7 +15,7 @@ const useAccountStore = defineStore(
         userID: state.user.userID,
         username: state.user.username,
         avatar: state.user.avatar,
-        isActive: false,
+        isActive: Object.keys(state.user).length !== 0,
       }),
     },
     actions: {
@@ -32,6 +32,10 @@ const useAccountStore = defineStore(
       //   b保存用户
       setUser(user: Account) {
         this.user = user;
+      },
+      async updateUser(userinfo:userInfo) {
+        await updateInfoApi(userinfo);
+        Object.assign(this.user, userinfo); // 更新用户
       },
     },
   },

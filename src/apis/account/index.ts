@@ -1,4 +1,4 @@
-import { AccountFormAble } from '@src/types/account';
+import { AccountFormAble, userInfo } from '@/types/account';
 
 import instance from '@/apis/index';
 
@@ -25,7 +25,11 @@ const login = async (form: AccountFormAble) => instance.post({
 const account = async () => instance.get(
   { url: 'user/' },
 );
-
+/**
+ * 更新头像和昵称
+ * @param res
+ */
+const updateInfoApi = async (res:userInfo) => instance.put({ url: 'user/', data: res });
 export {
-  account, register, login,
+  account, register, login, updateInfoApi,
 };

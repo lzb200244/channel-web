@@ -106,7 +106,6 @@
           </a-tooltip>
         </span>
       </a-row>
-
       <a-button
         v-if="isSend"
         size="small"
