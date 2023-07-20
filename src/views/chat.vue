@@ -14,8 +14,9 @@
             :lg="6"
             class="left"
           >
-            <a-row>
+            <a-row :gutter="[5,5]">
               <a-col
+
                 :xs="24"
                 :sm="24"
                 :md="24"

@@ -1,7 +1,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 
 import { Account, userInfo } from '@/types/account';
-import { account, updateInfoApi } from '@/apis/account';
+import { account, getMedalsApi, updateInfoApi } from '@/apis/account';
 
 const useAccountStore = defineStore(
   'account', {
@@ -9,6 +9,9 @@ const useAccountStore = defineStore(
     state: () => ({
       user: {} as Account,
       isAdmin: true,
+      // 用户
+      medals: [],
+
     }),
     getters: {
       channelUser: (state) => ({
@@ -17,6 +20,10 @@ const useAccountStore = defineStore(
         avatar: state.user.avatar,
         isActive: Object.keys(state.user).length !== 0,
       }),
+      /**
+       * 获取用勋章
+       */
+      getMedals: (state) => state.user.medals,
     },
     actions: {
       // 删除用户
@@ -33,9 +40,19 @@ const useAccountStore = defineStore(
       setUser(user: Account) {
         this.user = user;
       },
-      async updateUser(userinfo:userInfo) {
+      async updateUser(userinfo: userInfo) {
         await updateInfoApi(userinfo);
         Object.assign(this.user, userinfo); // 更新用户
+      },
+      /**
+       * 获取勋章
+       */
+      async asyncGetMedals() {
+        if (this.medals.length !== 0) {
+          return;
+        }
+        const res = await getMedalsApi();
+        this.medals = res.data;
       },
     },
   },

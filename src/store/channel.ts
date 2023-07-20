@@ -1,9 +1,10 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 
 import { PushType } from '@/types/t/push';
-import { BaseRecord } from '@/channel/types';
+
 import isTimeElapsed from '@/utils/elapsed';
 import { getOnlineAPI, getRecordAPi } from '@/apis/channel';
+import { BaseRecord } from '@/types/channel';
 
 const useChannelStore = defineStore(
   'channel', {

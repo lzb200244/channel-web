@@ -30,6 +30,11 @@ const account = async () => instance.get(
  * @param res
  */
 const updateInfoApi = async (res:userInfo) => instance.put({ url: 'user/', data: res });
+/**
+ * 获取勋章
+ */
+const getMedalsApi = async () => instance.get({ url: 'user/medal' });
+
 export {
-  account, register, login, updateInfoApi,
+  account, register, login, updateInfoApi, getMedalsApi,
 };

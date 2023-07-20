@@ -1,3 +1,62 @@
+<template>
+  <a-card>
+    <a-layout-content
+      class="tip-box tip-list-height"
+    >
+      <a-collapse
+        v-model:activeKey="activeKey"
+
+        style="border: none;"
+        expand-icon-position="right"
+      >
+        <a-collapse-panel
+          key="1"
+          style="border: none;"
+          :show-arrow="true"
+          :bordered="false"
+        >
+          <template #header>
+            <span>动态</span>
+          </template>
+          <a-list
+
+            :loading="initLoading"
+            item-layout="horizontal"
+            :data-source="list"
+          >
+            <template #renderItem="{ item }">
+              <a-list-item>
+                <a-skeleton
+                  avatar
+                  :title="false"
+                  :loading="!!item.loading"
+                  active
+                >
+                  <a-list-item-meta
+                    description="Anined by Ant "
+                  >
+                    <template #title>
+                      <a href="#">{{ item.name.last }}</a>
+                    </template>
+                    <template #avatar>
+                      <a-avatar
+                        :size="40"
+                        shape="square"
+                        :src="item.picture.large"
+                      />
+                    </template>
+                  </a-list-item-meta>
+                  <span style="color: #707070;font-size: 10px">
+                    {{ new Date().getHours()+':'+ new Date().getMinutes() }}</span>
+                </a-skeleton>
+              </a-list-item>
+            </template>
+          </a-list>
+        </a-collapse-panel>
+      </a-collapse>
+    </a-layout-content>
+  </a-card>
+</template>
 <script setup lang="ts">
 import {
   onMounted, ref,
@@ -19,52 +78,28 @@ onMounted(() => {
       list.value = res.results;
     });
 });
+const showMorePointer = ref(false);
+const activeKey = ref(['1']);
 </script>
-
-<template>
-  <a-card>
-    <a-layout-content
-      style="height:750px"
-      class="tip-box"
-    >
-      <a-list
-        :loading="initLoading"
-        item-layout="horizontal"
-        :data-source="list"
-      >
-        <template #renderItem="{ item }">
-          <a-list-item>
-            <a-skeleton
-              avatar
-              :title="false"
-              :loading="!!item.loading"
-              active
-            >
-              <a-list-item-meta
-                description="Anined by Ant UED Team"
-              >
-                <template #title>
-                  <a href="#">{{ item.name.last }}</a>
-                </template>
-                <template #avatar>
-                  <a-avatar :src="item.picture.large" />
-                </template>
-              </a-list-item-meta>
-              <span style="color: #707070;font-size: 10px">{{ new Date().getHours()+':'+ new Date().getMinutes() }}</span>
-            </a-skeleton>
-          </a-list-item>
-        </template>
-      </a-list>
-    </a-layout-content>
-  </a-card>
-</template>
-
 <style scoped>
 .tip-box{
 
     overflow-y: auto;
 }
 .ant-card-body{
-    padding: 10px!important;
+    padding: 0px!important;
+}
+.tip-list-height{
+    height: 750px;
+}
+@media (max-width: 992px) {
+    .tip-list-height{
+        height: auto;
+        max-height: 250px;
+    }
+}
+
+::v-deep .ant-collapse-content-box{
+    padding: 8px;
 }
 </style>

@@ -119,7 +119,7 @@ const useChannelMessage = () => {
           msgID: obj.message.msgID,
           messageStatus: {
             isDrop: true,
-            drop: `${dayjs().format('HH:mm:ss ')} ${user.value.username} 撤销了一条消息`,
+            drop: `${dayjs().format('HH:mm:ss ')} "${user.value.username}" 撤销了一条消息`,
             likes: obj.message.messageStatus.likes,
           },
           time: Date.now(),

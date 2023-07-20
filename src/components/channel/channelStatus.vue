@@ -1,5 +1,6 @@
 <template>
   <a-card
+    style="height: 750px"
     size="small"
     :title="`在线人数 ${onlineList.length}人`"
   >

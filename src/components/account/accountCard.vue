@@ -62,7 +62,6 @@
             :value="`/avatar/boy-${i}.svg`"
           >
             <a-avatar
-
               :key="i"
               :size="65"
               style="border: 2px solid #fafafa;"
@@ -77,7 +76,6 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue';
 import { userInfo } from '@/types/account';
-import { updateInfo } from '@/apis/account';
 
 const visible = ref<boolean>(false);
 const visible2 = ref<boolean>(false);
@@ -100,6 +98,7 @@ const userinfo = reactive<userInfo>({
   username: '',
   avatar: '',
   isModify: true,
+  userID: 0,
 });
 const uploadAvatar = () => {
   visible2.value = true;

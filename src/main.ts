@@ -1,6 +1,4 @@
 import 'ant-design-vue/dist/antd.css';
-// import 'ant-design-vue/dist/antd.dark.less'; // 引入官方提供的暗色 less 样式入口文件
-
 import { createApp } from 'vue';
 import './style.css';
 import { createPinia } from 'pinia';

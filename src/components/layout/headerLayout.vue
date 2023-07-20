@@ -1,27 +1,54 @@
 <template>
   <a-card
-
+    style="position: relative"
+    class="head-mode"
     size="small"
   >
     <a-row>
-      <a-avatar
+      <a-tooltip
         v-if="Object.keys(userObj).length===0"
-        :size="45"
+        title="登录"
       >
-        <router-link
-          style="color: white"
-          to="/login"
+        <a-avatar
+          :size="45"
+          style="background-color: #87d068"
         >
-          匿名
-        </router-link>
-      </a-avatar>
+          <template #icon>
+            <router-link
+              style="color: white"
+              to="/login"
+            >
+              <UserOutlined />
+            </router-link>
+          </template>
+        </a-avatar>
+      </a-tooltip>
 
-      <a-avatar
+      <a-tooltip
         v-else
-        :size="45"
-        :src="userObj.avatar"
-        @click="updateInfo"
-      />
+        placement="topLeft"
+        title="个人背包"
+      >
+        <a-avatar
+
+          :size="45"
+          :src="userObj.avatar"
+          @click="updateInfo"
+        />
+      </a-tooltip>
+      <a-tooltip
+        placement="topLeft"
+        title="创建群聊 | 加入群聊"
+      >
+        <a-button
+          type="text"
+          class="right-plus "
+        >
+          <plus-circle-outlined
+            class="text-3xl create-room"
+          />
+        </a-button>
+      </a-tooltip>
     </a-row>
   </a-card>
   <a-modal
@@ -55,14 +82,19 @@
         banner
       />
     </a-row>
-    <a-row justify="space-between">
-      <a-avatar
-        v-for="i in 8"
-        :key="i"
-        :size="100"
-        style="border: 2px solid #fafafa;"
-        :src="`/avatar/boy-${i}.svg`"
-      />
+    <a-row justify="center">
+      <a-card
+        title="我的勋章"
+        :bordered="false"
+      >
+        <a-avatar
+          v-for="i in useAccount.medals"
+          :key="i.title"
+          :class="{'gray-image':i.acquire}"
+          :size="100"
+          :src="i.path"
+        />
+      </a-card>
     </a-row>
   </a-modal>
   <a-modal
@@ -81,6 +113,7 @@
           :value="`/avatar/boy-${i}.svg`"
         >
           <a-image
+
             :width="65"
             :src="`/avatar/boy-${i}.svg`"
             :preview="{
@@ -109,7 +142,8 @@
               name="file"
             >
               <a-button>
-                本地上传<upload-outlined />
+                本地上传
+                <upload-outlined />
               </a-button>
             </a-upload>
           </a-col>
@@ -120,13 +154,14 @@
 </template>
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
-import { UploadOutlined } from '@ant-design/icons-vue';
+import { UploadOutlined, PlusCircleOutlined, UserOutlined } from '@ant-design/icons-vue';
 import useAccountStore from '@/store/account';
 import { userInfo } from '@/types/account';
 import useCos from '@/utils/tencent/cos';
 
 const useAccount = useAccountStore();
 useAccount.asyncUser();
+
 const userObj = computed(() => useAccount.user);
 const showInfo = ref<boolean>(false);
 const showAvatarList = ref<boolean>(false);
@@ -137,12 +172,14 @@ const userinfo = reactive<userInfo>({
   avatar: '',
   isModify: false,
 });
-const updateInfo = () => {
+
+const updateInfo = async () => {
+  await useAccount.asyncGetMedals();
+
   Object.assign(userinfo, userObj.value);
   showInfo.value = true;
 };
 const handleUpdateInfo = async () => {
-  console.log(userinfo);
   if (userinfo.username === '' || userinfo.avatar === '') {
     showInfo.value = false;
     return;
@@ -175,3 +212,38 @@ const beforeUpload = async (file: File) => {
 };
 
 </script>
+<style scoped>
+.gray-image {
+    filter: grayscale(100%);
+}
+.create-room{
+    color: rgba(71, 174, 239, 0.6);
+    &:hover{
+        color: rgb(78, 185, 252);
+        transition: all 1s linear;  /* 定义过渡属性和时间 */
+
+    }
+}
+.head-mode {
+    height: 750px;
+
+    .right-plus {
+        position: absolute;
+        bottom: 20px;
+    }
+}
+
+@media (max-width: 992px) {
+    .head-mode {
+        height: 60px;
+
+        .right-plus {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+
+        }
+    }
+}
+
+</style>

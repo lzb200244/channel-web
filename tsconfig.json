@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "allowJs": true,
+
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -19,12 +21,7 @@
     //    添加别名
     "paths": {
       "@/*": ["src/*"],
-      //      "@components/*": [
-      //        "src/components/*"
-      //      ],
-      //      "@views/*": [
-      //        "src/views/*"
-      //      ]
+
     }
   },
   "include": [
