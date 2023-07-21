@@ -5,7 +5,8 @@ import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { useRoute } from 'vue-router';
 import {
-  TextMessage, ImageMessage, ReplayMessage, FileInfo, BaseRecord, BaseUserItem,
+  TextMessage, ImageMessage, FileInfo, BaseUserItem,
+  BaseRecord, ReplayItem, ReplayMessage,
 } from '@/types/channel';
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 import { getRecordAPi } from '@/apis/channel';
@@ -14,7 +15,7 @@ import useAccountStore from '@/store/account';
 import isTimeElapsed from '@/utils/elapsed';
 import { RecallType } from '@/types/channel/modules/recall';
 import WS from '@/utils/socket';
-import { PushType } from '@/types/t/push';
+import { PushType } from '@/types/channel/modules/push';
 
 const useChannelMessage = () => {
   let virtual: HTMLElement;
@@ -27,10 +28,7 @@ const useChannelMessage = () => {
   // 未携带room默认为0房(大厅
   const socket = new WS(`ws://127.0.0.1:8000/room/${roomID}/`);
   socket.connect();
-  /**
-     * 当前在线
-     */
-  const onlineList = computed<PushType[]>(() => channelStore.onlineList);
+
   /**
      * 聊天记录，进行翻转
      */
@@ -51,7 +49,7 @@ const useChannelMessage = () => {
     stop: false, // 是否停止
   });
   // 回复消息体
-  const msg = reactive<BaseRecord>({
+  const msg = reactive<BaseRecord<ReplayMessage>>({
     type: PushTypeEnum.MESSAGE_PUSH,
     message: {
       content: '',
@@ -61,6 +59,7 @@ const useChannelMessage = () => {
         likes: 0,
         drop: '',
         isDrop: false,
+        isLike: null,
       },
       msgID: 0,
       roomID: roomID as number,
@@ -121,6 +120,7 @@ const useChannelMessage = () => {
             isDrop: true,
             drop: `${dayjs().format('HH:mm:ss ')} "${user.value.username}" 撤销了一条消息`,
             likes: obj.message.messageStatus.likes,
+            isLike: false,
           },
           time: Date.now(),
           roomID: roomID as number,
@@ -136,20 +136,18 @@ const useChannelMessage = () => {
       //   obj 点击的回复对象
       msg.type = PushTypeEnum.REPLAY_PUSH;
 
-      if ('replay' in msg.message) {
-        (msg.message as ReplayMessage).replay = {
-          type: obj.message.type, // 回复的消息类型
-          msgID: obj.message.msgID,
-          time: Date.now(),
-          username: obj.user.username,
-        };
-      }
+      msg.message.replay = {
+        type: obj.message.type, // 回复的消息类型
+        msgID: obj.message.msgID,
+        time: Date.now(),
+        username: obj.user.username,
+      } as ReplayItem;
     }
   };
   const handleMentions = (str: string): string => str.replace(/@([^ ]+)/g, '<span class="mention">@$1</span>');
   const cancelReplay = () => {
     if ('replay' in msg.message) {
-      msg.message.replay = null;
+      msg.message.replay = undefined;
     }
   };
 
@@ -237,7 +235,7 @@ const useChannelMessage = () => {
   return {
     pageConf,
     socket,
-    onlineList,
+
     messageList,
     msg,
     user,

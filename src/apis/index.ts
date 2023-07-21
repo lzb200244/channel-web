@@ -1,10 +1,17 @@
 // 引入 axios 实例
 import { message } from 'ant-design-vue';
 import axios, { AxiosRequestConfig, AxiosInstance } from 'axios';
-import { removeToken, getToken } from '@/utils/cookies';
+import { removeToken } from '@/utils/cookies';
 import { RequestConfig, responseCode } from './type';
 
 import router from '@/router';
+// @ts-ignore
+interface Response<T> {
+  data: T, // 请求的数据，用泛型
+  msg: string | null // 返回状态码的信息，如请求成功等
+  code: number
+}
+export type APiResponse<T> = Promise<Response<T>>;
 
 class Request<T> {
     private _instance: AxiosInstance // axios实例

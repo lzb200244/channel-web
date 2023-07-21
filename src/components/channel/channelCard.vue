@@ -11,112 +11,154 @@
         :class="['message-avatar', 'avatar-left']"
       />
     </a-col>
-    <div
-      style="position: relative;"
-      @mouseover="isHovered=true"
-      @mouseleave="isHovered=false"
-    >
-      <a-typography-text
-        style="height: 22px"
-        :class="['chat-info', isSend?'chat-info-right':'chat-info-left' ]"
+
+    <a-dropdown :trigger="['contextmenu']">
+      <div
+        style="position: relative;"
+        @mouseover="isHovered=true"
+        @mouseleave="isHovered=false"
       >
-        <span class="chat-time">{{ formatTime(messageItem.message.time) }}</span>
-        <span class="chat-name">{{ messageItem.user.username }}</span>
-      </a-typography-text>
-      <!--    存在回复对象-->
-      <a-anchor-link
-        v-if="messageItem.message.replay"
-        :class="['replay-card', ]"
-        :href="'#record:'+messageItem.message.replay?.msgID"
-        :title="'@'+ messageItem.message.replay.username"
-        @click="findRecordLight(messageItem.message.replay?.msgID)"
-      >
-        <template v-if="messageItem.message.replay.type===MessageTypeEnum.TEXT">
+        <a-typography-text
+          style="height: 22px"
+          :class="['chat-info', isSend?'chat-info-right':'chat-info-left' ]"
+        >
+          <span class="chat-time">{{ formatTime(messageItem.message.time) }}</span>
+          <span class="chat-name">{{ messageItem.user.username }}</span>
+        </a-typography-text>
+        <!-- TODO   存在回复对象-->
+        <a-anchor-link
+          v-if="messageItem.message.replay"
+          :class="['replay-card', ]"
+          :href="'#record:'+messageItem.message.replay?.msgID"
+          :title="'@'+ messageItem.message.replay.username"
+          @click="findRecordLight(messageItem.message.replay.msgID)"
+        >
+          <template v-if="messageItem.message.replay.type ===MessageTypeEnum.TEXT">
+            <a-typography-paragraph
+              :ellipsis="ellipsis"
+              :copyable="false"
+              v-html="messageItem.message?.replay.content"
+            />
+          </template>
+          <!--    回复图片-->
+          <template v-else-if="messageItem.message?.replay.type===MessageTypeEnum.IMAGE">
+            <a-image
+              :width="100"
+              :src="messageItem.message.replay?.fileInfo?.filePath"
+              :alt="messageItem.message.replay?.fileInfo?.fileName"
+            />
+          </template>
+        </a-anchor-link>
+
+        <!-- TODO   消息体-->
+
+        <template v-if="messageItem.message.type===MessageTypeEnum.TEXT">
           <a-typography-paragraph
+            :class="['message-card',
+                     'chat-bubble',isSend?'message-card-right': 'message-card-left']"
             :ellipsis="ellipsis"
-            :copyable="true"
-            :content="messageItem.message.replay.content "
+            :copyable="false"
+            v-html="messageItem.message.content"
           />
         </template>
-        <!--    回复图片-->
-        <template v-else-if="messageItem.message.replay.type===MessageTypeEnum.IMAGE">
+        <!--          文件类型-->
+        <template v-else-if="messageItem.message.type===MessageTypeEnum.IMAGE">
           <a-image
-            :width="100"
-            :src="messageItem.message.replay.fileInfo.filePath"
-            :alt="messageItem.message.replay.fileInfo.fileName"
+            :width="200"
+            :src="messageItem.message.fileInfo?.filePath"
+            :alt="messageItem.message.fileInfo?.fileName"
           />
         </template>
-      </a-anchor-link>
+        <!--        回复-->
+        <template v-else-if="messageItem.message.type===5">
+          <a-typography-paragraph
+            :class="['message-card',
+                     'chat-bubble',isSend?'message-card-right': 'message-card-left']"
+            :ellipsis="ellipsis"
+            :copyable="false"
+            v-html="messageItem.message.content"
+          />
+        </template>
 
-      <!-- TODO   消息体-->
-
-      <template v-if="messageItem.message.type===MessageTypeEnum.TEXT">
-        <a-typography-paragraph
-          :class="['message-card', 'chat-bubble',isSend?'message-card-right': 'message-card-left']"
-          :ellipsis="ellipsis"
-          :copyable="true"
+        <a-row
+          v-if="isHovered"
+          class="opt-box"
         >
-          {{ messageItem.message.content }}
-        </a-typography-paragraph>
-      </template>
-      <!--          文件类型-->
-      <template v-else-if="messageItem.message.type===MessageTypeEnum.IMAGE">
-        <a-image
-          :width="200"
-          :src="messageItem.message.fileInfo.filePath"
-          :alt="messageItem.message.fileInfo?.fileName"
-        />
-      </template>
-      <!--        回复-->
-      <template v-else-if="messageItem.message.type===5">
-        <a-typography-paragraph
-          :class="['message-card', 'chat-bubble',isSend?'message-card-right': 'message-card-left']"
-          :ellipsis="ellipsis"
-          :copyable="true"
-        >
-          {{ messageItem.message.content }}
-        </a-typography-paragraph>
-      </template>
+          <span class="opt">
+            <a-tooltip
+              placement="topLeft"
+              title="回复"
+            >
+              <message-outlined @click="Opt(messageItem,PushTypeEnum.REPLAY_PUSH)" />
+            </a-tooltip>
+          </span>
+          <span class="opt">
 
-      <a-row
-        v-if="isHovered"
-        class="opt-box"
-      >
-        <!-- 使用 Tooltip 组件包裹需要悬浮显示的内容 -->
-        <!--        <span-->
-        <!--          class="opt"-->
-        <!--          @click="Opt(messageItem,PushTypeEnum.THUMB_PUSH)"-->
-        <!--        >-->
-        <!--          <a-tooltip-->
-        <!--            placement="topLeft"-->
-        <!--            title="赞"-->
-        <!--          >-->
-        <!--            <like-filled v-show="messageItem.message.messageStatus?.userIsLike" />-->
-        <!--            <like-outlined-->
-        <!--              v-show="!messageItem.message.messageStatus?.userIsLike"-->
-        <!--            />-->
-        <!--          </a-tooltip>-->
-        <!--        </span>-->
-        <span class="opt">
-          <a-tooltip
-            placement="topLeft"
-            title="回复"
+            <a-tooltip
+              placement="topLeft"
+              title="点赞"
+            >
+              <like-outlined
+
+                :class="{star:messageItem.message.messageStatus.isLike===true}"
+                @click="likeStatus(messageItem,true)"
+              />
+            </a-tooltip>
+          </span>
+          <span class="opt">
+            <a-tooltip
+              placement="topLeft"
+              title="踩"
+            >
+              <dislike-outlined
+                :class="{star:messageItem.message.messageStatus.isLike===false}"
+                @click="likeStatus(messageItem,false)"
+              />
+            </a-tooltip>
+          </span>
+        </a-row>
+      </div>
+
+      <template #overlay>
+        <a-menu>
+          <a-menu-item key="copy">
+            <a-button
+              size="small"
+              type="text"
+              style="font-size: 12px;"
+              @click="copyUrl(messageItem.message.content as string)"
+            >
+              <copy-outlined />复 制
+            </a-button>
+          </a-menu-item>
+          <a-menu-item key="call">
+            <a-button
+              size="small"
+              type="text"
+              style="font-size: 12px;"
+              @click="mentionUser(messageItem)"
+            >
+              @ 艾特Ta
+            </a-button>
+          </a-menu-item>
+
+          <a-menu-item
+            key="recall"
+            style="border-top: 1px solid #d7d7d7;"
           >
-            <message-outlined @click="Opt(messageItem,PushTypeEnum.REPLAY_PUSH)" />
-          </a-tooltip>
-        </span>
-      </a-row>
-      <a-button
-        v-if="isSend"
-        size="small"
-        type="link"
-        style="color: #999999;font-size: 8px;float: right;height: 20px"
-        @click="Opt(messageItem,PushTypeEnum.RECALL_PUSH)"
-      >
-        撤回
-      </a-button>
-    </div>
-
+            <a-button
+              v-if="isSend"
+              size="small"
+              type="text"
+              style="font-size: 12px;"
+              @click="Opt(messageItem,PushTypeEnum.RECALL_PUSH)"
+            >
+              <delete-outlined />撤 回
+            </a-button>
+          </a-menu-item>
+        </a-menu>
+      </template>
+    </a-dropdown>
     <a-col v-if="isSend">
       <a-avatar
         :src="messageItem.user.avatar"
@@ -127,19 +169,33 @@
 </template>
 <script  setup lang="ts">
 import dayjs from 'dayjs';
-import { defineProps, ref, withDefaults } from 'vue';
+import { ref } from 'vue';
 import {
-  MessageOutlined,
+  MessageOutlined, DeleteOutlined, CopyOutlined, LikeOutlined, DislikeOutlined,
 } from '@ant-design/icons-vue';
-import { BaseRecord } from '@/types/channel';
+import {
+  BaseRecord, ReplayMessage,
+} from '@/types/channel';
+
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 
 const isHovered = ref(false);
-withDefaults(defineProps<{
-    isSend: boolean, // 是否是回复
-    messageItem: BaseRecord // 消息体
-}>(), {
-  isSend: true,
+// defineProps<{
+//     isSend: boolean, // 是否是回复
+//     messageItem: BaseRecord<ReplayMessage> // 消息体
+// }>(), {
+//   isSend: true,
+// };
+
+defineProps({
+  isSend: {
+    type: Boolean,
+    default: () => true,
+  },
+  messageItem: {
+    type: Object as ()=> BaseRecord<ReplayMessage>,
+    required: true,
+  },
 });
 /**
  * 操作：
@@ -166,7 +222,7 @@ const formatTime = (timestamp: number) => (timestamp + oneDayTimestamp < Date.no
  * @param message 消息id
  * @param tp 操作类型
  */
-const Opt = (message: BaseRecord, tp: number) => {
+const Opt = (message: BaseRecord<ReplayMessage>, tp: number) => {
   //   判断是否过了两分钟
   //   发给父组件
 
@@ -181,6 +237,31 @@ const findRecordLight = (id: number) => {
   // let dom = document.getElementById(domID);
   // console.log(dom);
   // dom.style.background = 'red';
+};
+
+/**
+ * @ 某人
+ */
+const mentionUser = (message: BaseRecord<ReplayMessage>) => {
+  console.log(message);
+};
+/**
+ * 复制1内容
+ * @param content
+ */
+const copyUrl = (content:string) => {
+  const input = document.createElement('input'); // js创建一个input输入框
+  input.value = content; // 将需要复制的文本赋值到创建的input输入框中
+  document.body.appendChild(input); // 将输入框暂时创建到实例里面
+  input.select(); // 选中输入框中的内容
+  document.execCommand('Copy'); // 执行复制操作
+  document.body.removeChild(input); // 最后删除实例中临时创建的input输入框，完成复制操作
+};
+/**
+ * likeStatus 点赞与取消
+ */
+const likeStatus = (item: BaseRecord<ReplayMessage>, isLike:boolean) => {
+  item.message.messageStatus.isLike = isLike;
 };
 </script>
 <style lang="scss" scoped>
@@ -219,6 +300,9 @@ const findRecordLight = (id: number) => {
 .opt {
   cursor: pointer;
   margin-right: 8px;
+  .star{
+  color: #379dff;
+  }
 }
 
 .opt-box {

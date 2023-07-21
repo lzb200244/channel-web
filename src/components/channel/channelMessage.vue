@@ -15,7 +15,6 @@
             size="small"
           />
         </div>
-
         <DynamicScroller
           :items="messageList"
           :min-item-size="65"
@@ -70,7 +69,6 @@
           ref="channelFocus"
           v-model:value="msg.message.content"
           :is-login="user.isActive"
-          :mention-list="onlineList"
           @send-message="sendMessage"
           @send-file-message="sendFileMessage"
         />
@@ -85,8 +83,7 @@ import useChannelMessage from '@/core/channel';
 import { PushTypeEnum } from '@/types/channel/enum';
 import ChannelCard from '@/components/channel/channelCard.vue';
 import ChannelInput from '@/components/channel/channelInput.vue';
-
-import { BaseRecord } from '@/types/channel';
+import { BaseRecord, ReplayMessage } from '@/types/channel';
 
 const channelStore = useChannelStore();
 const {
@@ -95,7 +92,7 @@ const {
   msg,
   socket,
   channelFocus,
-  onlineList,
+
   messageList,
   LoadMoreRecord,
   handleOpt,
@@ -104,8 +101,8 @@ const {
   sendFileMessage,
 } = useChannelMessage();
 
-socket.onMessage((data:BaseRecord) => {
-  let message:BaseRecord = data;
+socket.onMessage((data:BaseRecord<ReplayMessage>) => {
+  let message = data;
   switch (message.type) {
     //  上线推送
     case PushTypeEnum.ONLINE_PUSH: {

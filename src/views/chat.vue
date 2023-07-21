@@ -103,6 +103,7 @@ body{
 }
 </style>
 <script setup lang="ts">
+import { ref } from 'vue';
 import ChannelTip from '@/components/channel/channelTip.vue';
 import channelStatus from '@/components/channel/channelStatus.vue';
 import channelMessage from '@/components/channel/channelMessage.vue';

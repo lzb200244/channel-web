@@ -10,7 +10,12 @@ const useCos = (back:string = 'http://127.0.0.1:8000/api/chat/file/') => {
       let xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
       xhr.onload = function (e) {
-        let data = JSON.parse(e.target.responseText);
+        let xhr = e.target as XMLHttpRequest;
+        if (xhr == null) {
+          return console.error('XMLHttpRequest error: e.target is null');
+        }
+        let data = JSON.parse(xhr.responseText);
+
         data = data.data;
         let { Credentials } = data;
         if (!data || !Credentials) {

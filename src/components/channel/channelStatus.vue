@@ -42,8 +42,8 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 
-import { PushType } from '@/types/t/push';
 import useChannelStore from '@/store/channel';
+import { PushType } from '@/types/channel/modules/push';
 
 const channelStore = useChannelStore();
 // 群成员
@@ -70,10 +70,10 @@ channelStore.getOnline();
         &::after {
             content: "";
             position: absolute;
-            bottom: 3px;
-            right: 5px;
-            width: 8px;
-            height: 8px;
+            bottom: 1px;
+            right: 2px;
+            width: 10px;
+            height: 10px;
             background-color: #b8ff79;
             border-radius: 50%;
         }

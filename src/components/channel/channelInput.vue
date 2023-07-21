@@ -85,28 +85,27 @@ import {
   FileImageOutlined, SendOutlined, FolderAddOutlined,
 } from '@ant-design/icons-vue';
 import {
-  ref, defineExpose, defineProps,
+  ref, defineExpose, computed,
 } from 'vue';
 import 'vue3-emoji-picker/css';
 import EmojiPicker from 'vue3-emoji-picker';
-// const EmojiPicker = defineAsyncComponent(() => import('vue3-emoji-picker'));
+
 import useUpload from '@/utils/upload';
-import useCos from '@/utils/tencent/cos';
+import useCos from '@/hooks/tencent/cos';
+import useChannelStore from '@/store/channel';
 
 defineProps({
   value: {
     type: String,
     default: () => '',
   },
-  mentionList: {
-    type: Array<string>,
-    default: () => [],
-  },
+
   isLogin: {
     type: Boolean,
     default: () => false,
   },
 });
+
 const emits = defineEmits(['update:value', 'send-message', 'send-file-message']);
 const { cos } = useCos();
 const { uploadImg } = useUpload(cos);
@@ -114,12 +113,16 @@ const toFocus = ref();
 const show = ref(false);
 const msg = ref('');
 const fileList = ref([]);
+
+const channelStore = useChannelStore();
+
+const mentionList = computed(() => channelStore.onlineList);
 /**
  * 上床图片
  * @param info
  */
 const beforeUpload = async (info: File) => {
-  const res = await uploadImg(info as File, cos);
+  const res = await uploadImg(info as File);
 
   emits('send-file-message', res);
   return false;
@@ -135,9 +138,14 @@ const onSelectEmoji = (emoji: any) => {
 /**
  * 调节输入框
  */
-const adjustTextareaHeight = () => {
-  event.target.style.height = 'auto';
-  event.target.style.height = `${event.target.scrollHeight}px`;
+const adjustTextareaHeight = (event: Event | undefined) => {
+  if (!event || !event.target) {
+    return;
+  }
+
+  const target = event.target as HTMLTextAreaElement;
+  target.style.height = 'auto';
+  target.style.height = `${target.scrollHeight}px`;
 };
 const focus = () => {
   toFocus.value.focus();
@@ -152,6 +160,7 @@ const sendMessage = () => {
 const sendImgMessage = () => {
   console.log(222);
 };
+
 defineExpose({
 
   focus,

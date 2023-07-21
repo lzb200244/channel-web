@@ -1,10 +1,12 @@
 <template>
-  <a-card
-    style="position: relative"
+  <a-menu
     class="head-mode"
-    size="small"
+    :style="{display:'flex',flexDirection:isRow?'row':'column'}"
   >
-    <a-row>
+    <a-menu-item
+      key="info"
+      style="height: auto"
+    >
       <a-tooltip
         v-if="Object.keys(userObj).length===0"
         title="登录"
@@ -23,34 +25,51 @@
           </template>
         </a-avatar>
       </a-tooltip>
-
       <a-tooltip
         v-else
         placement="topLeft"
         title="个人背包"
       >
         <a-avatar
-
           :size="45"
           :src="userObj.avatar"
           @click="updateInfo"
         />
       </a-tooltip>
+    </a-menu-item>
+    <a-menu-item
+      key="room"
+      style="margin-top: auto;"
+    >
       <a-tooltip
         placement="topLeft"
         title="创建群聊 | 加入群聊"
       >
         <a-button
           type="text"
-          class="right-plus "
         >
           <plus-circle-outlined
-            class="text-3xl create-room"
+            class=" create-room"
           />
         </a-button>
       </a-tooltip>
-    </a-row>
-  </a-card>
+    </a-menu-item>
+
+    <a-menu-item
+      v-if="isRow"
+      key="more"
+      style="margin-left: auto"
+    >
+      <a-button
+        type="primary"
+        style="margin-bottom: 16px;float: right"
+        @click="showDrawer"
+      >
+        <MenuFoldOutlined />
+      </a-button>
+    </a-menu-item>
+  </a-menu>
+
   <a-modal
     v-model:visible="showInfo"
     cancel-text="取消"
@@ -87,13 +106,19 @@
         title="我的勋章"
         :bordered="false"
       >
-        <a-avatar
+        <a-tooltip
           v-for="i in useAccount.medals"
-          :key="i.title"
-          :class="{'gray-image':i.acquire}"
-          :size="100"
-          :src="i.path"
-        />
+          :key="i.id"
+          :title="i.acquire?`已经获得：${i.create_time}`:'还未获得'"
+        >
+          <a-avatar
+
+            :key="i.title"
+            :class="{'gray-image':!i.acquire}"
+            :size="100"
+            :src="i.path"
+          />
+        </a-tooltip>
       </a-card>
     </a-row>
   </a-modal>
@@ -151,28 +176,62 @@
       </a-radio-group>
     </a-row>
   </a-modal>
+  <a-drawer
+    v-model:visible="visible"
+    placement="right"
+    width="250"
+  >
+    <channel-status />
+  </a-drawer>
 </template>
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
-import { UploadOutlined, PlusCircleOutlined, UserOutlined } from '@ant-design/icons-vue';
+import {
+  computed, onMounted, reactive, ref,
+} from 'vue';
+import {
+  UploadOutlined,
+  PlusCircleOutlined,
+  UserOutlined,
+  MenuFoldOutlined,
+
+} from '@ant-design/icons-vue';
 import useAccountStore from '@/store/account';
-import { userInfo } from '@/types/account';
-import useCos from '@/utils/tencent/cos';
+import { UserInfo } from '@/types/account';
+import useCos from '@/hooks/tencent/cos';
+import ChannelStatus from '@/components/channel/channelStatus.vue';
 
 const useAccount = useAccountStore();
 useAccount.asyncUser();
+const visible = ref<boolean>(false);
 
+const showDrawer = () => {
+  visible.value = true;
+};
 const userObj = computed(() => useAccount.user);
 const showInfo = ref<boolean>(false);
 const showAvatarList = ref<boolean>(false);
 const fileList = ref([]);
-const userinfo = reactive<userInfo>({
+// 原来更新用户信息的
+const userinfo = reactive<UserInfo>({
   userID: 0,
   username: '',
   avatar: '',
   isModify: false,
+}as UserInfo);
+const isRow = ref(false);
+/**
+ * 监听屏幕的宽度变化
+ */
+const onResize = () => {
+  if (window.innerWidth < 992) {
+    isRow.value = true;
+  } else {
+    isRow.value = false;
+  }
+};
+onMounted(() => {
+  window.addEventListener('resize', onResize); // 监听resize事件
 });
-
 const updateInfo = async () => {
   await useAccount.asyncGetMedals();
 
@@ -217,32 +276,25 @@ const beforeUpload = async (file: File) => {
     filter: grayscale(100%);
 }
 .create-room{
+
+    font-size: 25px;
     color: rgba(71, 174, 239, 0.6);
     &:hover{
-        color: rgb(78, 185, 252);
+        color: rgb(71, 171, 234);
         transition: all 1s linear;  /* 定义过渡属性和时间 */
 
     }
 }
 .head-mode {
     height: 750px;
+    position: relative;
 
-    .right-plus {
-        position: absolute;
-        bottom: 20px;
-    }
 }
 
 @media (max-width: 992px) {
     .head-mode {
+        position: relative;
         height: 60px;
-
-        .right-plus {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-
-        }
     }
 }
 

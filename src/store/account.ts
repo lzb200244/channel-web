@@ -1,6 +1,6 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 
-import { Account, userInfo } from '@/types/account';
+import { Account, UserInfo, UserMedalsList } from '@/types/account';
 import { account, getMedalsApi, updateInfoApi } from '@/apis/account';
 
 const useAccountStore = defineStore(
@@ -10,7 +10,7 @@ const useAccountStore = defineStore(
       user: {} as Account,
       isAdmin: true,
       // 用户
-      medals: [],
+      medals: [] as UserMedalsList[],
 
     }),
     getters: {
@@ -23,7 +23,7 @@ const useAccountStore = defineStore(
       /**
        * 获取用勋章
        */
-      getMedals: (state) => state.user.medals,
+      getMedals: (state) => state.medals,
     },
     actions: {
       // 删除用户
@@ -40,7 +40,7 @@ const useAccountStore = defineStore(
       setUser(user: Account) {
         this.user = user;
       },
-      async updateUser(userinfo: userInfo) {
+      async updateUser(userinfo: UserInfo) {
         await updateInfoApi(userinfo);
         Object.assign(this.user, userinfo); // 更新用户
       },
@@ -52,6 +52,11 @@ const useAccountStore = defineStore(
           return;
         }
         const res = await getMedalsApi();
+        res.data.forEach((item) => {
+          if (this.user.medals.includes(item.id)) {
+            item.acquire = true;
+          }
+        });
         this.medals = res.data;
       },
     },

@@ -1,11 +1,17 @@
-import instance from '@/apis/index';
+import instance, { APiResponse } from '@/apis/index';
+import { BaseRecord, ReplayMessage } from '@/types/channel';
+import { PushType } from '@/types/channel/modules/push';
 
 /**
  * 获取聊天记录
  * @param page 页
  * @param room 房间id 0代表大厅房间
  */
-const getRecordAPi = async (page: number = 1, room: number = 0) =>
+const getRecordAPi = async (page: number = 1, room: number = 0):
+    APiResponse<{
+        results:BaseRecord<ReplayMessage>[],
+        count:number
+    }> =>
 //     http://127.0.0.1:5173/api/chat/record/
   instance.get(
     {
@@ -18,7 +24,7 @@ const getRecordAPi = async (page: number = 1, room: number = 0) =>
 /**
  * 获取在线人数
  */
-const getOnlineAPI = async () =>
+const getOnlineAPI = async ():APiResponse<PushType[]> =>
 //     http://127.0.0.1:5173/api/chat/record/
   instance.get(
     {

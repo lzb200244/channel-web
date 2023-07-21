@@ -5,18 +5,18 @@ export interface FileInfo {
     fileSize: number;
     filePath: string;
 }
-
 interface MessageStatus {
     drop: string;
     likes: number;
     isDrop: boolean;
+    isLike:boolean|null
 }
 interface BaseMessage {
-    type: MessageTypeEnum;
-    time: number;
-    msgID: number;
-    messageStatus: MessageStatus;
-    roomID: number | string;
+    type: MessageTypeEnum; // 消息类型,文本,图片,文件,音频
+    time: number; // 时间戳
+    msgID: number; // 消息表示
+    messageStatus: MessageStatus; // 消息状态
+    roomID: number | string; // 房间id
 }
 
 export interface TextMessage extends BaseMessage {
@@ -27,29 +27,15 @@ export interface ImageMessage extends BaseMessage {
     fileInfo: FileInfo;
 }
 
-export type Message = TextMessage | ImageMessage;
-
-export interface ReplayMessage {
-    type: MessageTypeEnum;
-    time: number;
-    msgID: number;
-    roomID: number | string;
-    replay: Message|null;
-    username:string,
-    messageStatus: MessageStatus;
-}
-
+/**
+ * 针对消息与用户
+ */
 export interface BaseUserItem {
     username: string;
     avatar: string;
     userID: number;
     isActive: boolean;
 }
-export type BaseRecord = {
-    type: PushTypeEnum;
-    message: ReplayMessage | TextMessage | ImageMessage
-    user: BaseUserItem;
-};
 
 export interface UserMessage {
     type: PushTypeEnum;
@@ -59,4 +45,28 @@ export interface RecordItemType{
     type: PushTypeEnum;
     message:BaseMessage
 
+}
+
+export interface ReplayItem {
+    username: string, // 回复人的名称
+    time:number,
+    msgID:number
+    type:number
+    userID:number
+    fileInfo?:FileInfo
+    content?:string
+}
+// 回复类型
+export interface ReplayMessage extends BaseMessage {
+    replay?: ReplayItem; // 回复对象
+    content?:string,
+    fileInfo?:FileInfo
+}
+
+// 回复文件类型
+
+export interface BaseRecord<T extends BaseMessage=BaseMessage> {
+    type: PushTypeEnum; // 推送类型
+    message: T; // 消息类型
+    user: BaseUserItem; // 用户信息
 }

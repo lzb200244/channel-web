@@ -9,7 +9,7 @@
 import { message } from 'ant-design-vue';
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { AccountFormReadonly } from '@/types/account';
+import { AccountFormAble } from '@/types/account';
 import { register, login } from '@/apis/account/';
 import { setToken } from '@/utils/cookies';
 
@@ -18,11 +18,11 @@ import useAccountStore from '@/store/account';
 export default () => {
   const router = useRouter();
   const user = useAccountStore();
-  const LoginFormState = reactive<Pick<AccountFormReadonly, 'password' | 'username'>>({
+  const LoginFormState = reactive<Pick<AccountFormAble, 'password' | 'username'>>({
     username: '',
     password: '',
   });
-  const RegisterFormState = reactive<AccountFormReadonly>({
+  const RegisterFormState = reactive<AccountFormAble>({
     ...LoginFormState,
     email: '',
     rePassword: '',
@@ -49,10 +49,10 @@ export default () => {
    * 登录
    * @param forms
    */
-  const Login = async (forms: AccountFormReadonly): Promise<void> => {
+  const Login = async (forms: AccountFormAble): Promise<void> => {
     const res = await login(forms);
 
-    setToken('jwt-token', res.data.token);
+    setToken('jwt-token', res.data.token as string);
 
     user.setUser(res.data);
     message.success('登入成功');
@@ -62,7 +62,7 @@ export default () => {
   /**
    * 注册
    */
-  const Register = async (forms: AccountFormReadonly) => {
+  const Register = async (forms: AccountFormAble) => {
     const res = await register(forms);
     if (res.code === 1203) return;
     message.info('注册成功');

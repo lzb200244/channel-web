@@ -1,17 +1,17 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 
-import { PushType } from '@/types/t/push';
-
 import isTimeElapsed from '@/utils/elapsed';
 import { getOnlineAPI, getRecordAPi } from '@/apis/channel';
-import { BaseRecord } from '@/types/channel';
+
+import { PushType } from '@/types/channel/modules/push';
+import { BaseRecord, ReplayMessage } from '@/types/channel';
 
 const useChannelStore = defineStore(
   'channel', {
     // 推荐使用 完整类型推断的箭头函数
     state: () => ({
       //   聊天消息列表
-      messageList: [] as BaseRecord[],
+      messageList: [] as BaseRecord<ReplayMessage>[],
       onlineList: [] as PushType[],
 
     }),
@@ -44,15 +44,15 @@ const useChannelStore = defineStore(
        * 请求跟多的历史记录
        * @param itemList
        */
-      asyncPushMoreRecord(itemList: BaseRecord[]) {
+      asyncPushMoreRecord(itemList: BaseRecord<ReplayMessage>[]) {
         this.setRecordMessage(itemList);
       },
       /**
        * 设置历史记录
        * @param itemList 列表
        */
-      setRecordMessage(itemList: BaseRecord[]) {
-        itemList.forEach((item: BaseRecord) => {
+      setRecordMessage(itemList: BaseRecord<ReplayMessage>[]) {
+        itemList.forEach((item: BaseRecord<ReplayMessage>) => {
           // 是否过期2分钟
           if (isTimeElapsed(item.message.time, 2)) {
             // 过期了就不支持撤回了
@@ -93,8 +93,8 @@ const useChannelStore = defineStore(
        * 获取当前在线人数
        */
       async getOnline() {
-        const { data } = await getOnlineAPI();
-        this.onlineList = data;
+        const res = await getOnlineAPI();
+        this.onlineList = res.data;
       },
       /**
        * 获取历史记录
@@ -102,7 +102,6 @@ const useChannelStore = defineStore(
       async asyncRecord() {
         const res = await getRecordAPi();
         // 进行翻转
-        console.log(res);
         this.setRecordMessage(res.data.results);
       },
     },
