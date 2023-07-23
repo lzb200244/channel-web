@@ -35,7 +35,6 @@
                 <template
                   v-if="item.message.messageStatus.isDrop"
                 >
-                  <!--v-if="item.message.type===MessageTypeEnum.TEXT"-->
                   <div
                     class="drop-record"
                   >
@@ -83,7 +82,9 @@ import useChannelMessage from '@/core/channel';
 import { PushTypeEnum } from '@/types/channel/enum';
 import ChannelCard from '@/components/channel/channelCard.vue';
 import ChannelInput from '@/components/channel/channelInput.vue';
-import { BaseRecord, ReplayMessage } from '@/types/channel';
+import {
+  BaseRecord, ReplayMessage, ThumbMessage, ThumbOpt,
+} from '@/types/channel';
 
 const channelStore = useChannelStore();
 const {
@@ -128,6 +129,10 @@ socket.onMessage((data:BaseRecord<ReplayMessage>) => {
       channelStore.deleteRecord(message);
       break;
     }
+    case PushTypeEnum.THUMB_PUSH:
+      console.log(message, 2222);
+      channelStore.updateRecordLikes(message as unknown as ThumbMessage);
+      break;
   }
   // 放入store
 });

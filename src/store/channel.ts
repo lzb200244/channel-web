@@ -4,7 +4,9 @@ import isTimeElapsed from '@/utils/elapsed';
 import { getOnlineAPI, getRecordAPi } from '@/apis/channel';
 
 import { PushType } from '@/types/channel/modules/push';
-import { BaseRecord, ReplayMessage } from '@/types/channel';
+import {
+  BaseRecord, ReplayMessage, ThumbMessage, ThumbOpt,
+} from '@/types/channel';
 
 const useChannelStore = defineStore(
   'channel', {
@@ -103,6 +105,21 @@ const useChannelStore = defineStore(
         const res = await getRecordAPi();
         // 进行翻转
         this.setRecordMessage(res.data.results);
+      },
+      /**
+       * 更新消息的赞数量
+       */
+      updateRecordLikes(op:ThumbMessage) {
+        console.log(op);
+        for (let i = 0; i < this.messageList.length; i++) {
+          const item = this.messageList[i];
+
+          if (item.message.msgID === op.message.msgID) {
+            item.message.messageStatus.likes += op.message.isLike === 1 ? 1 : -1;
+
+            break; // 退出循环
+          }
+        }
       },
     },
   },

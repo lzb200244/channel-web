@@ -9,7 +9,7 @@ import {
   BaseRecord, ReplayItem, ReplayMessage,
 } from '@/types/channel';
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
-import { getRecordAPi } from '@/apis/channel';
+import { getRecordAPi, recallAPI, sendMsgAPI } from '@/apis/channel';
 import useChannelStore from '@/store/channel';
 import useAccountStore from '@/store/account';
 import isTimeElapsed from '@/utils/elapsed';
@@ -34,7 +34,7 @@ const useChannelMessage = () => {
      */
   const messageList = computed<PushType[]>(
     () => channelStore.messageList.map((item:
-          BaseRecord, idx: number) =>
+                                                BaseRecord, idx: number) =>
       ({ ...item, id: idx + 1 }), // 使用展开语法创建一个新对象，添加唯一ID
     ).reverse());
     /**
@@ -48,7 +48,7 @@ const useChannelMessage = () => {
     currentPage: 1, // 当前页
     stop: false, // 是否停止
   });
-  // 回复消息体
+    // 回复消息体
   const msg = reactive<BaseRecord<ReplayMessage>>({
     type: PushTypeEnum.MESSAGE_PUSH,
     message: {
@@ -59,7 +59,7 @@ const useChannelMessage = () => {
         likes: 0,
         drop: '',
         isDrop: false,
-        isLike: null,
+        isLike: 0,
       },
       msgID: 0,
       roomID: roomID as number,
@@ -77,7 +77,9 @@ const useChannelMessage = () => {
      * 滑动到底部
      */
   const scrollToBottom = () => {
-    virtual.scrollTop = virtual.scrollHeight;
+    // virtual.scrollTop = virtual.scrollHeight;
+    //   由于是虚拟列表渲染，高度不固定，默认每次进来加载滑动到底部给定一个最大值
+    virtual.scrollTop = Number.MAX_SAFE_INTEGER;
   };
 
   /**
@@ -106,11 +108,16 @@ const useChannelMessage = () => {
       }
     }
   };
-  const handleOpt = (obj: BaseRecord, tp: number) => {
+  /**
+   * 处理一些消息的操作例如：撤回，点赞，踩
+   * @param obj
+   * @param tp
+   */
+  const handleOpt = async (obj: BaseRecord, tp: number) => {
     // 撤回 => \types\channel\modules\recall.ts
     if (tp === PushTypeEnum.RECALL_PUSH) {
+      // 是否过期两分钟不能撤回
       if (isTimeElapsed(obj.message.time, 2)) return message.info('逝去瞬间，无法挽回。');
-      // 过期两分钟不能撤回
       const recallItem: RecallType = {
         type: PushTypeEnum.RECALL_PUSH,
         message: {
@@ -120,13 +127,15 @@ const useChannelMessage = () => {
             isDrop: true,
             drop: `${dayjs().format('HH:mm:ss ')} "${user.value.username}" 撤销了一条消息`,
             likes: obj.message.messageStatus.likes,
-            isLike: false,
+            isLike: 0,
           },
           time: Date.now(),
           roomID: roomID as number,
         },
       };
-      socket.send(recallItem);
+      // socket.send(recallItem);
+      // 撤回
+      await recallAPI(recallItem);
     } else if (tp === PushTypeEnum.THUMB_PUSH) {
       if (obj.message.messageStatus) {
         // obj.message.messageStatus.userIsLike = !obj.message.messageStatus.userIsLike;
@@ -154,7 +163,7 @@ const useChannelMessage = () => {
   /**
      * 发送消息
      */
-  const sendMessage = (v: string) => {
+  const sendMessage = async (v: string) => {
     // 匿名用户
     if (!user.value.userID || !v) return;
     //   消息类型
@@ -177,20 +186,22 @@ const useChannelMessage = () => {
         break;
       }
     }
-    socket.send(msg);
+    await sendMsgAPI(msg);
+    // socket.send(msg);
+
     (msg.message as TextMessage).content = '';
     cancelReplay();
 
     setTimeout(() => {
       // 延迟一段时间再滚动到底部
       scrollToBottom();
-    }, 200); // 可根据实际情况调整延迟时间
+    }, 100); // 可根据实际情况调整延迟时间
   };
     /**
      *
      * @param res 文件信息
      */
-  const sendFileMessage = (res: FileInfo) => {
+  const sendFileMessage = async (res: FileInfo) => {
     if (!user.value.userID) return;
     // 发送文件
     // res 存在fileSize,fileName等
@@ -217,7 +228,8 @@ const useChannelMessage = () => {
       }
     }
 
-    socket.send(fileObj);
+    // socket.send(fileObj);
+    await sendMsgAPI(fileObj);
     cancelReplay();
   };
   onMounted(async () => {
@@ -235,7 +247,6 @@ const useChannelMessage = () => {
   return {
     pageConf,
     socket,
-
     messageList,
     msg,
     user,

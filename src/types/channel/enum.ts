@@ -15,9 +15,28 @@ export enum PushTypeEnum {
  * MSG 消息，FILE文件，IMAGE图片，VIDEO音频/视频
  */
 export enum MessageTypeEnum {
+    /**
+     * 文本
+     */
     TEXT = 1,
+    /**
+     * 文件类型
+     */
     FILE = 2,
+    /**
+     * 图片类型
+     */
     IMAGE = 3,
+    /**
+     * 音频类型
+     */
     VIDEO = 4,
+    /**
+     * 回复类型
+     */
     REPLAY = 5,
+    /**
+     * 撤回
+     */
+    RECALL
 }

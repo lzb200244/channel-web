@@ -1,5 +1,6 @@
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 
+export type likeStatus=0|1|2
 export interface FileInfo {
     fileName: string;
     fileSize: number;
@@ -9,7 +10,8 @@ interface MessageStatus {
     drop: string;
     likes: number;
     isDrop: boolean;
-    isLike:boolean|null
+
+    isLike:likeStatus ; // 0未操作,1点赞，2踩
 }
 interface BaseMessage {
     type: MessageTypeEnum; // 消息类型,文本,图片,文件,音频
@@ -69,4 +71,14 @@ export interface BaseRecord<T extends BaseMessage=BaseMessage> {
     type: PushTypeEnum; // 推送类型
     message: T; // 消息类型
     user: BaseUserItem; // 用户信息
+}
+
+// 点赞
+export interface ThumbOpt{
+    msgID:number, // 消息id
+    isLike:likeStatus // 状态
+}
+export interface ThumbMessage {
+    type: PushTypeEnum; // 推送类型
+    message: ThumbOpt; // 消息类型
 }

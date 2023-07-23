@@ -162,8 +162,11 @@
 
           <a-col>
             <a-upload
-              v-model:file-list="fileList"
-              :before-upload="beforeUpload"
+
+              :before-upload="handleBeforeUpload"
+              :custom-request="beforeUpload"
+
+              :show-upload-list="false"
               name="file"
             >
               <a-button>
@@ -195,10 +198,12 @@ import {
   MenuFoldOutlined,
 
 } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 import useAccountStore from '@/store/account';
 import { UserInfo } from '@/types/account';
 import useCos from '@/hooks/tencent/cos';
 import ChannelStatus from '@/components/channel/channelStatus.vue';
+import { createValidateFileExtension, ImageTypes, isOverSize } from '@/utils/file/valide';
 
 const useAccount = useAccountStore();
 useAccount.asyncUser();
@@ -210,7 +215,6 @@ const showDrawer = () => {
 const userObj = computed(() => useAccount.user);
 const showInfo = ref<boolean>(false);
 const showAvatarList = ref<boolean>(false);
-const fileList = ref([]);
 // 原来更新用户信息的
 const userinfo = reactive<UserInfo>({
   userID: 0,
@@ -228,6 +232,20 @@ const onResize = () => {
   } else {
     isRow.value = false;
   }
+};
+const handleBeforeUpload = (file:File) => {
+  // 可以在这里对上传的文件进行校验，例如文件类型、文件大小限制等
+  let valid = createValidateFileExtension(ImageTypes);
+  if (isOverSize(file.size, 5)) {
+    message.info('图片大小不能超过5mb');
+    return;
+  }
+  if (!valid(file.name)) {
+    message.info(`名叫${file.name}并非图片类型`);
+    return false;
+  }
+
+  return true; // 返回 true 表示继续上传，返回 false 则取消上传
 };
 onMounted(() => {
   window.addEventListener('resize', onResize); // 监听resize事件
@@ -259,9 +277,13 @@ const updateAvatarCancel = () => {
   userinfo.avatar = userObj.value.avatar;
 };
 const { updateFile } = useCos('http://127.0.0.1:8000/api/user/get_credict');
-const beforeUpload = async (file: File) => {
+/**
+ * 上传头像
+ * @param file file对象
+ */
+const beforeUpload = async (file: any) => {
   const { fileName, filePath } = await updateFile(
-    'chat-avatar-1311013567', `${userObj.value.userID}`, file,
+    'chat-avatar-1311013567', 'avatar', `${userObj.value.userID}`, file.file,
   );
   console.log(fileName, filePath);
   // 更新头像,其实不需要更新因为每次上传的cos都是一个key这保证了每次上传都不会修改掉历史数据,

@@ -43,9 +43,10 @@
           <!--    回复图片-->
           <template v-else-if="messageItem.message?.replay.type===MessageTypeEnum.IMAGE">
             <a-image
-              :width="100"
+              :style="{maxWidth:'200px'}"
               :src="messageItem.message.replay?.fileInfo?.filePath"
               :alt="messageItem.message.replay?.fileInfo?.fileName"
+              fallback="/error.png"
             />
           </template>
         </a-anchor-link>
@@ -64,9 +65,10 @@
         <!--          文件类型-->
         <template v-else-if="messageItem.message.type===MessageTypeEnum.IMAGE">
           <a-image
-            :width="200"
+            :style="{maxWidth:'250px'}"
             :src="messageItem.message.fileInfo?.filePath"
             :alt="messageItem.message.fileInfo?.fileName"
+            fallback="/error.png"
           />
         </template>
         <!--        回复-->
@@ -100,8 +102,8 @@
             >
               <like-outlined
 
-                :class="{star:messageItem.message.messageStatus.isLike===true}"
-                @click="likeStatus(messageItem,true)"
+                :class="{star:messageItem.message.messageStatus.isLike===1}"
+                @click="likeStatus(messageItem,1)"
               />
             </a-tooltip>
           </span>
@@ -111,11 +113,12 @@
               title="踩"
             >
               <dislike-outlined
-                :class="{star:messageItem.message.messageStatus.isLike===false}"
-                @click="likeStatus(messageItem,false)"
+                :class="{star:messageItem.message.messageStatus.isLike===2}"
+                @click="likeStatus(messageItem,2)"
               />
             </a-tooltip>
           </span>
+          {{ messageItem.message.messageStatus.likes }}
         </a-row>
       </div>
 
@@ -128,7 +131,8 @@
               style="font-size: 12px;"
               @click="copyUrl(messageItem.message.content as string)"
             >
-              <copy-outlined />复 制
+              <copy-outlined />
+              复 制
             </a-button>
           </a-menu-item>
           <a-menu-item key="call">
@@ -153,7 +157,8 @@
               style="font-size: 12px;"
               @click="Opt(messageItem,PushTypeEnum.RECALL_PUSH)"
             >
-              <delete-outlined />撤 回
+              <delete-outlined />
+              撤 回
             </a-button>
           </a-menu-item>
         </a-menu>
@@ -167,17 +172,16 @@
     </a-col>
   </a-row>
 </template>
-<script  setup lang="ts">
+<script setup lang="ts">
 import dayjs from 'dayjs';
 import { ref } from 'vue';
 import {
-  MessageOutlined, DeleteOutlined, CopyOutlined, LikeOutlined, DislikeOutlined,
+  CopyOutlined, DeleteOutlined, DislikeOutlined, LikeOutlined, MessageOutlined,
 } from '@ant-design/icons-vue';
-import {
-  BaseRecord, ReplayMessage,
-} from '@/types/channel';
+import { BaseRecord, ReplayMessage, likeStatus } from '@/types/channel';
 
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
+import { thumbAPI } from '@/apis/channel';
 
 const isHovered = ref(false);
 // defineProps<{
@@ -193,7 +197,7 @@ defineProps({
     default: () => true,
   },
   messageItem: {
-    type: Object as ()=> BaseRecord<ReplayMessage>,
+    type: Object as () => BaseRecord<ReplayMessage>,
     required: true,
   },
 });
@@ -249,7 +253,7 @@ const mentionUser = (message: BaseRecord<ReplayMessage>) => {
  * 复制1内容
  * @param content
  */
-const copyUrl = (content:string) => {
+const copyUrl = (content: string) => {
   const input = document.createElement('input'); // js创建一个input输入框
   input.value = content; // 将需要复制的文本赋值到创建的input输入框中
   document.body.appendChild(input); // 将输入框暂时创建到实例里面
@@ -260,8 +264,16 @@ const copyUrl = (content:string) => {
 /**
  * likeStatus 点赞与取消
  */
-const likeStatus = (item: BaseRecord<ReplayMessage>, isLike:boolean) => {
+const likeStatus = async (item: BaseRecord<ReplayMessage>, isLike: likeStatus) => {
+  //   如果重复操作返回
+  if (item.message.messageStatus.isLike === isLike) return;
   item.message.messageStatus.isLike = isLike;
+
+  item.message.messageStatus.likes += isLike === 1 ? 1 : -1;
+  await thumbAPI({
+    type: PushTypeEnum.THUMB_PUSH,
+    message: { msgID: item.message.msgID, isLike },
+  });
 };
 </script>
 <style lang="scss" scoped>
@@ -300,8 +312,9 @@ const likeStatus = (item: BaseRecord<ReplayMessage>, isLike:boolean) => {
 .opt {
   cursor: pointer;
   margin-right: 8px;
-  .star{
-  color: #379dff;
+
+  .star {
+    color: #379dff;
   }
 }
 

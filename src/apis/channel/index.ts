@@ -1,5 +1,7 @@
 import instance, { APiResponse } from '@/apis/index';
-import { BaseRecord, ReplayMessage } from '@/types/channel';
+import {
+  BaseRecord, ReplayMessage, ThumbMessage,
+} from '@/types/channel';
 import { PushType } from '@/types/channel/modules/push';
 
 /**
@@ -31,7 +33,47 @@ const getOnlineAPI = async ():APiResponse<PushType[]> =>
       url: 'chat/online/',
     },
   );
+/**
+ * 回消息
+ * @param msg 消息对象 BaseRecord
+ */
+const sendMsgAPI = async (msg:BaseRecord<ReplayMessage>):APiResponse<any> =>
+  instance.post({
+    url: 'chat/msg/',
+    data: {
+      ...msg,
+    },
+  });
+/**
+ * 消息撤回
+ * @param obj
+ */
+const recallAPI = async (obj :any):APiResponse<any> =>
+  instance.post({
+    url: 'chat/recall/',
+    data: {
+      ...obj,
+    },
+  });
+// http://127.0.0.1:8000/api/chat/file/
+/**
+ * 获取cos凭证
+ * @param path
+ */
+const getCreditAPI = async (path:string):APiResponse<any> => instance.get({ url: path });
+/**
+ * 点赞操作
+ * @param data
+ */
+const thumbAPI = (data:ThumbMessage):APiResponse<any> =>
+  instance.post({
+    url: 'chat/thumb/',
+    data: {
+      ...data,
+    },
+  });
+
 export {
   // eslint-disable-next-line import/prefer-default-export
-  getRecordAPi, getOnlineAPI,
+  getRecordAPi, getOnlineAPI, sendMsgAPI, recallAPI, getCreditAPI, thumbAPI,
 };

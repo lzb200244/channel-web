@@ -1,5 +1,10 @@
 <template>
   <div class="relative">
+    <!--    <a-progress-->
+    <!--      v-if="percent!==0"-->
+    <!--      status="active"-->
+    <!--      :percent="percent"-->
+    <!--    />-->
     <div
       :class="{'blur-1':!isLogin,'flex':true,'mt-12':true}"
     >
@@ -51,8 +56,9 @@
           </a-button>
         </a-popover>
         <a-upload
-          v-model:file-list="fileList"
-          :before-upload="beforeUpload"
+          :before-upload="handleBeforeUpload"
+          :custom-request="handleCustomRequest"
+          :show-upload-list="false"
           name="file"
         >
           <a-button
@@ -90,9 +96,10 @@ import {
 import 'vue3-emoji-picker/css';
 import EmojiPicker from 'vue3-emoji-picker';
 
-import useUpload from '@/utils/upload';
+import { message } from 'ant-design-vue';
 import useCos from '@/hooks/tencent/cos';
 import useChannelStore from '@/store/channel';
+import { createValidateFileExtension, ImageTypes, isOverSize } from '@/utils/file/valide';
 
 defineProps({
   value: {
@@ -107,25 +114,43 @@ defineProps({
 });
 
 const emits = defineEmits(['update:value', 'send-message', 'send-file-message']);
-const { cos } = useCos();
-const { uploadImg } = useUpload(cos);
 const toFocus = ref();
 const show = ref(false);
 const msg = ref('');
-const fileList = ref([]);
 
 const channelStore = useChannelStore();
 
 const mentionList = computed(() => channelStore.onlineList);
 /**
  * 上床图片
- * @param info
+ * @param file
  */
-const beforeUpload = async (info: File) => {
-  const res = await uploadImg(info as File);
+const handleBeforeUpload = (file:File) => {
+  // 可以在这里对上传的文件进行校验，例如文件类型、文件大小限制等
+  let valid = createValidateFileExtension(ImageTypes);
+  //   if (file.size)字节
+  if (isOverSize(file.size, 5)) {
+    message.info('图片大小不能超过5mb');
+    return;
+  }
+  if (!valid(file.name)) {
+    message.info(`名叫${file.name}并非图片类型`);
+    return false;
+  }
+  return true; // 返回 true 表示继续上传，返回 false 则取消上传
+};
+const { updateFile, percent } = useCos();
+// 自定义上传请求
+const handleCustomRequest = async (options:any) => {
+  const { file } = options;
 
-  emits('send-file-message', res);
-  return false;
+  const key = `${Date.now().toString()}:`;
+  const res = await updateFile('chat-1311013567', 'chat', key, file);
+
+  // 延迟100毫秒再进行通知，避免加载图片失败
+  setTimeout(() => {
+    emits('send-file-message', res);
+  }, 100);
 };
 /**
  * 加入表情
