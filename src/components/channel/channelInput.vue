@@ -1,38 +1,12 @@
 <template>
   <div class="relative">
-    <!--    <a-progress-->
-    <!--      v-if="percent!==0"-->
-    <!--      status="active"-->
-    <!--      :percent="percent"-->
-    <!--    />-->
-    <div
-      :class="{'blur-1':!isLogin,'flex':true,'mt-12':true}"
+    <el-row
+      :class="{'disabled-element':!isLogin,'flex':true,}"
     >
-      <a-mentions
-        ref="toFocus"
-        v-model:value="msg"
-        :disabled="!isLogin"
-        placeholder="输入消息..."
-
-        @change="adjustTextareaHeight"
-      >
-        <a-mentions-option
-          v-for="member in mentionList"
-          :key="member.user.userID"
-          :value="member.user.username"
-        >
-          {{ member.user.username }}
-        </a-mentions-option>
-      </a-mentions>
-      <div
-        v-show="!isLogin"
-        class="overlay-text"
-      >
-        请登录再发言😀
-      </div>
-      <el-row
-        :class="{'disabled-element':!isLogin,'flex':true,}"
-      >
+      <a-tooltip placement="topLeft">
+        <template #title>
+          <span>emoji</span>
+        </template>
         <a-popover
           v-model:visible="show"
           trigger="click"
@@ -55,9 +29,14 @@
             😀
           </a-button>
         </a-popover>
+      </a-tooltip>
+      <a-tooltip placement="topLeft">
+        <template #title>
+          <span>图片</span>
+        </template>
         <a-upload
-          :before-upload="handleBeforeUpload"
-          :custom-request="handleCustomRequest"
+          :before-upload="handleBeforeUploadImg"
+          :custom-request="handleCustomRequestImg"
           :show-upload-list="false"
           name="file"
         >
@@ -68,38 +47,78 @@
             <file-image-outlined />
           </a-button>
         </a-upload>
-        <a-button
-          type="text"
+      </a-tooltip>
+      <a-tooltip placement="topLeft">
+        <template #title>
+          <span>文件</span>
+        </template>
+        <a-upload
+          :before-upload="handleBeforeUploadFile"
+          :custom-request="handleCustomRequestFile"
+          :show-upload-list="false"
+          name="file"
         >
-          <folder-add-outlined />
-        </a-button>
-        <a-button
-          type="text"
-          :class="{'rotate-icon': msg.length > 0, 'px-2': true}"
-          @click="sendMessage"
+          <a-button
+            type="text"
+            class="px-2"
+          >
+            <folder-add-outlined />
+          </a-button>
+        </a-upload>
+      </a-tooltip>
+
+      <a-button
+        :type="msg.length > 0 ?'primary':'text'"
+        style="margin-left: auto"
+
+        @click="sendMessage"
+      >
+        发 送
+      </a-button>
+    </el-row>
+    <el-row
+      :class="{'blur-1':!isLogin,'flex':true,'mt-3':true}"
+    >
+      <a-mentions
+        ref="toFocus"
+        v-model:value="msg"
+        :disabled="!isLogin"
+        placeholder="输入消息..."
+        rows="3"
+      >
+        <a-mentions-option
+          v-for="item in mentionList"
+          :key="item.user.userID"
+          :value="item.user.username"
         >
-          <send-outlined />
-        </a-button>
-      </el-row>
-    </div>
+          {{ item.user.username }}
+        </a-mentions-option>
+      </a-mentions>
+      <div
+        v-show="!isLogin"
+        class="overlay-text"
+      >
+        请登录再发言😀
+      </div>
+    </el-row>
   </div>
 </template>
 
 <script setup lang="ts">
 
 import {
-  FileImageOutlined, SendOutlined, FolderAddOutlined,
+  FileImageOutlined, FolderAddOutlined,
 } from '@ant-design/icons-vue';
 import {
-  ref, defineExpose, computed,
+  ref, defineExpose, computed, defineEmits,
 } from 'vue';
 import 'vue3-emoji-picker/css';
 import EmojiPicker from 'vue3-emoji-picker';
-
 import { message } from 'ant-design-vue';
 import useCos from '@/hooks/tencent/cos';
 import useChannelStore from '@/store/channel';
-import { createValidateFileExtension, ImageTypes, isOverSize } from '@/utils/file/valide';
+import { createValidateFileExtension, isOverSize, ImageTypes } from '@/utils/file/valide';
+import { MessageTypeEnum } from '@/types/channel/enum';
 
 defineProps({
   value: {
@@ -125,7 +144,7 @@ const mentionList = computed(() => channelStore.onlineList);
  * 上床图片
  * @param file
  */
-const handleBeforeUpload = (file:File) => {
+const handleBeforeUploadImg = (file: File) => {
   // 可以在这里对上传的文件进行校验，例如文件类型、文件大小限制等
   let valid = createValidateFileExtension(ImageTypes);
   //   if (file.size)字节
@@ -139,17 +158,17 @@ const handleBeforeUpload = (file:File) => {
   }
   return true; // 返回 true 表示继续上传，返回 false 则取消上传
 };
-const { updateFile, percent } = useCos();
-// 自定义上传请求
-const handleCustomRequest = async (options:any) => {
-  const { file } = options;
 
+// 自定义上传请求
+const handleCustomRequestImg = async (options: any) => {
+  const { file } = options;
+  const { updateFile } = useCos('chat/file/', 'img');
   const key = `${Date.now().toString()}:`;
   const res = await updateFile('chat-1311013567', 'chat', key, file);
 
   // 延迟100毫秒再进行通知，避免加载图片失败
   setTimeout(() => {
-    emits('send-file-message', res);
+    emits('send-file-message', res, MessageTypeEnum.IMAGE);
   }, 100);
 };
 /**
@@ -159,19 +178,25 @@ const handleCustomRequest = async (options:any) => {
 const onSelectEmoji = (emoji: any) => {
   msg.value += emoji?.i;
 };
-
+const handleBeforeUploadFile = (file: File) => {
+  if (isOverSize(file.size, 20)) {
+    message.info('文件过于大');
+    return false;
+  }
+};
+const handleCustomRequestFile = async (options:any) => {
+  const { updateFile } = useCos('chat/file/', 'file');
+  const { file } = options;
+  const key = `${Date.now().toString()}`;
+  const res = await updateFile('chat-file-1311013567', 'chat-file', key, file);
+  setTimeout(() => {
+    emits('send-file-message', res, MessageTypeEnum.FILE);
+  }, 100);
+  console.log(res);
+};
 /**
  * 调节输入框
  */
-const adjustTextareaHeight = (event: Event | undefined) => {
-  if (!event || !event.target) {
-    return;
-  }
-
-  const target = event.target as HTMLTextAreaElement;
-  target.style.height = 'auto';
-  target.style.height = `${target.scrollHeight}px`;
-};
 const focus = () => {
   toFocus.value.focus();
 };
@@ -182,29 +207,22 @@ const sendMessage = () => {
   emits('send-message', msg.value);
   msg.value = '';
 };
-const sendImgMessage = () => {
-  console.log(222);
-};
 
 defineExpose({
-
   focus,
 });
 </script>
 <style scoped>
-@keyframes rotateAnimation {
 
-    100% {
-        transform: rotate(-90deg);
-    }
-}
 .rotate-icon {
-    color: cornflowerblue;
-    animation: rotateAnimation .4s forwards;
+    background-color: #afff1f;
+    color: white;
 }
+
 .disabled-element {
     pointer-events: none;
 }
+
 .overlay-text {
     position: absolute;
     top: 50%;

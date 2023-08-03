@@ -2,13 +2,13 @@ import COS from 'cos-js-sdk-v5';
 import { ref } from 'vue';
 import { getCreditAPI } from '@/apis/channel';
 
-function getFileExtension(filename:string) {
+export function getFileExtension(filename:string) {
   return filename.slice(filename.lastIndexOf('.') + 1);
 }
-const useCos = (back:string = 'chat/file/') => {
+const useCos = (back:string = 'chat/file/', policy :string) => {
   const cos = new COS({
     async getAuthorization(options, callback) {
-      const res = await getCreditAPI(back);
+      const res = await getCreditAPI(back, policy);
       let { data } = res;
 
       let { Credentials } = data;
@@ -37,8 +37,8 @@ const useCos = (back:string = 'chat/file/') => {
    */
   const updateFile = async (bucket:string, prefix:string, key :string, file :File, region:string = 'ap-nanjing') => {
     // https://chat-1311013567.cos.ap-nanjing.myqcloud.com/
-    const endFix = getFileExtension(file.name);
-    const fileName = `${prefix}-${key}-${endFix}`;
+    // const endFix = getFileExtension(file.name);
+    const fileName = `${prefix}-${key}:${file.name}`;
     const PATH = `https://${bucket}.cos.${region}.myqcloud.com/${fileName}`;
     // 这里省略初始化过程和上传参数
     try {

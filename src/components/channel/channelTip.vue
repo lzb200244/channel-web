@@ -3,6 +3,20 @@
     <a-layout-content
       class="tip-box tip-list-height"
     >
+      <a-input
+        v-model:value="userName"
+        style="margin: 15px 0"
+        placeholder="Basic usage"
+      >
+        <template #prefix>
+          <user-outlined type="user" />
+        </template>
+        <template #suffix>
+          <a-tooltip title="Extra information">
+            <info-circle-outlined style="color: rgba(0, 0, 0, 0.45)" />
+          </a-tooltip>
+        </template>
+      </a-input>
       <a-collapse
         v-model:activeKey="activeKey"
 
@@ -16,7 +30,7 @@
           :bordered="false"
         >
           <template #header>
-            <span>动态</span>
+            <span>个人</span>
           </template>
           <a-list
 
@@ -52,6 +66,14 @@
               </a-list-item>
             </template>
           </a-list>
+        </a-collapse-panel>
+        <a-collapse-panel
+          key="2"
+          style="border: none;"
+          :show-arrow="true"
+          header="群消息"
+        >
+          <p>1111111111</p>
         </a-collapse-panel>
       </a-collapse>
     </a-layout-content>

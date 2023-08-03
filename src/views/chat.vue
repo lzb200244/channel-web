@@ -20,7 +20,7 @@
                 :xs="24"
                 :sm="24"
                 :md="24"
-                :lg="6"
+                :lg="5"
               >
                 <header-layout />
               </a-col>
@@ -28,7 +28,7 @@
                 :xs="24"
                 :sm="24"
                 :md="24"
-                :lg="18"
+                :lg="19"
               >
                 <channel-tip />
               </a-col>
@@ -95,7 +95,11 @@ body{
         @media (max-width: 600px) {
             width: 100%; /* 当屏幕缩小时，宽度占满 */
             min-height: 100%;
+
         }
+    }
+    @media (max-width: 600px) {
+        width: 100%;
     }
 }
 .ant-card-body{

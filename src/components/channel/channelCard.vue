@@ -2,126 +2,108 @@
   <a-row
     v-if="Object.keys(messageItem).length!==0"
     :id="'record:'+messageItem.message.msgID"
-    style="margin-bottom: 30px"
+    style="margin-bottom: 5px"
+    class="hover"
   >
-    <!--      本人-->
-    <a-col v-if="!isSend">
-      <a-avatar
-        :src="messageItem.user.avatar"
-        :class="['message-avatar', 'avatar-left']"
-      />
-    </a-col>
-
     <a-dropdown :trigger="['contextmenu']">
-      <div
-        style="position: relative;"
-        @mouseover="isHovered=true"
-        @mouseleave="isHovered=false"
-      >
-        <a-typography-text
-          style="height: 22px"
-          :class="['chat-info', isSend?'chat-info-right':'chat-info-left' ]"
-        >
-          <span class="chat-time">{{ formatTime(messageItem.message.time) }}</span>
-          <span class="chat-name">{{ messageItem.user.username }}</span>
-        </a-typography-text>
-        <!-- TODO   存在回复对象-->
-        <a-anchor-link
-          v-if="messageItem.message.replay"
-          :class="['replay-card', ]"
-          :href="'#record:'+messageItem.message.replay?.msgID"
-          :title="'@'+ messageItem.message.replay.username"
-          @click="findRecordLight(messageItem.message.replay.msgID)"
-        >
-          <template v-if="messageItem.message.replay.type ===MessageTypeEnum.TEXT">
-            <a-typography-paragraph
-              :ellipsis="ellipsis"
-              :copyable="false"
-              v-html="messageItem.message?.replay.content"
-            />
-          </template>
-          <!--    回复图片-->
-          <template v-else-if="messageItem.message?.replay.type===MessageTypeEnum.IMAGE">
-            <a-image
-              :style="{maxWidth:'200px'}"
-              :src="messageItem.message.replay?.fileInfo?.filePath"
-              :alt="messageItem.message.replay?.fileInfo?.fileName"
-              fallback="/error.png"
-            />
-          </template>
-        </a-anchor-link>
-
-        <!-- TODO   消息体-->
-
-        <template v-if="messageItem.message.type===MessageTypeEnum.TEXT">
-          <a-typography-paragraph
-            :class="['message-card',
-                     'chat-bubble',isSend?'message-card-right': 'message-card-left']"
-            :ellipsis="ellipsis"
-            :copyable="false"
-            v-html="messageItem.message.content"
-          />
-        </template>
-        <!--          文件类型-->
-        <template v-else-if="messageItem.message.type===MessageTypeEnum.IMAGE">
-          <a-image
-            :style="{maxWidth:'250px'}"
-            :src="messageItem.message.fileInfo?.filePath"
-            :alt="messageItem.message.fileInfo?.fileName"
-            fallback="/error.png"
-          />
-        </template>
-        <!--        回复-->
-        <template v-else-if="messageItem.message.type===5">
-          <a-typography-paragraph
-            :class="['message-card',
-                     'chat-bubble',isSend?'message-card-right': 'message-card-left']"
-            :ellipsis="ellipsis"
-            :copyable="false"
-            v-html="messageItem.message.content"
-          />
-        </template>
-
-        <a-row
-          v-if="isHovered"
-          class="opt-box"
-        >
-          <span class="opt">
-            <a-tooltip
-              placement="topLeft"
-              title="回复"
-            >
-              <message-outlined @click="Opt(messageItem,PushTypeEnum.REPLAY_PUSH)" />
+      <a-comment style="padding-right: 10px;">
+        <template #actions>
+          <span key="comment-basic-like">
+            <a-tooltip title="Like">
+              <template v-if="messageItem.message.messageStatus.isLike===1">
+                <LikeFilled @click="LikeStatus(messageItem,1)" />
+              </template>
+              <template v-else>
+                <LikeOutlined @click="LikeStatus(messageItem,1)" />
+              </template>
             </a-tooltip>
+            <span style="padding-left: 8px; cursor: auto">
+              999+
+            </span>
           </span>
-          <span class="opt">
-
-            <a-tooltip
-              placement="topLeft"
-              title="点赞"
+          <span key="comment-basic-dislike">
+            <a-tooltip title="Dislike">
+              <template v-if="messageItem.message.messageStatus.isLike===2">
+                <DislikeFilled @click="LikeStatus(messageItem,2)" />
+              </template>
+              <template v-else>
+                <DislikeOutlined @click="LikeStatus(messageItem,2)" />
+              </template>
+            </a-tooltip>
+            <span style="padding-left: 8px; cursor: auto">
+              111
+            </span>
+          </span>
+          <span
+            key="comment-basic-reply-to"
+            @click="Opt(messageItem,PushTypeEnum.REPLAY_PUSH)"
+          >Reply to</span>
+        </template>
+        <template #author>
+          <a
+            :class="isSend?'isSend':''"
+            style="font-size: 14px;"
+          >{{ userMap.get(messageItem.user.userID)?.username }}</a>
+        </template>
+        <template #avatar>
+          <a-avatar
+            :src="userMap.get(messageItem.user.userID)?.avatar"
+            :alt="userMap.get(messageItem.user.userID)?.username "
+          />
+        </template>
+        <template #content>
+          <div
+            style="position: relative;margin-top: 20px"
+          >
+            <!-- TODO   存在回复对象-->
+            <a-anchor-link
+              v-if="messageItem.message.replay"
+              class="replay"
+              :href="'#record:'+messageItem.message.replay.msgID"
+              :title="'@'+ messageItem.message.replay.username"
+              @click="findRecordLight(messageItem.message.replay.msgID)"
             >
-              <like-outlined
-
-                :class="{star:messageItem.message.messageStatus.isLike===1}"
-                @click="likeStatus(messageItem,1)"
+              <template v-if="messageItem.message.replay.type ===MessageTypeEnum.TEXT">
+                <a-typography-paragraph
+                  v-html="messageItem.message?.replay.content"
+                />
+              </template>
+              <!--    回复图片-->
+              <template v-else-if="messageItem.message?.replay.type===MessageTypeEnum.IMAGE">
+                <record-img
+                  :style="{maxWidth:'220px'}"
+                  :file-info="messageItem.message.fileInfo"
+                />
+              </template>
+              <template v-else-if="messageItem.message.type===MessageTypeEnum.FILE">
+                <record-file :file-info="messageItem.message.fileInfo" />
+              </template>
+            </a-anchor-link>
+            <!-- TODO   消息体-->
+            <template v-if="messageItem.message.type===MessageTypeEnum.TEXT">
+              <a-typography-paragraph
+                v-html="messageItem.message.content"
               />
-            </a-tooltip>
-          </span>
-          <span class="opt">
-            <a-tooltip
-              placement="topLeft"
-              title="踩"
-            >
-              <dislike-outlined
-                :class="{star:messageItem.message.messageStatus.isLike===2}"
-                @click="likeStatus(messageItem,2)"
+            </template>
+            <!--          图片类型-->
+            <template v-else-if="messageItem.message.type===MessageTypeEnum.IMAGE">
+              <record-img
+                :style="{maxWidth:'320px'}"
+                :file-info="messageItem.message.fileInfo"
               />
-            </a-tooltip>
-          </span>
-          {{ messageItem.message.messageStatus.likes }}
-        </a-row>
-      </div>
+            </template>
+            <template v-else-if="messageItem.message.type===MessageTypeEnum.FILE">
+              <record-file :file-info="messageItem.message.fileInfo" />
+            </template>
+          </div>
+        </template>
 
+        <template #datetime>
+          <a-tooltip :title="dayjs(messageItem.message.time).format('YYYY-MM-DD HH:mm:ss')">
+            <span>{{ formatTime(messageItem.message.time) }}</span>
+          </a-tooltip>
+        </template>
+      </a-comment>
       <template #overlay>
         <a-menu>
           <a-menu-item key="copy">
@@ -148,7 +130,6 @@
 
           <a-menu-item
             key="recall"
-            style="border-top: 1px solid #d7d7d7;"
           >
             <a-button
               v-if="isSend"
@@ -164,39 +145,33 @@
         </a-menu>
       </template>
     </a-dropdown>
-    <a-col v-if="isSend">
-      <a-avatar
-        :src="messageItem.user.avatar"
-        :class="['message-avatar', 'avatar-right']"
-      />
-    </a-col>
   </a-row>
 </template>
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { ref } from 'vue';
+import { computed } from 'vue';
 import {
-  CopyOutlined, DeleteOutlined, DislikeOutlined, LikeOutlined, MessageOutlined,
+  CopyOutlined, DeleteOutlined, DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined,
 } from '@ant-design/icons-vue';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { BaseRecord, ReplayMessage, likeStatus } from '@/types/channel';
 
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 import { thumbAPI } from '@/apis/channel';
+import useChannelStore from '@/store/channel';
+import RecordFile from '@/components/channel/record/recordFile.vue';
+import RecordImg from '@/components/channel/record/recordImg.vue';
 
-const isHovered = ref(false);
-// defineProps<{
-//     isSend: boolean, // 是否是回复
-//     messageItem: BaseRecord<ReplayMessage> // 消息体
-// }>(), {
-//   isSend: true,
-// };
+dayjs.extend(relativeTime);
 
 defineProps({
+  //   是否是回复
   isSend: {
     type: Boolean,
     default: () => true,
   },
   messageItem: {
+    //   消息体
     type: Object as () => BaseRecord<ReplayMessage>,
     required: true,
   },
@@ -206,11 +181,8 @@ defineProps({
  *  撤回，点赞，回复，@
  */
 const emit = defineEmits(['opt']);
-const ellipsis = {
-  expandable: true,
-  rows: 3,
-  symbol: '更多',
-};
+const channelStore = useChannelStore();
+const userMap = computed(() => channelStore.userMap);
 
 const oneDayTimestamp = 24 * 60 * 60 * 1000; // 一天的时间戳，单位为毫秒
 /**
@@ -219,7 +191,8 @@ const oneDayTimestamp = 24 * 60 * 60 * 1000; // 一天的时间戳，单位为�
  */
 const formatTime = (timestamp: number) => (timestamp + oneDayTimestamp < Date.now()
   ? dayjs(timestamp).format('MM月DD日 HH:mm')
-  : dayjs(timestamp).format('HH:mm'));
+  : dayjs(timestamp).format('HH:mm')
+);
 
 /**
  *
@@ -229,7 +202,6 @@ const formatTime = (timestamp: number) => (timestamp + oneDayTimestamp < Date.no
 const Opt = (message: BaseRecord<ReplayMessage>, tp: number) => {
   //   判断是否过了两分钟
   //   发给父组件
-
   emit('opt', message, tp);
 };
 /**
@@ -238,6 +210,7 @@ const Opt = (message: BaseRecord<ReplayMessage>, tp: number) => {
  */
 const findRecordLight = (id: number) => {
   let domID = `record:${id}`;
+  console.log(domID);
   // let dom = document.getElementById(domID);
   // console.log(dom);
   // dom.style.background = 'red';
@@ -264,124 +237,32 @@ const copyUrl = (content: string) => {
 /**
  * likeStatus 点赞与取消
  */
-const likeStatus = async (item: BaseRecord<ReplayMessage>, isLike: likeStatus) => {
+const LikeStatus = async (item: BaseRecord<ReplayMessage>, isLike: likeStatus) => {
   //   如果重复操作返回
   if (item.message.messageStatus.isLike === isLike) return;
   item.message.messageStatus.isLike = isLike;
-
-  item.message.messageStatus.likes += isLike === 1 ? 1 : -1;
   await thumbAPI({
     type: PushTypeEnum.THUMB_PUSH,
     message: { msgID: item.message.msgID, isLike },
   });
 };
 </script>
-<style lang="scss" scoped>
-.replay-card {
-  max-width: 200px;
-  margin-top: 3px;
-  margin-bottom: 0 !important;
-  padding: 5px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px 0, rgba(0, 0, 0, 0.06) 0 1px 2px 0;
-  border-radius: 0 7px 7px 0;
-  border-left: 5px solid #dadada;
+<style lang="scss">
+.replay {
+  border-left: rgba(255, 231, 209, 0.9) 5px solid;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  margin-bottom: 15px;
+
 }
 
-.message-card {
-
-  max-width: 200px;
-  margin-top: 3px;
-  margin-bottom: 0 !important;
-  padding: 8px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px 0, rgba(0, 0, 0, 0.06) 0 1px 2px 0;
-  border-radius: 7px;
-
-  &.message-card-left {
-    background-color: #f0f0f0;
-    color: #7c7c7c;
-    border-top-left-radius: 0;
-  }
-
-  &.message-card-right {
-    background-color: #6495ed;
-    color: white;
-    border-top-right-radius: 0;
-  }
+.isSend {
+  font-weight: bolder;
+  color: #494949!important;
 }
-
-.opt {
-  cursor: pointer;
-  margin-right: 8px;
-
-  .star {
-    color: #379dff;
-  }
-}
-
-.opt-box {
-  padding: 0 3px;
-  position: absolute;
-  left: 0;
-  //margin-top: 8px;
-
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16); /* 添加阴影效果 */
-}
-
-.chat-info {
-  display: flex;
-  justify-content: start;
-  margin-left: 10px;
-
-  &-right {
-    justify-content: end;
-    margin-right: 10px;
-  }
-
-  .chat-time {
-    margin-right: 5px;
-    color: #999;
-    line-height: 22px;
-    font-size: 10px;
-  }
-
-  .chat-name {
-    color: #666;
-    line-height: 22px;
-    font-size: 12px;
-  }
-}
-
-.chat-bubble {
-  padding: 10px;
-  border-radius: 20px;
-  margin: 10px;
-
-  &.chat-bubble-left {
-    background-color: #f0f0f0;
-    color: #7c7c7c;
-  }
-
-  &.chat-bubble-right {
-    background-color: #6495ed;
-    color: white;
-  }
-}
-
-.message-avatar {
-
-  margin: 10px;
-
-  &.avatar-left {
-    margin-left: 10px;
-    float: left;
-  }
-
-  &.avatar-right {
-    margin-right: 10px;
-    float: right;
-  }
+.hover:hover{
+  background-color: #fff0f0;
+  transition: all .4s ease-in-out
 }
 
 </style>

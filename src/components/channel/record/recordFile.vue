@@ -1,0 +1,71 @@
+<template>
+  <a-card class="file-card">
+    <a-row
+      class="file-info"
+      align="center"
+    >
+      <a-col>
+        <a-avatar
+          shape="square"
+          :size="40"
+          :src="getFileIcon(fileInfo.fileName)"
+        />
+      </a-col>
+      <a-col>
+        <a-typography-title :level="5">
+          {{ getFileNameWithoutPrefix }}
+        </a-typography-title>
+        <div>{{ fileInfo.fileSize }}</div>
+      </a-col>
+      <a-col
+        class="download-link"
+        :style="{ marginLeft: 'auto' }"
+      >
+        <a :href="fileInfo.filePath">
+          <download-outlined />
+        </a>
+      </a-col>
+    </a-row>
+  </a-card>
+</template>
+
+<script setup lang="ts">
+import { DownloadOutlined } from '@ant-design/icons-vue';
+import { computed } from 'vue';
+import { FileInfo } from '@/types/channel';
+import { getFileExtension } from '@/hooks/tencent/cos';
+
+const props = defineProps({
+  fileInfo: {
+    type: Object as () => FileInfo,
+    default: {} as FileInfo,
+  },
+});
+
+const getFileIcon = (fileName: string) => {
+  const fileExtension = getFileExtension(fileName);
+  const iconPath = '/files_type/';
+  const supportedExtensions = ['doc', 'file', 'pdf', 'png', 'txt', 'xls'];
+  const icon = supportedExtensions.includes(fileExtension) ? fileExtension : 'file';
+  return `${iconPath}${icon}.png`;
+};
+/**
+ * 获取文件名
+ */
+const getFileNameWithoutPrefix = computed(() => props.fileInfo.fileName.split(':')[1]);
+</script>
+
+<style scoped>
+.file-card {
+    background-color: white;
+    width: auto;
+}
+
+.file-info {
+    align-items: center;
+}
+
+.download-link {
+    margin-left: auto;
+}
+</style>

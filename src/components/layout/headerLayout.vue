@@ -5,14 +5,13 @@
   >
     <a-menu-item
       key="info"
-      style="height: auto"
     >
       <a-tooltip
         v-if="Object.keys(userObj).length===0"
         title="登录"
       >
         <a-avatar
-          :size="45"
+          :size="40"
           style="background-color: #87d068"
         >
           <template #icon>
@@ -31,7 +30,8 @@
         title="个人背包"
       >
         <a-avatar
-          :size="45"
+          :size="40"
+
           :src="userObj.avatar"
           @click="updateInfo"
         />
@@ -47,6 +47,7 @@
       >
         <a-button
           type="text"
+          style="margin-bottom: 16px;float: right"
         >
           <plus-circle-outlined
             class=" create-room"

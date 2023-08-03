@@ -59,8 +59,14 @@ const recallAPI = async (obj :any):APiResponse<any> =>
 /**
  * 获取cos凭证
  * @param path
+ * @param policy
  */
-const getCreditAPI = async (path:string):APiResponse<any> => instance.get({ url: path });
+const getCreditAPI = async (path:string, policy:string):APiResponse<any> => instance.get({
+  url: path,
+  params: {
+    policy,
+  },
+});
 /**
  * 点赞操作
  * @param data

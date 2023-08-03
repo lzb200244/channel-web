@@ -7,8 +7,7 @@
       >
         <div
           v-if="pageConf.isLoading && !pageConf.stop"
-
-          style="text-align: center;color: #4ba8ff"
+          style="text-align: center;color: #4ba8ff;position: absolute;"
         >
           <a-spin
             tip="Loading..."
@@ -17,8 +16,8 @@
         </div>
         <DynamicScroller
           :items="messageList"
-          :min-item-size="65"
-          style="height: 650px"
+          :min-item-size="60"
+          style="height: 580px"
           class="virtual-list"
         >
           <template #default="{ item, index, active }">
@@ -30,7 +29,6 @@
             >
               <a-row
                 :key="index"
-                :justify="item.user?.userID===user.userID?'end':'start'"
               >
                 <template
                   v-if="item.message.messageStatus.isDrop"
@@ -53,20 +51,10 @@
           </template>
         </DynamicScroller>
       </div>
-      <div style="position: relative">
-        <a-tag
-          v-if="msg.message.replay"
-          style="position: absolute;bottom: 55px"
-          closable
-          color="processing"
-          @close="cancelReplay"
-        >
-          @ {{ msg.message.replay?.username }}
-        </a-tag>
-
+      <div>
         <channel-input
-          ref="channelFocus"
           v-model:value="msg.message.content"
+          style="margin-bottom:  auto;"
           :is-login="user.isActive"
           @send-message="sendMessage"
           @send-file-message="sendFileMessage"
@@ -83,7 +71,7 @@ import { PushTypeEnum } from '@/types/channel/enum';
 import ChannelCard from '@/components/channel/channelCard.vue';
 import ChannelInput from '@/components/channel/channelInput.vue';
 import {
-  BaseRecord, ReplayMessage, ThumbMessage, ThumbOpt,
+  BaseRecord, ReplayMessage, ThumbMessage,
 } from '@/types/channel';
 
 const channelStore = useChannelStore();
@@ -92,8 +80,6 @@ const {
   user,
   msg,
   socket,
-  channelFocus,
-
   messageList,
   LoadMoreRecord,
   handleOpt,
@@ -130,7 +116,6 @@ socket.onMessage((data:BaseRecord<ReplayMessage>) => {
       break;
     }
     case PushTypeEnum.THUMB_PUSH:
-      console.log(message, 2222);
       channelStore.updateRecordLikes(message as unknown as ThumbMessage);
       break;
   }
@@ -153,7 +138,7 @@ socket.onMessage((data:BaseRecord<ReplayMessage>) => {
             scroll-behavior: smooth;
         }
 
-        height: 650px;
+        //height: 720px;
         width: 100%;
         overflow-y: hidden;
         padding: 10px 2px;
