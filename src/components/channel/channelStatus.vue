@@ -41,10 +41,13 @@
 </template>
 <script lang="ts" setup>
 import { computed } from 'vue';
-
+import { useRoute } from 'vue-router';
 import useChannelStore from '@/store/channel';
 import { PushType } from '@/types/channel/modules/push';
 
+const route = useRoute();
+
+const roomID = <string>route.query.room ?? '0'; //
 const channelStore = useChannelStore();
 // 群成员
 const memberList = computed<PushType[]>(() => channelStore.onlineList);
@@ -54,7 +57,7 @@ const onlineList = computed<PushType[]>(() => channelStore.onlineList.filter((it
 const onLoadMore = () => {
   console.log(1);
 };
-channelStore.getOnline();
+channelStore.getOnline(roomID);
 </script>
 <style scoped>
 

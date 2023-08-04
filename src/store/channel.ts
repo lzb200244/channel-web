@@ -1,11 +1,11 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 
 import isTimeElapsed from '@/utils/elapsed';
-import { getOnlineAPI, getRecordAPi } from '@/apis/channel';
+import { fetchOnlineUsers, fetchChatRecords, getRoomInformation } from '@/apis/channel';
 
 import { PushType } from '@/types/channel/modules/push';
 import {
-  BaseRecord, ReplayMessage, roomUserInfoMap, ThumbMessage,
+  BaseRecord, Group, ReplayMessage, roomUserInfoMap, ThumbMessage,
 } from '@/types/channel';
 
 const useChannelStore = defineStore(
@@ -16,6 +16,7 @@ const useChannelStore = defineStore(
       messageList: [] as BaseRecord<ReplayMessage>[],
       onlineList: [] as PushType[],
       userMap: roomUserInfoMap, // 记录用户id对应关系
+      roomInfo: {} as Group,
 
     }),
     actions: {
@@ -94,21 +95,30 @@ const useChannelStore = defineStore(
       /**
              * 获取当前在线人数
              */
-      async getOnline() {
-        const res = await getOnlineAPI();
+      async getOnline(roomID: string) {
+        const res = await fetchOnlineUsers(roomID);
         this.onlineList = res.data;
         this.onlineList.forEach((item) => {
           this.userMap.set(item.user.userID, {
             username: item.user.username,
             avatar: item.user.avatar,
+            desc: item.user.desc,
+            medals: item.user.medals,
+            email: item.user.email,
+            userID: item.user.userID,
           });
         });
       },
       /**
              * 获取历史记录
              */
-      async asyncRecord() {
-        const res = await getRecordAPi();
+      async getRoomInfo(roomID: string) {
+        const res = await getRoomInformation(roomID);
+        this.roomInfo = res.data;
+        // 不存在群聊
+      },
+      async asyncRecord(page: number = 1, room: string = '0') {
+        const res = await fetchChatRecords(page, room);
         // 进行翻转
         this.setRecordMessage(res.data.results);
       },
@@ -129,7 +139,7 @@ const useChannelStore = defineStore(
       },
     },
     getters: {
-      getUserNameByUserName: (state) => (userID:number) => state.userMap.get(userID)?.username,
+      getUserNameByUserName: (state) => (userID: number) => state.userMap.get(userID)?.username,
     },
   },
 );

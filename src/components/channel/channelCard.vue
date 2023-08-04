@@ -11,39 +11,32 @@
           <span key="comment-basic-like">
             <a-tooltip title="Like">
               <template v-if="messageItem.message.messageStatus.isLike===1">
-                <LikeFilled @click="LikeStatus(messageItem,1)" />
+                <LikeFilled @click="likeStatus(messageItem,1)" />
               </template>
               <template v-else>
-                <LikeOutlined @click="LikeStatus(messageItem,1)" />
+                <LikeOutlined @click="likeStatus(messageItem,1)" />
               </template>
             </a-tooltip>
             <span style="padding-left: 8px; cursor: auto">
-              999+
+              {{ messageItem.message.messageStatus.likes }}
             </span>
           </span>
-          <span key="comment-basic-dislike">
-            <a-tooltip title="Dislike">
-              <template v-if="messageItem.message.messageStatus.isLike===2">
-                <DislikeFilled @click="LikeStatus(messageItem,2)" />
-              </template>
-              <template v-else>
-                <DislikeOutlined @click="LikeStatus(messageItem,2)" />
-              </template>
-            </a-tooltip>
-            <span style="padding-left: 8px; cursor: auto">
-              111
-            </span>
-          </span>
+
           <span
             key="comment-basic-reply-to"
             @click="Opt(messageItem,PushTypeEnum.REPLAY_PUSH)"
           >Reply to</span>
         </template>
         <template #author>
-          <a
-            :class="isSend?'isSend':''"
-            style="font-size: 14px;"
-          >{{ userMap.get(messageItem.user.userID)?.username }}</a>
+          <a-popover>
+            <template #content>
+              <account-card :user-info="userMap.get(messageItem.user.userID)" />
+            </template>
+            <a
+              :class="isSend?'isSend':''"
+              style="font-size: 14px;"
+            >{{ userMap.get(messageItem.user.userID)?.username }}</a>
+          </a-popover>
         </template>
         <template #avatar>
           <a-avatar
@@ -72,11 +65,11 @@
               <template v-else-if="messageItem.message?.replay.type===MessageTypeEnum.IMAGE">
                 <record-img
                   :style="{maxWidth:'220px'}"
-                  :file-info="messageItem.message.fileInfo"
+                  :file-info="messageItem.message.replay.fileInfo"
                 />
               </template>
-              <template v-else-if="messageItem.message.type===MessageTypeEnum.FILE">
-                <record-file :file-info="messageItem.message.fileInfo" />
+              <template v-else-if="messageItem.message?.replay.type===MessageTypeEnum.FILE">
+                <record-file :file-info="messageItem.message.replay.fileInfo" />
               </template>
             </a-anchor-link>
             <!-- TODO   消息体-->
@@ -151,16 +144,18 @@
 import dayjs from 'dayjs';
 import { computed } from 'vue';
 import {
-  CopyOutlined, DeleteOutlined, DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined,
+  CopyOutlined, DeleteOutlined, LikeFilled, LikeOutlined,
 } from '@ant-design/icons-vue';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { BaseRecord, ReplayMessage, likeStatus } from '@/types/channel';
+import { useRoute } from 'vue-router';
+import { BaseRecord, ReplayMessage, LikeStatus } from '@/types/channel';
 
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
-import { thumbAPI } from '@/apis/channel';
+import { handleThumbAction } from '@/apis/channel';
 import useChannelStore from '@/store/channel';
 import RecordFile from '@/components/channel/record/recordFile.vue';
 import RecordImg from '@/components/channel/record/recordImg.vue';
+import AccountCard from '@/components/account/accountCard.vue';
 
 dayjs.extend(relativeTime);
 
@@ -183,7 +178,8 @@ defineProps({
 const emit = defineEmits(['opt']);
 const channelStore = useChannelStore();
 const userMap = computed(() => channelStore.userMap);
-
+const route = useRoute();
+const roomID = <string>route.query.room ?? '0'; //
 const oneDayTimestamp = 24 * 60 * 60 * 1000; // 一天的时间戳，单位为毫秒
 /**
  * 判断是否前一天以上,
@@ -235,15 +231,17 @@ const copyUrl = (content: string) => {
   document.body.removeChild(input); // 最后删除实例中临时创建的input输入框，完成复制操作
 };
 /**
- * likeStatus 点赞与取消
+ * LikeStatus 点赞与取消
  */
-const LikeStatus = async (item: BaseRecord<ReplayMessage>, isLike: likeStatus) => {
+const likeStatus = async (item: BaseRecord<ReplayMessage>, isLike: LikeStatus) => {
   //   如果重复操作返回
   if (item.message.messageStatus.isLike === isLike) return;
   item.message.messageStatus.isLike = isLike;
-  await thumbAPI({
+  item.message.messageStatus.likes += 1;
+  await handleThumbAction({
     type: PushTypeEnum.THUMB_PUSH,
     message: { msgID: item.message.msgID, isLike },
+    roomID,
   });
 };
 </script>

@@ -1,6 +1,6 @@
 import instance, { APiResponse } from '@/apis/index';
 import {
-  BaseRecord, ReplayMessage, ThumbMessage,
+  BaseRecord, Group, ReplayMessage, ThumbMessage,
 } from '@/types/channel';
 import { PushType } from '@/types/channel/modules/push';
 
@@ -9,10 +9,10 @@ import { PushType } from '@/types/channel/modules/push';
  * @param page 页
  * @param room 房间id 0代表大厅房间
  */
-const getRecordAPi = async (page: number = 1, room: number = 0):
+const fetchChatRecords = async (page: number, room: string):
     APiResponse<{
-        results:BaseRecord<ReplayMessage>[],
-        count:number
+        results: BaseRecord<ReplayMessage>[],
+        count: number
     }> =>
 //     http://127.0.0.1:5173/api/chat/record/
   instance.get(
@@ -26,18 +26,19 @@ const getRecordAPi = async (page: number = 1, room: number = 0):
 /**
  * 获取在线人数
  */
-const getOnlineAPI = async ():APiResponse<PushType[]> =>
+const fetchOnlineUsers = async (roomID: string): APiResponse<PushType[]> =>
 //     http://127.0.0.1:5173/api/chat/record/
   instance.get(
     {
       url: 'chat/online/',
+      params: { roomID },
     },
   );
 /**
  * 回消息
  * @param msg 消息对象 BaseRecord
  */
-const sendMsgAPI = async (msg:BaseRecord<ReplayMessage>):APiResponse<any> =>
+const sendChatMessage = async (msg: BaseRecord<ReplayMessage>): APiResponse<any> =>
   instance.post({
     url: 'chat/msg/',
     data: {
@@ -48,7 +49,7 @@ const sendMsgAPI = async (msg:BaseRecord<ReplayMessage>):APiResponse<any> =>
  * 消息撤回
  * @param obj
  */
-const recallAPI = async (obj :any):APiResponse<any> =>
+const recallMessage = async (obj: any): APiResponse<any> =>
   instance.post({
     url: 'chat/recall/',
     data: {
@@ -61,7 +62,7 @@ const recallAPI = async (obj :any):APiResponse<any> =>
  * @param path
  * @param policy
  */
-const getCreditAPI = async (path:string, policy:string):APiResponse<any> => instance.get({
+const fetchCosCredential = async (path: string, policy: string): APiResponse<any> => instance.get({
   url: path,
   params: {
     policy,
@@ -71,15 +72,39 @@ const getCreditAPI = async (path:string, policy:string):APiResponse<any> => inst
  * 点赞操作
  * @param data
  */
-const thumbAPI = (data:ThumbMessage):APiResponse<any> =>
+const handleThumbAction = (data: ThumbMessage): APiResponse<any> =>
   instance.post({
     url: 'chat/thumb/',
     data: {
       ...data,
     },
   });
-
+/**
+ * 创建群聊
+ * @param data
+ */
+const createChatRoom = (data: any): APiResponse<any> => instance.post({
+  url: '/chat/room/',
+  data,
+});
+/**
+ * 获取房间信息，不存在的话就跳到404页面，房间不存在
+ * @param roomID 房间id
+ */
+const getRoomInformation = (roomID: string): APiResponse<Group> => instance.get({
+  url: '/chat/room/',
+  params: {
+    roomID,
+  },
+});
 export {
   // eslint-disable-next-line import/prefer-default-export
-  getRecordAPi, getOnlineAPI, sendMsgAPI, recallAPI, getCreditAPI, thumbAPI,
+  fetchChatRecords,
+  fetchOnlineUsers,
+  sendChatMessage,
+  recallMessage,
+  fetchCosCredential,
+  handleThumbAction,
+  createChatRoom,
+  getRoomInformation,
 };

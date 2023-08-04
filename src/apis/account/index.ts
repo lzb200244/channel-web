@@ -1,6 +1,6 @@
 import {
   Account,
-  AccountFormAble, User, UserInfo, UserMedalsList,
+  AccountFormAble, UserInfo, UserMedalsList,
 } from '@/types/account';
 
 import instance, { APiResponse } from '@/apis/index';
@@ -32,7 +32,7 @@ const account = async ():APiResponse<Account> => instance.get(
  * 更新头像和昵称
  * @param res
  */
-const updateInfoApi = async (res:UserInfo):APiResponse<User> => instance.put({ url: 'user/', data: res });
+const updateInfoApi = async (res:UserInfo):APiResponse<UserInfo> => instance.put({ url: 'user/', data: res });
 /**
  * 获取勋章
  */

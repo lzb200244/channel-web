@@ -1,5 +1,20 @@
 <template>
-  <a-card size="small">
+  <a-card
+    size="small"
+  >
+    <template #title>
+      <a-popover
+
+        placement="topLeft"
+      >
+        <template #content>
+          <room-desc :room-info="roomInfo" />
+        </template>
+        <div style="font-size: 18px;cursor: pointer">
+          {{ roomInfo.name }}
+        </div>
+      </a-popover>
+    </template>
     <div class="chatroom-container">
       <div
         class="chatroom-messages"
@@ -52,13 +67,24 @@
         </DynamicScroller>
       </div>
       <div>
-        <channel-input
-          v-model:value="msg.message.content"
-          style="margin-bottom:  auto;"
-          :is-login="user.isActive"
-          @send-message="sendMessage"
-          @send-file-message="sendFileMessage"
-        />
+        <div style="position: relative">
+          <a-tag
+            v-if="msg.message.replay"
+            style="position: absolute;bottom: 120px"
+            closable
+            color="processing"
+            @close="cancelReplay"
+          >
+            @ {{ msg.message.replay?.username }}
+          </a-tag>
+          <channel-input
+            v-model:value="msg.message.content"
+            style="margin-bottom:  auto;"
+            :is-login="user.isActive"
+            @send-message="sendMessage"
+            @send-file-message="sendFileMessage"
+          />
+        </div>
       </div>
     </div>
   </a-card>
@@ -70,6 +96,7 @@ import useChannelMessage from '@/core/channel';
 import { PushTypeEnum } from '@/types/channel/enum';
 import ChannelCard from '@/components/channel/channelCard.vue';
 import ChannelInput from '@/components/channel/channelInput.vue';
+import roomDesc from '@/components/channel/room/roomInfo.vue';
 import {
   BaseRecord, ReplayMessage, ThumbMessage,
 } from '@/types/channel';
@@ -84,6 +111,7 @@ const {
   LoadMoreRecord,
   handleOpt,
   cancelReplay,
+  roomInfo,
   sendMessage,
   sendFileMessage,
 } = useChannelMessage();

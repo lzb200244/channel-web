@@ -1,6 +1,6 @@
 import COS from 'cos-js-sdk-v5';
 import { ref } from 'vue';
-import { getCreditAPI } from '@/apis/channel';
+import { fetchCosCredential } from '@/apis/channel';
 
 export function getFileExtension(filename:string) {
   return filename.slice(filename.lastIndexOf('.') + 1);
@@ -8,7 +8,7 @@ export function getFileExtension(filename:string) {
 const useCos = (back:string = 'chat/file/', policy :string) => {
   const cos = new COS({
     async getAuthorization(options, callback) {
-      const res = await getCreditAPI(back, policy);
+      const res = await fetchCosCredential(back, policy);
       let { data } = res;
 
       let { Credentials } = data;

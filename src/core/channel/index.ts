@@ -6,10 +6,10 @@ import dayjs from 'dayjs';
 import { useRoute } from 'vue-router';
 import {
   TextMessage, ImageMessage, FileInfo, BaseUserItem,
-  BaseRecord, ReplayItem, ReplayMessage,
+  BaseRecord, ReplayItem, ReplayMessage, Group,
 } from '@/types/channel';
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
-import { getRecordAPi, recallAPI, sendMsgAPI } from '@/apis/channel';
+import { fetchChatRecords, recallMessage, sendChatMessage } from '@/apis/channel';
 import useChannelStore from '@/store/channel';
 import useAccountStore from '@/store/account';
 import isTimeElapsed from '@/utils/elapsed';
@@ -21,9 +21,10 @@ const useChannelMessage = () => {
   const channelStore = useChannelStore();
   const accountStore = useAccountStore();
   const route = useRoute();
-  const roomID = +(route.query.room ?? 0); //
+  const roomID = <string>route.query.room ?? '0'; //
+  channelStore.getRoomInfo(roomID);
   // 请求聊天记录
-  channelStore.asyncRecord();
+  channelStore.asyncRecord(1, roomID);
   // 未携带room默认为0房(大厅
   const socket = new WS(`ws://127.0.0.1:8000/room/${roomID}/`);
   socket.connect();
@@ -36,7 +37,7 @@ const useChannelMessage = () => {
                                                 BaseRecord, idx: number) =>
       ({ ...item, id: idx + 1 }), // 使用展开语法创建一个新对象，添加唯一ID
     ).reverse());
-
+  const roomInfo = computed<Group>(() => channelStore.roomInfo);
   /**
      * 当前用户
      */
@@ -61,13 +62,13 @@ const useChannelMessage = () => {
         isLike: 0,
       },
       msgID: 0,
-      roomID,
       fileInfo: undefined,
       replay: undefined,
     },
     user: {
       userID: user.value.userID,
     },
+    roomID,
   });
     /**
      * 滑动到底部
@@ -77,7 +78,6 @@ const useChannelMessage = () => {
     //   由于是虚拟列表渲染，高度不固定，默认每次进来加载滑动到底部给定一个最大值
     virtual.scrollTop = Number.MAX_SAFE_INTEGER;
   };
-
   /**
      * 加载更多数据
      * @constructor
@@ -89,7 +89,7 @@ const useChannelMessage = () => {
     if (!pageConf.stop && scrollTop === 0 && !pageConf.isLoading) {
       pageConf.isLoading = true; // 设置加载状态为 true
 
-      const res = await getRecordAPi(++pageConf.currentPage, roomID as number);
+      const res = await fetchChatRecords(++pageConf.currentPage, roomID);
 
       setTimeout(() => {
         channelStore.asyncPushMoreRecord(res.data.results);
@@ -126,11 +126,10 @@ const useChannelMessage = () => {
             isLike: 0,
           },
           time: Date.now(),
-          roomID: roomID as number,
         },
       };
 
-      await recallAPI(recallItem);
+      await recallMessage(recallItem);
     } else if (tp === PushTypeEnum.THUMB_PUSH) {
       if (obj.message.messageStatus) {
         // obj.message.messageStatus.userIsLike = !obj.message.messageStatus.userIsLike;
@@ -152,6 +151,7 @@ const useChannelMessage = () => {
 
   const cancelReplay = () => {
     if ('replay' in msg.message) {
+      msg.type = PushTypeEnum.MESSAGE_PUSH;
       msg.message.replay = undefined;
     }
   };
@@ -181,7 +181,7 @@ const useChannelMessage = () => {
         break;
       }
     }
-    await sendMsgAPI(msg);
+    await sendChatMessage(msg);
     // socket.send(msg);
 
     (msg.message as TextMessage).content = '';
@@ -207,7 +207,6 @@ const useChannelMessage = () => {
         type: tp,
         time: Date.now(),
         msgID: 0,
-        roomID,
         messageStatus: {
           likes: 0, isDrop: false, drop: '',
         },
@@ -215,6 +214,7 @@ const useChannelMessage = () => {
       user: {
         userID: user.value.userID,
       },
+      roomID,
     };
     // 存在回复
     if ('replay' in msg.message) {
@@ -225,7 +225,7 @@ const useChannelMessage = () => {
       }
     }
     // socket.send(fileObj);
-    await sendMsgAPI(fileObj);
+    await sendChatMessage(fileObj);
     cancelReplay();
   };
 
@@ -245,6 +245,7 @@ const useChannelMessage = () => {
     pageConf,
     socket,
     messageList,
+    roomInfo,
     msg,
     user,
     LoadMoreRecord,

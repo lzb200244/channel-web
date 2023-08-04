@@ -14,7 +14,9 @@ declare module '@vue/runtime-core' {
     AAvatar: typeof import('ant-design-vue/es')['Avatar']
     AButton: typeof import('ant-design-vue/es')['Button']
     ACard: typeof import('ant-design-vue/es')['Card']
+    ACardMeta: typeof import('ant-design-vue/es')['CardMeta']
     AccountCard: typeof import('./src/components/account/accountCard.vue')['default']
+    ACheckbox: typeof import('ant-design-vue/es')['Checkbox']
     ACol: typeof import('ant-design-vue/es')['Col']
     ACollapse: typeof import('ant-design-vue/es')['Collapse']
     ACollapsePanel: typeof import('ant-design-vue/es')['CollapsePanel']
@@ -66,6 +68,7 @@ declare module '@vue/runtime-core' {
     HeaderLayout: typeof import('./src/components/layout/headerLayout.vue')['default']
     RecordFile: typeof import('./src/components/channel/record/recordFile.vue')['default']
     RecordImg: typeof import('./src/components/channel/record/recordImg.vue')['default']
+    RoomInfo: typeof import('./src/components/channel/room/roomInfo.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
