@@ -1,63 +1,57 @@
 <template>
   <a-card
-    style="height: 750px"
+    style="height: 800px"
     size="small"
     :title="`在线人数 ${onlineList.length}人`"
   >
     <a-list
       class="chat-status-list"
-      :loading="memberList.length===0"
-
       item-layout="horizontal"
       :data-source="memberList"
     >
       <template #renderItem="{ item }">
-        <a-list-item class="chat-status-item">
-          <a-skeleton
-            avatar
-            :title="false"
-            :loading="!item.user"
-            active
-          >
-            <a-list-item-meta>
-              <template #title>
-                <a href="#">{{ item.user.username }}</a>
-              </template>
-              <template
-                #avatar
-              >
-                <a-avatar
-                  :src="item.user.avatar"
-                  :size="35"
-                  :class="item.user.isActive?'avatar-online':'avatar-status'"
-                />
-              </template>
-            </a-list-item-meta>
-          </a-skeleton>
+        <a-skeleton
+          avatar
+          :title="false"
+          :loading="Loading"
+          active
+        />
+        <a-list-item
+          v-if="!Loading"
+          class="chat-status-item"
+        >
+          <a-list-item-meta>
+            <template #title>
+              <a href="#">{{ item.user.username }}</a>
+            </template>
+            <template
+              #avatar
+            >
+              <a-avatar
+                :src="item.user.avatar"
+                :size="35"
+                :class="item.user.isActive?'avatar-online':'avatar-status'"
+              />
+            </template>
+          </a-list-item-meta>
         </a-list-item>
       </template>
     </a-list>
   </a-card>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, inject } from 'vue';
 import useChannelStore from '@/store/channel';
 import { PushType } from '@/types/channel/modules/push';
 
-const route = useRoute();
-
-const roomID = <string>route.query.room ?? '0'; //
 const channelStore = useChannelStore();
+const Loading = inject('Loading');
 // 群成员
 const memberList = computed<PushType[]>(() => channelStore.onlineList);
 // 在线成员
 const onlineList = computed<PushType[]>(() => channelStore.onlineList.filter((item:PushType) =>
   item.user.isActive));
-const onLoadMore = () => {
-  console.log(1);
-};
-channelStore.getOnline(roomID);
+
 </script>
 <style scoped>
 

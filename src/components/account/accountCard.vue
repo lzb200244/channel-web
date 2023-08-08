@@ -31,8 +31,8 @@ defineProps({
 });
 
 </script>
-<style >
-.ant-card-body{
-    padding: 22px;
+<style scoped>
+::v-deep .ant-card-body{
+    padding: 12px;
 }
 </style>

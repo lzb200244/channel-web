@@ -11,7 +11,6 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     component: () => import('@/views/chat.vue'),
   },
-
   {
     path: '/login',
     component: () => import('@/views/login.vue'),
@@ -21,8 +20,9 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/register.vue'),
   },
   {
-    path: '/chat',
-    redirect: '/',
+    path: '/room/:roomID',
+    component: () => import('@/views/chat.vue'),
+    name: 'room',
   },
   {
     path: '/:pathMatch(.*)*',

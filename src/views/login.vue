@@ -1,7 +1,6 @@
 <template>
   <div
     id="account"
-    ref="account"
     class="flex-center account bg"
   >
     <a-tabs

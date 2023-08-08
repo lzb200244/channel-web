@@ -1,19 +1,20 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 
 import isTimeElapsed from '@/utils/elapsed';
-import { fetchOnlineUsers, fetchChatRecords, getRoomInformation } from '@/apis/channel';
+import { getOnlineUsersAsync, getChatRecordsAsync, getRoomInformAsync } from '@/apis/channel';
 
 import { PushType } from '@/types/channel/modules/push';
 import {
-  BaseRecord, Group, ReplayMessage, roomUserInfoMap, ThumbMessage,
+  Group, roomUserInfoMap, ThumbMessage,
 } from '@/types/channel';
+import { MessageRecord, ReplayMessage } from '@/types/channel/response/message';
 
 const useChannelStore = defineStore(
   'channel', {
     // 推荐使用 完整类型推断的箭头函数
     state: () => ({
       //   聊天消息列表
-      messageList: [] as BaseRecord<ReplayMessage>[],
+      messageList: [] as MessageRecord<ReplayMessage>[],
       onlineList: [] as PushType[],
       userMap: roomUserInfoMap, // 记录用户id对应关系
       roomInfo: {} as Group,
@@ -24,14 +25,14 @@ const useChannelStore = defineStore(
              * 存储新的记录
              * @param item
              */
-      pushRecordMessage(item: BaseRecord) {
+      pushRecordMessage(item: MessageRecord<ReplayMessage>) {
         this.messageList.unshift(item);
       },
       /**
              * 进行撤回
              * @param msg
              */
-      deleteRecord(msg: BaseRecord): boolean {
+      deleteRecord(msg: MessageRecord<ReplayMessage>): boolean {
         //   删除该条,需要是撤销功能有提示
         this.messageList.forEach((item) => {
           // 更新值
@@ -48,23 +49,25 @@ const useChannelStore = defineStore(
              * 请求跟多的历史记录
              * @param itemList
              */
-      asyncPushMoreRecord(itemList: BaseRecord<ReplayMessage>[]) {
+      asyncPushMoreRecord(itemList: MessageRecord<ReplayMessage>[]) {
         this.setRecordMessage(itemList);
       },
       /**
              * 设置历史记录
              * @param itemList 列表
              */
-      setRecordMessage(itemList: BaseRecord<ReplayMessage>[]) {
-        itemList.forEach((item: BaseRecord<ReplayMessage>) => {
+      setRecordMessage(itemList: MessageRecord<ReplayMessage>[]) {
+        const temp: MessageRecord<ReplayMessage>[] = [];
+        itemList.forEach((item: MessageRecord<ReplayMessage>) => {
           // 是否过期2分钟
           if (isTimeElapsed(item.message.time, 2)) {
             // 过期了就不支持撤回了
-            this.messageList.push(Object.freeze(item));
+            temp.push(Object.freeze(item));
           } else {
-            this.messageList.push(item);
+            temp.push(item);
           }
         });
+        this.messageList = temp;
       },
       /**
              *  更新加入群聊的新人
@@ -96,7 +99,7 @@ const useChannelStore = defineStore(
              * 获取当前在线人数
              */
       async getOnline(roomID: string) {
-        const res = await fetchOnlineUsers(roomID);
+        const res = await getOnlineUsersAsync(roomID);
         this.onlineList = res.data;
         this.onlineList.forEach((item) => {
           this.userMap.set(item.user.userID, {
@@ -108,19 +111,22 @@ const useChannelStore = defineStore(
             userID: item.user.userID,
           });
         });
+        return res;
       },
       /**
              * 获取历史记录
              */
       async getRoomInfo(roomID: string) {
-        const res = await getRoomInformation(roomID);
+        const res = await getRoomInformAsync(roomID);
         this.roomInfo = res.data;
+        return res;
         // 不存在群聊
       },
       async asyncRecord(page: number = 1, room: string = '0') {
-        const res = await fetchChatRecords(page, room);
+        const res = await getChatRecordsAsync(page, room);
         // 进行翻转
         this.setRecordMessage(res.data.results);
+        return res;
       },
       /**
              * 更新消息的赞数量

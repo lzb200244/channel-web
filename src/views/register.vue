@@ -1,7 +1,6 @@
 <template>
   <div
     id="account"
-    ref="account"
     class="flex-center account bg"
   >
     <a-tabs
@@ -105,7 +104,6 @@ import Rules from '@/utils/rules/account';
 const activeKey = 'register';
 const {
   RegisterFormState,
-
   rePasswordRules,
   Register,
 } = useAccount();

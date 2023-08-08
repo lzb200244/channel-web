@@ -1,7 +1,10 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 
 import { Account, UserInfo, UserMedalsList } from '@/types/account';
-import { account, getMedalsApi, updateInfoApi } from '@/apis/account';
+import {
+  getAccountAsync, getUserJoinRoomsAsync, getMedalsAsync, updateInfoAsync,
+} from '@/apis/account';
+import { Group } from '@/types/channel';
 
 const useAccountStore = defineStore(
   'account', {
@@ -11,6 +14,7 @@ const useAccountStore = defineStore(
       isAdmin: true,
       // 用户
       medals: [] as UserMedalsList[],
+      rooms: []as Group[],
 
     }),
     getters: {
@@ -32,7 +36,7 @@ const useAccountStore = defineStore(
       },
       // 请求用户
       async asyncUser() {
-        const res = await account();
+        const res = await getAccountAsync();
         if (!res) return;
         this.setUser(res.data);
       },
@@ -41,7 +45,7 @@ const useAccountStore = defineStore(
         this.user = user;
       },
       async updateUser(userinfo: UserInfo) {
-        await updateInfoApi(userinfo);
+        await updateInfoAsync(userinfo);
         Object.assign(this.user, userinfo); // 更新用户
       },
       /**
@@ -51,13 +55,20 @@ const useAccountStore = defineStore(
         if (this.medals.length !== 0) {
           return;
         }
-        const res = await getMedalsApi();
+        const res = await getMedalsAsync();
         res.data.forEach((item) => {
           if (this.user.medals.includes(item.id)) {
             item.acquire = true;
           }
         });
         this.medals = res.data;
+      },
+      async asyncGetUserJoinRooms() {
+        const res = await getUserJoinRoomsAsync();
+        this.rooms = res.data;
+      },
+      joinRoom(room :Group) {
+        this.rooms.push(room);
       },
     },
   },

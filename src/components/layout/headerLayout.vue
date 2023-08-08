@@ -17,7 +17,7 @@
           <template #icon>
             <router-link
               style="color: white"
-              to="/login"
+              to="/loginAsync"
             >
               <UserOutlined />
             </router-link>
@@ -71,56 +71,8 @@
       </a-button>
     </a-menu-item>
   </a-menu>
-  <a-modal
-    v-model:visible="createRoomModel"
-    title="创建群聊"
-  >
-    <a-form
-      :model="roomState"
-      name="basic"
-      autocomplete="off"
+  <create-room v-model:value="createRoomModel" />
 
-      @finish="createRoom"
-    >
-      <a-form-item
-        label="群名称"
-        name="name"
-        :rules="[{ required: true, message: '请输入群聊名称' }]"
-      >
-        <a-input v-model:value="roomState.name" />
-      </a-form-item>
-      <a-form-item
-        label="群描述"
-        name="desc"
-      >
-        <a-textarea v-model:value="roomState.desc" />
-      </a-form-item>
-      <a-form-item
-        name="isPublic"
-        label="公开群聊"
-        :wrapper-col="{ offset: 8, span: 16 }"
-      >
-        <a-checkbox v-model:checked="roomState.isPublic" />
-      </a-form-item>
-      <a-form-item
-        v-if="!roomState.isPublic"
-        label="Password"
-        name="password"
-        :rules="[{ required: true, message: '需要填房间密码哦！' }]"
-      >
-        <a-input-password v-model:value="roomState.password" />
-      </a-form-item>
-      <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-        <a-button
-          type="primary"
-          html-type="submit"
-        >
-          Submit
-        </a-button>
-      </a-form-item>
-    </a-form>
-    <template #footer />
-  </a-modal>
   <a-modal
     v-model:visible="showInfo"
     cancel-text="取消"
@@ -189,7 +141,6 @@
           :value="`/avatar/boy-${i}.svg`"
         >
           <a-image
-
             :width="65"
             :src="`/avatar/boy-${i}.svg`"
             :preview="{
@@ -255,10 +206,11 @@ import { UserInfo } from '@/types/account';
 import useCos from '@/hooks/tencent/cos';
 import ChannelStatus from '@/components/channel/channelStatus.vue';
 import { createValidateFileExtension, ImageTypes, isOverSize } from '@/utils/file/valide';
-import { createChatRoom } from '@/apis/channel';
+import CreateRoom from '@/components/layout/model/createRoom.vue';
 
 const useAccount = useAccountStore();
 useAccount.asyncUser();
+
 const visible = ref<boolean>(false);
 const createRoomModel = ref<boolean>(false);
 
@@ -280,11 +232,7 @@ const isRow = ref(false);
  * 监听屏幕的宽度变化
  */
 const onResize = () => {
-  if (window.innerWidth < 992) {
-    isRow.value = true;
-  } else {
-    isRow.value = false;
-  }
+  isRow.value = window.innerWidth < 992;
 };
 const handleBeforeUpload = (file: File) => {
   // 可以在这里对上传的文件进行校验，例如文件类型、文件大小限制等
@@ -345,23 +293,6 @@ const beforeUpload = async (file: any) => {
   // const res = await useUpload(cos, 'chat-avatar-1311013567').uploadImg(info as File);
 };
 
-const roomState = reactive({
-  name: '',
-  desc: '',
-  isPublic: true,
-  password: null,
-});
-/**
- * 创建群聊
- * @param values
- */
-const createRoom = async (values: any) => {
-  const res = await createChatRoom(values);
-  if (res.code === 1000) {
-    message.success('创建成功');
-  }
-  createRoomModel.value = false;
-};
 </script>
 <style scoped>
 .gray-image {
@@ -381,7 +312,7 @@ const createRoom = async (values: any) => {
 }
 
 .head-mode {
-    height: 750px;
+    height: 800px;
     position: relative;
 
 }

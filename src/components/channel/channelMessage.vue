@@ -1,10 +1,11 @@
 <template>
   <a-card
+
     size="small"
+    style="height: 800px"
   >
     <template #title>
       <a-popover
-
         placement="topLeft"
       >
         <template #content>
@@ -15,6 +16,7 @@
         </div>
       </a-popover>
     </template>
+
     <div class="chatroom-container">
       <div
         class="chatroom-messages"
@@ -29,14 +31,23 @@
             size="small"
           />
         </div>
-        <DynamicScroller
+        <a-skeleton
+          v-for="i in 5"
+          :key="i"
+          :loading="Loading"
+          avatar
+          :paragraph="{ rows: 2 }"
+        />
+
+        <dynamic-scroller
+          v-show="!Loading"
           :items="messageList"
           :min-item-size="60"
-          style="height: 580px"
+          style="height: 600px"
           class="virtual-list"
         >
           <template #default="{ item, index, active }">
-            <DynamicScrollerItem
+            <dynamic-scroller-item
               :item="item"
               :active="active"
               :size-dependencies="[item.message.content]"
@@ -62,9 +73,9 @@
                   />
                 </template>
               </a-row>
-            </DynamicScrollerItem>
+            </dynamic-scroller-item>
           </template>
-        </DynamicScroller>
+        </dynamic-scroller>
       </div>
       <div>
         <div style="position: relative">
@@ -91,64 +102,25 @@
 </template>
 
 <script setup lang="ts">
-import useChannelStore from '@/store/channel';
+import { inject } from 'vue';
 import useChannelMessage from '@/core/channel';
-import { PushTypeEnum } from '@/types/channel/enum';
 import ChannelCard from '@/components/channel/channelCard.vue';
 import ChannelInput from '@/components/channel/channelInput.vue';
 import roomDesc from '@/components/channel/room/roomInfo.vue';
-import {
-  BaseRecord, ReplayMessage, ThumbMessage,
-} from '@/types/channel';
 
-const channelStore = useChannelStore();
+const Loading = inject('Loading');
 const {
   pageConf,
   user,
   msg,
-  socket,
   messageList,
+  roomInfo,
   LoadMoreRecord,
   handleOpt,
   cancelReplay,
-  roomInfo,
   sendMessage,
   sendFileMessage,
 } = useChannelMessage();
-
-socket.onMessage((data:BaseRecord<ReplayMessage>) => {
-  let message = data;
-  switch (message.type) {
-    //  上线推送
-    case PushTypeEnum.ONLINE_PUSH: {
-      channelStore.pushOnline(message);
-      break;
-    }
-    // 下线
-    case PushTypeEnum.LEVEL_PUSH: {
-      channelStore.popOnline(message);
-      break;
-    }
-    //   消息推送
-    case PushTypeEnum.MESSAGE_PUSH: {
-      channelStore.pushRecordMessage(message);
-      break;
-    }
-    // 回复
-    case PushTypeEnum.REPLAY_PUSH: {
-      channelStore.pushRecordMessage(message);
-      break;
-    }
-    case PushTypeEnum.RECALL_PUSH: {
-      channelStore.deleteRecord(message);
-      break;
-    }
-    case PushTypeEnum.THUMB_PUSH:
-      channelStore.updateRecordLikes(message as unknown as ThumbMessage);
-      break;
-  }
-  // 放入store
-});
 
 </script>
 
@@ -159,19 +131,16 @@ socket.onMessage((data:BaseRecord<ReplayMessage>) => {
     width: 100%;
     margin: 0 auto;
     padding: 0 10px;
-//background-color: #f2f2f2;
-
+    height: 720px;
     .chatroom-messages {
         .virtual-list {
             scroll-behavior: smooth;
         }
-
-        //height: 720px;
+        height: 600px;
         width: 100%;
         overflow-y: hidden;
         padding: 10px 2px;
         border-radius: 6px;
-    //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
         .drop-record {
             text-align: center;
@@ -183,29 +152,6 @@ socket.onMessage((data:BaseRecord<ReplayMessage>) => {
         }
     }
 
-    .chatroom-input {
-
-        display: flex;
-        width: 100%;
-        margin-top: 20px;
-
-        .chat-textarea {
-            resize: none; /* 禁止用户手动调整大小 */
-            overflow: hidden; /* 隐藏溢出的内容 */
-            min-height: 50px; /* 设置textarea的最小高度 */
-            height: auto;
-            padding: 0;
-
-        }
-
-        input {
-            flex-grow: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-    }
 }
 
 </style>

@@ -32,7 +32,7 @@ export const setToken:setToken = function (key, token) {
  * 删除token
  * @param key
  */
-export function removeToken(key: Key = 'jwt-token') {
+export function removeToken(key: Key = 'access_token') {
   // console.log(Cookies.delete(key))
   return Cookies.delete(key);
 }

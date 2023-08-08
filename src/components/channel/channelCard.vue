@@ -149,9 +149,8 @@ import {
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRoute } from 'vue-router';
 import { BaseRecord, ReplayMessage, LikeStatus } from '@/types/channel';
-
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
-import { handleThumbAction } from '@/apis/channel';
+import { sendThumbActionAsync } from '@/apis/channel';
 import useChannelStore from '@/store/channel';
 import RecordFile from '@/components/channel/record/recordFile.vue';
 import RecordImg from '@/components/channel/record/recordImg.vue';
@@ -238,7 +237,7 @@ const likeStatus = async (item: BaseRecord<ReplayMessage>, isLike: LikeStatus) =
   if (item.message.messageStatus.isLike === isLike) return;
   item.message.messageStatus.isLike = isLike;
   item.message.messageStatus.likes += 1;
-  await handleThumbAction({
+  await sendThumbActionAsync({
     type: PushTypeEnum.THUMB_PUSH,
     message: { msgID: item.message.msgID, isLike },
     roomID,

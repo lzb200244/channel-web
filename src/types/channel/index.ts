@@ -48,16 +48,17 @@ export interface UserMessage {
 export interface RecordItemType {
     type: PushTypeEnum;
     message: BaseMessage;
+    roomID:string
 }
 
 export interface ReplayItem {
-    username: string;
-    time: number;
-    msgID: number;
-    type: number;
-    userID: number;
-    fileInfo?: FileInfo;
-    content?: string;
+    username: string; // 发送者用户名
+    time: number; // 重播时间戳
+    msgID: number; // 唯一消息ID
+    type: number; // 重播类型
+    userID: number; // 唯一用户ID
+    fileInfo?: FileInfo; // 可选文件信息
+    content?: string; // 可选重播内容
 }
 
 export interface ReplayMessage extends BaseMessage {
@@ -75,24 +76,23 @@ export interface BaseRecord<T extends BaseMessage = BaseMessage> {
     roomID: string;
 }
 
-export interface ThumbOpt {
-    msgID: number;
-    isLike: LikeStatus;
+interface ThumbOpt {
+    msgID: number; // 唯一消息ID
+    isLike: LikeStatus; // 点赞状态
 }
 
 export interface ThumbMessage {
     type: PushTypeEnum;
     message: ThumbOpt;
-    roomID: string;
+    roomID: number;
 }
-
 export const roomUserInfoMap: Map<UserID, UserInfo> = new Map();
 
 export interface Group {
-    id: number;
-    createTime: string;
-    creator: BaseUserItem;
-    name: string;
-    desc: string;
-    isPublic: boolean;
+    id: number; // 群组ID
+    createTime: string; // 群组创建时间
+    creator: BaseUserItem; // 群组创建者
+    name: string; // 群组名称
+    desc: string; // 群组描述
+    isPublic: boolean; // 是否公开群组
 }

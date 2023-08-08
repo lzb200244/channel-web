@@ -5,11 +5,17 @@ import { removeToken } from '@/utils/cookies';
 import { RequestConfig, responseCode } from './type';
 
 import router from '@/router';
+
 // @ts-ignore
 interface Response<T> {
-  data: T, // 请求的数据，用泛型
-  msg: string | null // 返回状态码的信息，如请求成功等
-  code: number
+    data: T, // 请求的数据，用泛型
+    msg: string | null // 返回状态码的信息，如请求成功等
+    code: number
+    error?:any
+}
+export interface ResultData<T> {
+    results: T,
+    count: number
 }
 export type APiResponse<T> = Promise<Response<T>>;
 
@@ -20,41 +26,24 @@ class Request<T> {
       this._instance = axios.create(config);
       // 添加拦截器
       this._instance.interceptors.request.use((config) =>
-        /**
-             * 请求
-             */
-        // 在发送请求之前做些什么
-        // const token: string = getToken();
-        // //        'Content-Type': 'application/json',
-        // if (token) {
-        //   config.headers['Content-Type'] = 'application/json';
-        // }
+
         config,
       (error) => Promise.reject(error));
       this._instance.interceptors.response.use((response) => {
-        /**
-             * 响应
-             */
-        // 2xx 范围内的状态码都会触发该函数。
-
-        // 对响应数据做点什么
-        // return response.data;
         const { data } = response;
-
         return data;
       }, (error) => {
         // 超出 2xx 范围的状态码都会触发该函数。
         const { status } = error.response;
 
         const { data } = error.response;
-
         if (status >= responseCode.Error) {
           message.error('服务端错误error');
           return;
         }
         switch (status) {
           case responseCode.Unauthorized: {
-            if (data.code === 1203) {
+            if (+data.code === 1203) {
               message.warning(data.msg);
             }
             return;

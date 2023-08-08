@@ -23,24 +23,6 @@ export const enum responseCode {
   Error = Ok + 300
 }
 
-/**
- * 请求响应
- */
-export interface ResponseAble {
-
-  code: number,
-  msg: string | string[],
-  data?: any,
-
-}
-
-export type Tasks = 'id' | 'name' | 'description' | 'start_time'
-export interface Task{
-  task:Record<Tasks, string>
-}
-/**
- * 爬虫配置
- */
 export interface RequestConfig extends RawAxiosRequestConfig{
  'jwt-token'?:string
 }

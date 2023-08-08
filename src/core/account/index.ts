@@ -2,15 +2,15 @@
  # @Time : 2023/1/31 18:20
  # @Site : https://www.codeminer.cn
  """
- file-name:account
- ex:account.vue
+ file-name:getAccountAsync
+ ex:getAccountAsync.vue
  """
  */
 import { message } from 'ant-design-vue';
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { AccountFormAble } from '@/types/account';
-import { register, login } from '@/apis/account/';
+import { registerAsync, loginAsync } from '@/apis/account/';
 import { setToken } from '@/utils/cookies';
 
 import useAccountStore from '@/store/account';
@@ -50,9 +50,9 @@ export default () => {
    * @param forms
    */
   const Login = async (forms: AccountFormAble): Promise<void> => {
-    const res = await login(forms);
+    const res = await loginAsync(forms);
 
-    setToken('jwt-token', res.data.token as string);
+    setToken('access_token', res.data.token as string);
 
     user.setUser(res.data);
     message.success('登入成功');
@@ -63,7 +63,7 @@ export default () => {
    * 注册
    */
   const Register = async (forms: AccountFormAble) => {
-    const res = await register(forms);
+    const res = await registerAsync(forms);
     if (res.code === 1203) return;
     message.info('注册成功');
   //   用户更新头像和昵称

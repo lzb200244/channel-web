@@ -1,20 +1,19 @@
-import instance, { APiResponse } from '@/apis/index';
+import instance, { APiResponse, ResultData } from '@/apis/index';
 import {
-  BaseRecord, Group, ReplayMessage, ThumbMessage,
+  BaseRecord, Group, ReplayMessage,
 } from '@/types/channel';
 import { PushType } from '@/types/channel/modules/push';
+import { MessageRecordFrom, ReplayMessageForm } from '@/types/channel/request/message';
+import { RecallRecord } from '@/types/channel/request/recall';
+import { ThumbType } from '@/types/channel/request/thumb';
 
 /**
  * 获取聊天记录
  * @param page 页
  * @param room 房间id 0代表大厅房间
  */
-const fetchChatRecords = async (page: number, room: string):
-    APiResponse<{
-        results: BaseRecord<ReplayMessage>[],
-        count: number
-    }> =>
-//     http://127.0.0.1:5173/api/chat/record/
+const getChatRecordsAsync = async (page: number, room: string):
+    APiResponse<ResultData<BaseRecord<ReplayMessage>[]>> =>
   instance.get(
     {
       url: 'chat/record/',
@@ -26,7 +25,7 @@ const fetchChatRecords = async (page: number, room: string):
 /**
  * 获取在线人数
  */
-const fetchOnlineUsers = async (roomID: string): APiResponse<PushType[]> =>
+const getOnlineUsersAsync = async (roomID: string): APiResponse<PushType[]> =>
 //     http://127.0.0.1:5173/api/chat/record/
   instance.get(
     {
@@ -35,10 +34,10 @@ const fetchOnlineUsers = async (roomID: string): APiResponse<PushType[]> =>
     },
   );
 /**
- * 回消息
+ * 发送消息
  * @param msg 消息对象 BaseRecord
  */
-const sendChatMessage = async (msg: BaseRecord<ReplayMessage>): APiResponse<any> =>
+const sendMessageAsync = async (msg:MessageRecordFrom<ReplayMessageForm>): APiResponse<any> =>
   instance.post({
     url: 'chat/msg/',
     data: {
@@ -49,7 +48,7 @@ const sendChatMessage = async (msg: BaseRecord<ReplayMessage>): APiResponse<any>
  * 消息撤回
  * @param obj
  */
-const recallMessage = async (obj: any): APiResponse<any> =>
+const recallMessageAsync = async (obj: RecallRecord): APiResponse<any> =>
   instance.post({
     url: 'chat/recall/',
     data: {
@@ -62,7 +61,8 @@ const recallMessage = async (obj: any): APiResponse<any> =>
  * @param path
  * @param policy
  */
-const fetchCosCredential = async (path: string, policy: string): APiResponse<any> => instance.get({
+const getCosCredentialAsync = async (path: string, policy: string):
+    APiResponse<any> => instance.get({
   url: path,
   params: {
     policy,
@@ -72,7 +72,7 @@ const fetchCosCredential = async (path: string, policy: string): APiResponse<any
  * 点赞操作
  * @param data
  */
-const handleThumbAction = (data: ThumbMessage): APiResponse<any> =>
+const sendThumbActionAsync = (data: ThumbType): APiResponse<any> =>
   instance.post({
     url: 'chat/thumb/',
     data: {
@@ -83,7 +83,7 @@ const handleThumbAction = (data: ThumbMessage): APiResponse<any> =>
  * 创建群聊
  * @param data
  */
-const createChatRoom = (data: any): APiResponse<any> => instance.post({
+const createChatRoomAsync = (data: any): APiResponse<Group> => instance.post({
   url: '/chat/room/',
   data,
 });
@@ -91,20 +91,35 @@ const createChatRoom = (data: any): APiResponse<any> => instance.post({
  * 获取房间信息，不存在的话就跳到404页面，房间不存在
  * @param roomID 房间id
  */
-const getRoomInformation = (roomID: string): APiResponse<Group> => instance.get({
+const getRoomInformAsync = (roomID: string): APiResponse<Group> => instance.get({
   url: '/chat/room/',
   params: {
     roomID,
   },
 });
+/**
+ * 获取全部群聊
+ * @param page
+ */
+const getRoomAsync = (page:number):APiResponse<ResultData<Group[]>> => instance.get({
+  url: '/chat/join',
+  params: { page },
+});
+const joinRoomAsync = (id:number, password:string):APiResponse<Group> => instance.post({
+  url: '/chat/join/',
+  data: { id, password },
+});
+
 export {
   // eslint-disable-next-line import/prefer-default-export
-  fetchChatRecords,
-  fetchOnlineUsers,
-  sendChatMessage,
-  recallMessage,
-  fetchCosCredential,
-  handleThumbAction,
-  createChatRoom,
-  getRoomInformation,
+  getChatRecordsAsync,
+  getOnlineUsersAsync,
+  sendMessageAsync,
+  recallMessageAsync,
+  getCosCredentialAsync,
+  sendThumbActionAsync,
+  createChatRoomAsync,
+  getRoomInformAsync,
+  getRoomAsync,
+  joinRoomAsync,
 };

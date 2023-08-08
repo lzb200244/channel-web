@@ -57,11 +57,88 @@
     </a-layout>
   </a-row>
 </template>
+<script setup lang="ts">
+import { useRoute, useRouter } from 'vue-router';
+import {
+  computed, provide, ref, watchEffect,
+} from 'vue';
+import ChannelTip from '@/components/channel/channelTip.vue';
+import channelStatus from '@/components/channel/channelStatus.vue';
+import channelMessage from '@/components/channel/channelMessage.vue';
+import headerLayout from '@/components/layout/headerLayout.vue';
+import useChannelStore from '@/store/channel';
+import WS from '@/utils/socket';
+import { BaseRecord, ReplayMessage, ThumbMessage } from '@/types/channel';
+import { PushTypeEnum } from '@/types/channel/enum';
 
-<style>
-body{
-    background-color: #ffffff;
-}
+const channel = useChannelStore();
+const route = useRoute();
+const router = useRouter();
+const roomID = computed(() => <string>route.params.roomID ?? '0');
+const Loading = ref(true);
+provide('Loading', Loading);
+let socket: WS;
+const handleMessage = (data:BaseRecord<ReplayMessage>) => {
+  let message = data;
+  switch (message.type) {
+    //  上线推送
+    case PushTypeEnum.ONLINE_PUSH: {
+      channel.pushOnline(message);
+      break;
+    }
+    // 下线
+    case PushTypeEnum.LEVEL_PUSH: {
+      channel.popOnline(message);
+      break;
+    }
+    //   消息推送
+    case PushTypeEnum.MESSAGE_PUSH: {
+      channel.pushRecordMessage(message);
+      break;
+    }
+    // 回复
+    case PushTypeEnum.REPLAY_PUSH: {
+      channel.pushRecordMessage(message);
+      break;
+    }
+    case PushTypeEnum.RECALL_PUSH: {
+      channel.deleteRecord(message);
+      break;
+    }
+    case PushTypeEnum.THUMB_PUSH:
+      channel.updateRecordLikes(message as unknown as ThumbMessage);
+      break;
+  }
+  // 放入store
+};
+
+// 监听房间ID的变化
+watchEffect(() => {
+  //   关闭旧的 socket 连接
+  if (socket) socket.close();
+
+  //   创建新的 socket 连接
+  socket = new WS(`ws://127.0.0.1:8000/room/${roomID.value}/`);
+  socket.connect();
+  socket.onMessage(handleMessage);
+  Promise.all([
+    channel.getOnline(roomID.value),
+    channel.getRoomInfo(roomID.value).catch(() => router.push('/')),
+    channel.asyncRecord(1, roomID.value),
+  ]).then(([onlineUsers, roomInfo, chatRecords]) => {
+    //     请求成功
+    Loading.value = false;
+  }).catch((error) => {
+    console.log(error);
+    Loading.value = true;
+  });
+});
+
+</script>
+<style lang="scss" scoped>
+$screen-md: 992px;
+$screen-sm: 600px;
+
 .left {
     order: 1;
 }
@@ -74,7 +151,7 @@ body{
     order: 3;
 }
 
-@media (max-width: 992px) {
+@media (max-width: $screen-md) {
     .left {
         order: 2;
     }
@@ -92,25 +169,19 @@ body{
         padding: 15px;
         min-height: 80%;
 
-        @media (max-width: 600px) {
-            width: 100%; /* 当屏幕缩小时，宽度占满 */
+        @media (max-width: $screen-sm) {
+            width: 100%;
             min-height: 100%;
-
         }
     }
-    @media (max-width: 600px) {
+
+    @media (max-width: $screen-sm) {
         width: 100%;
     }
 }
-.ant-card-body{
+
+.ant-card-body {
     padding: 0 10px;
 }
-</style>
-<script setup lang="ts">
-import { ref } from 'vue';
-import ChannelTip from '@/components/channel/channelTip.vue';
-import channelStatus from '@/components/channel/channelStatus.vue';
-import channelMessage from '@/components/channel/channelMessage.vue';
-import headerLayout from '@/components/layout/headerLayout.vue';
 
-</script>
+</style>
