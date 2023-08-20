@@ -22,13 +22,13 @@ const useChannelMessage = () => {
   const channelStore = useChannelStore();
   const accountStore = useAccountStore();
   const route = useRoute();
-  const roomID = computed(() => <string>route.params.roomID ?? '0');
+  const roomID = computed(() => <string>route.params.roomID ?? '1');
   // 未携带room默认为0房(大厅
 
   /**
      * 聊天记录，进行翻转
      */
-  const messageList = computed< MessageRecord<ReplayMessage>[]>(
+  const messageList = computed<MessageRecord<ReplayMessage>[]>(
     () => channelStore.messageList.map((item,
       idx) =>
       ({ ...item, id: idx + 1 }), // 使用展开语法创建一个新对象，添加唯一ID
@@ -71,6 +71,7 @@ const useChannelMessage = () => {
     if (!pageConf.stop && scrollTop === 0 && !pageConf.isLoading) {
       pageConf.isLoading = true; // 设置加载状态为 true
       const res = await getChatRecordsAsync(++pageConf.currentPage, roomID.value);
+
       setTimeout(() => {
         channelStore.asyncPushMoreRecord(res.data.results);
         pageConf.isLoading = false; // 加载完成后，将加载状态设置为 false
@@ -89,7 +90,7 @@ const useChannelMessage = () => {
      * @param obj
      * @param tp 操作类型
      */
-  const handleOpt = async (obj: MessageRecord<ReplayMessage>, tp: number) => {
+  const handleOpt = async (obj: MessageRecord<ReplayMessage>, tp: PushTypeEnum) => {
     // 撤回 => \types\channel\modules\recall.ts
     if (tp === PushTypeEnum.RECALL_PUSH) {
       // 是否过期两分钟不能撤回
@@ -110,7 +111,10 @@ const useChannelMessage = () => {
         // obj.message.messageStatus.likeCount++;
       }
     } else if (tp === PushTypeEnum.REPLAY_PUSH) {
-      //   obj 点击的回复对象
+      // 回复的是GPT
+      if (obj.user.userID === 1) {
+        msg.message.type = MessageTypeEnum.GPT;
+      }
       msg.type = PushTypeEnum.REPLAY_PUSH;
       // 构造回复
       msg.message.replay = {
@@ -141,7 +145,7 @@ const useChannelMessage = () => {
     switch (msg.type) {
       // message处理
       case PushTypeEnum.MESSAGE_PUSH: {
-        msg.message.type = MessageTypeEnum.TEXT;
+        // msg.message.type = MessageTypeEnum.TEXT;
         msg.type = PushTypeEnum.MESSAGE_PUSH;
         msg.user.userID = user.value.userID;
         msg.message.content = handleMentions(v);
@@ -149,10 +153,10 @@ const useChannelMessage = () => {
       }
       // 发送回复=>replay处理
       case PushTypeEnum.REPLAY_PUSH: {
-        msg.message.type = MessageTypeEnum.TEXT; // MessageTypeEnum
         msg.type = PushTypeEnum.REPLAY_PUSH;
         msg.user.userID = user.value.userID;
         msg.message.content = handleMentions(v);
+        console.log(msg);
         break;
       }
     }
@@ -198,7 +202,17 @@ const useChannelMessage = () => {
     await sendMessageAsync(fileObj);
     cancelReplay();
   };
-
+    /**
+     * 处理@xxx
+     * @param op @ai还是@用户
+     * @param text 用户名
+     */
+  const handleMention = (op: MessageTypeEnum, text:string) => {
+    msg.message.type = op;
+    if (text) {
+      msg.message.content += `${text} `;
+    }
+  };
   onMounted(async () => {
     //   每次加载页面到底部
     await nextTick(() => {
@@ -219,9 +233,11 @@ const useChannelMessage = () => {
     user,
     LoadMoreRecord,
     handleOpt,
+    handleMention,
     cancelReplay,
     sendMessage,
     sendFileMessage,
+
   };
 };
 export default useChannelMessage;

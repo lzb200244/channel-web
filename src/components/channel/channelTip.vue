@@ -4,8 +4,11 @@
       <a-collapse
         v-model:activeKey="activeKey"
         style="border: none;"
-        expand-icon-position="right"
+        expand-icon-position="left"
       >
+        <template #expandIcon="{ isActive }">
+          <caret-right-outlined :rotate="isActive ? 90 : 0" />
+        </template>
         <a-collapse-panel
           key="person"
           style="border: none;"
@@ -32,7 +35,7 @@
               v-if="!Loading"
               #renderItem="{ item }"
             >
-              <a-list-item>
+              <a-list-item v-if="item.type === 1">
                 <a-list-item-meta
                   :description="item.desc"
                 >
@@ -79,7 +82,7 @@
               v-if="!Loading"
               #renderItem="{ item }"
             >
-              <a-list-item>
+              <a-list-item v-if="item.type === 2">
                 <a-list-item-meta
                   :description="item.desc"
                 >
@@ -121,20 +124,21 @@ import {
   computed, inject, ref,
 
 } from 'vue';
+import { CaretRightOutlined } from '@ant-design/icons-vue';
 import useAccountStore from '@/store/account';
+
+const useAccount = useAccountStore();
 
 const Loading = inject('Loading');
 
 const activeKey = ref('person');
 const bgColor = computed(() => {
-  console.log(2222);
   const currentHour = new Date().getHours();
   const hue = (currentHour * 15) % 360; // Calculate hue value based on current hour
 
   return `hsl(${hue}, 50%, 60%)`;
 });
-const useAccount = useAccountStore();
-useAccount.asyncGetUserJoinRooms();
+
 const rooms = computed(() => useAccount.rooms);
 
 </script>

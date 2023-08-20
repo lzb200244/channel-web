@@ -18,20 +18,19 @@ const useChannelStore = defineStore(
       onlineList: [] as PushType[],
       userMap: roomUserInfoMap, // 记录用户id对应关系
       roomInfo: {} as Group,
-
     }),
     actions: {
       /**
-             * 存储新的记录
-             * @param item
-             */
+        * 添加新的聊天记录
+        * @param item
+        */
       pushRecordMessage(item: MessageRecord<ReplayMessage>) {
         this.messageList.unshift(item);
       },
       /**
-             * 进行撤回
-             * @param msg
-             */
+        * 进行撤回
+        * @param msg
+        */
       deleteRecord(msg: MessageRecord<ReplayMessage>): boolean {
         //   删除该条,需要是撤销功能有提示
         this.messageList.forEach((item) => {
@@ -57,17 +56,15 @@ const useChannelStore = defineStore(
              * @param itemList 列表
              */
       setRecordMessage(itemList: MessageRecord<ReplayMessage>[]) {
-        const temp: MessageRecord<ReplayMessage>[] = [];
         itemList.forEach((item: MessageRecord<ReplayMessage>) => {
           // 是否过期2分钟
           if (isTimeElapsed(item.message.time, 2)) {
             // 过期了就不支持撤回了
-            temp.push(Object.freeze(item));
+            this.messageList.push(Object.freeze(item));
           } else {
-            temp.push(item);
+            this.messageList.push(item);
           }
         });
-        this.messageList = temp;
       },
       /**
              *  更新加入群聊的新人
@@ -132,7 +129,6 @@ const useChannelStore = defineStore(
              * 更新消息的赞数量
              */
       updateRecordLikes(op: ThumbMessage) {
-        console.log(op);
         for (let i = 0; i < this.messageList.length; i++) {
           const item = this.messageList[i];
 

@@ -14,10 +14,8 @@ import { RawAxiosRequestConfig } from 'axios';
 export const enum responseCode {
 
   Ok = 200,
-  Created,
-  Accepted,
-  BadRequest = Ok + 200,
-  Unauthorized,
+  BadRequest = 400,
+  Unauthorized=401,
   Forbidden = 403,
   RETRY_HTTP_CODES = 429, // 请求过多
   Error = Ok + 300

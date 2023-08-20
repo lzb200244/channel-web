@@ -2,11 +2,11 @@
   <a-row
     v-if="Object.keys(messageItem).length!==0"
     :id="'record:'+messageItem.message.msgID"
-    style="margin-bottom: 5px"
+    style="margin-bottom: 5px;width: 100%"
     class="hover"
   >
     <a-dropdown :trigger="['contextmenu']">
-      <a-comment style="padding-right: 10px;">
+      <a-comment style="padding-right: 10px;width: 100%">
         <template #actions>
           <span key="comment-basic-like">
             <a-tooltip title="Like">
@@ -73,7 +73,9 @@
               </template>
             </a-anchor-link>
             <!-- TODO   消息体-->
-            <template v-if="messageItem.message.type===MessageTypeEnum.TEXT">
+            <template
+              v-if="messageItem.message.type===MessageTypeEnum.TEXT "
+            >
               <a-typography-paragraph
                 v-html="messageItem.message.content"
               />
@@ -87,6 +89,13 @@
             </template>
             <template v-else-if="messageItem.message.type===MessageTypeEnum.FILE">
               <record-file :file-info="messageItem.message.fileInfo" />
+            </template>
+            <template v-else-if="messageItem.message.type===MessageTypeEnum.GPT">
+              <v-md-editor
+                v-model="messageItem.message.content"
+
+                mode="preview"
+              />
             </template>
           </div>
         </template>
@@ -110,16 +119,16 @@
               复 制
             </a-button>
           </a-menu-item>
-          <a-menu-item key="call">
-            <a-button
-              size="small"
-              type="text"
-              style="font-size: 12px;"
-              @click="mentionUser(messageItem)"
-            >
-              @ 艾特Ta
-            </a-button>
-          </a-menu-item>
+          <!--          <a-menu-item key="call">-->
+          <!--            <a-button-->
+          <!--              size="small"-->
+          <!--              type="text"-->
+          <!--              style="font-size: 12px;"-->
+          <!--              @click="mentionUser(messageItem)"-->
+          <!--            >-->
+          <!--              @ 艾特Ta-->
+          <!--            </a-button>-->
+          <!--          </a-menu-item>-->
 
           <a-menu-item
             key="recall"
@@ -174,11 +183,11 @@ defineProps({
  * 操作：
  *  撤回，点赞，回复，@
  */
-const emit = defineEmits(['opt']);
+const emit = defineEmits(['opt', 'mention']);
 const channelStore = useChannelStore();
 const userMap = computed(() => channelStore.userMap);
 const route = useRoute();
-const roomID = <string>route.query.room ?? '0'; //
+const roomID = <string>route.query.room ?? '1'; //
 const oneDayTimestamp = 24 * 60 * 60 * 1000; // 一天的时间戳，单位为毫秒
 /**
  * 判断是否前一天以上,
@@ -195,8 +204,6 @@ const formatTime = (timestamp: number) => (timestamp + oneDayTimestamp < Date.no
  * @param tp 操作类型
  */
 const Opt = (message: BaseRecord<ReplayMessage>, tp: number) => {
-  //   判断是否过了两分钟
-  //   发给父组件
   emit('opt', message, tp);
 };
 /**
@@ -211,12 +218,6 @@ const findRecordLight = (id: number) => {
   // dom.style.background = 'red';
 };
 
-/**
- * @ 某人
- */
-const mentionUser = (message: BaseRecord<ReplayMessage>) => {
-  console.log(message);
-};
 /**
  * 复制1内容
  * @param content
@@ -255,9 +256,10 @@ const likeStatus = async (item: BaseRecord<ReplayMessage>, isLike: LikeStatus) =
 
 .isSend {
   font-weight: bolder;
-  color: #494949!important;
+  color: #494949 !important;
 }
-.hover:hover{
+
+.hover:hover {
   background-color: #fff0f0;
   transition: all .4s ease-in-out
 }

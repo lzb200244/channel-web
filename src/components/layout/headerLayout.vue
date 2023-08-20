@@ -17,7 +17,7 @@
           <template #icon>
             <router-link
               style="color: white"
-              to="/loginAsync"
+              to="/login"
             >
               <UserOutlined />
             </router-link>
@@ -209,8 +209,10 @@ import { createValidateFileExtension, ImageTypes, isOverSize } from '@/utils/fil
 import CreateRoom from '@/components/layout/model/createRoom.vue';
 
 const useAccount = useAccountStore();
-useAccount.asyncUser();
+// 初始化用户
 
+useAccount.asyncUser();
+useAccount.asyncGetUserJoinRooms();
 const visible = ref<boolean>(false);
 const createRoomModel = ref<boolean>(false);
 

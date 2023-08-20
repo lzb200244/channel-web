@@ -1,10 +1,7 @@
 // 引入 axios 实例
 import { message } from 'ant-design-vue';
-import axios, { AxiosRequestConfig, AxiosInstance } from 'axios';
-import { removeToken } from '@/utils/cookies';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { RequestConfig, responseCode } from './type';
-
-import router from '@/router';
 
 // @ts-ignore
 interface Response<T> {
@@ -34,38 +31,15 @@ class Request<T> {
         return data;
       }, (error) => {
         // 超出 2xx 范围的状态码都会触发该函数。
-        const { status } = error.response;
-
+        const { status, code } = error.response;
         const { data } = error.response;
         if (status >= responseCode.Error) {
-          message.error('服务端错误error');
-          return;
+          return message.error('服务端错误error');
         }
-        switch (status) {
-          case responseCode.Unauthorized: {
-            if (+data.code === 1203) {
-              message.warning(data.msg);
-            }
-            return;
-            // 未认证 （未登录
-          }
-          case responseCode.Forbidden: {
-            removeToken();
-            message.warning(data.msg);
-            return router.push({
-              path: 'account',
-              query: {
-                next: router.currentRoute.value.fullPath,
-              },
-            });
-          }
-          case responseCode.RETRY_HTTP_CODES:
-            message.warning('操作频率过快,已被限流,稍后在试试');
-            window.location.href = 'https://www.baidu.com';
-            return;
+        if (data.error) {
+          return message.info(data.error);
         }
 
-        if (data.msg) message.info(data.msg);
         // 对响应错误做点什么
         return Promise.reject(
           data,

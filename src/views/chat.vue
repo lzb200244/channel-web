@@ -74,7 +74,7 @@ import { PushTypeEnum } from '@/types/channel/enum';
 const channel = useChannelStore();
 const route = useRoute();
 const router = useRouter();
-const roomID = computed(() => <string>route.params.roomID ?? '0');
+const roomID = computed(() => <string>route.params.roomID ?? '1');
 const Loading = ref(true);
 provide('Loading', Loading);
 let socket: WS;

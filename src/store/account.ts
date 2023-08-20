@@ -14,7 +14,7 @@ const useAccountStore = defineStore(
       isAdmin: true,
       // 用户
       medals: [] as UserMedalsList[],
-      rooms: []as Group[],
+      rooms: [] as Group[],
 
     }),
     getters: {
@@ -25,16 +25,17 @@ const useAccountStore = defineStore(
         isActive: Object.keys(state.user).length !== 0,
       }),
       /**
-       * 获取用勋章
-       */
+             * 获取用勋章
+             */
       getMedals: (state) => state.medals,
     },
     actions: {
-      // 删除用户
+      // 用户退出登录
       removeUser() {
         this.user = {} as Account;
       },
-      // 请求用户
+
+      // 获取用户信息
       async asyncUser() {
         const res = await getAccountAsync();
         if (!res) return;
@@ -49,8 +50,8 @@ const useAccountStore = defineStore(
         Object.assign(this.user, userinfo); // 更新用户
       },
       /**
-       * 获取勋章
-       */
+             * 获取勋章
+             */
       async asyncGetMedals() {
         if (this.medals.length !== 0) {
           return;
@@ -60,15 +61,24 @@ const useAccountStore = defineStore(
           if (this.user.medals.includes(item.id)) {
             item.acquire = true;
           }
+          this.medals.push(Object.freeze(item));
         });
-        this.medals = res.data;
       },
       async asyncGetUserJoinRooms() {
+        // 二次请求
+        if (this.rooms.length !== 0) {
+          return;
+        }
+        // 如果是未登录用户就不进行请求
+
         const res = await getUserJoinRoomsAsync();
-        this.rooms = res.data;
+        // 非响应式的
+        res.data.forEach((item) => {
+          this.rooms.push(Object.freeze(item));
+        });
       },
-      joinRoom(room :Group) {
-        this.rooms.push(room);
+      joinRoom(room: Group) {
+        this.rooms.push(Object.freeze(room));
       },
     },
   },

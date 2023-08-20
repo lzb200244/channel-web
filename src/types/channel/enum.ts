@@ -34,9 +34,6 @@ export enum MessageTypeEnum {
     /**
      * 回复类型
      */
-    REPLAY = 5,
-    /**
-     * 撤回
-     */
-    RECALL
+    GPT = 5,
+
 }

@@ -12,6 +12,10 @@ import { useRouter } from 'vue-router';
 import { AccountFormAble } from '@/types/account';
 import { registerAsync, loginAsync } from '@/apis/account/';
 import { setToken } from '@/utils/cookies';
+  /**
+   * Generate a random date
+   */
+
 
 import useAccountStore from '@/store/account';
 
@@ -78,3 +82,6 @@ export default () => {
 
   };
 };
+/**
+ * 干了什么
+ */

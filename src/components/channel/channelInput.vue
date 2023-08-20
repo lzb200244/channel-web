@@ -85,6 +85,7 @@
         :disabled="!isLogin"
         placeholder="输入消息..."
         rows="3"
+        @select="mentionSelect"
       >
         <a-mentions-option
           v-for="item in mentionList"
@@ -115,6 +116,7 @@ import {
 import 'vue3-emoji-picker/css';
 import EmojiPicker from 'vue3-emoji-picker';
 import { message } from 'ant-design-vue';
+import { OptionProps } from 'ant-design-vue/lib/vc-select/Option';
 import useCos from '@/hooks/tencent/cos';
 import useChannelStore from '@/store/channel';
 import { createValidateFileExtension, isOverSize, ImageTypes } from '@/utils/file/valide';
@@ -132,13 +134,22 @@ defineProps({
   },
 });
 
-const emits = defineEmits(['update:value', 'send-message', 'send-file-message']);
+const emits = defineEmits(['update:value', 'send-message', 'send-file-message', 'mention']);
 const toFocus = ref();
 const show = ref(false);
 const msg = ref('');
 
 const channelStore = useChannelStore();
-
+/**
+ * @description '@'操作符时
+ * @param opt
+ */
+const mentionSelect = (opt: OptionProps) => {
+  //   调用gpt
+  if (opt.value === 'AI慧聊') {
+    emits('mention', MessageTypeEnum.GPT);
+  }
+};
 const mentionList = computed(() => channelStore.onlineList);
 /**
  * 上床图片
@@ -184,7 +195,7 @@ const handleBeforeUploadFile = (file: File) => {
     return false;
   }
 };
-const handleCustomRequestFile = async (options:any) => {
+const handleCustomRequestFile = async (options: any) => {
   const { updateFile } = useCos('chat/file/', 'file');
   const { file } = options;
   const key = `${Date.now().toString()}`;

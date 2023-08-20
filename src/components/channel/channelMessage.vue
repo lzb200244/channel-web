@@ -70,6 +70,7 @@
                     :message-item="item"
                     :is-send="item.user?.userID===user.userID"
                     @opt="handleOpt"
+                    @mention="handleMention"
                   />
                 </template>
               </a-row>
@@ -93,6 +94,7 @@
             style="margin-bottom:  auto;"
             :is-login="user.isActive"
             @send-message="sendMessage"
+            @mention="handleMention"
             @send-file-message="sendFileMessage"
           />
         </div>
@@ -120,6 +122,7 @@ const {
   cancelReplay,
   sendMessage,
   sendFileMessage,
+  handleMention,
 } = useChannelMessage();
 
 </script>

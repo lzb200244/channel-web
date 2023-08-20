@@ -90,9 +90,11 @@ export const roomUserInfoMap: Map<UserID, UserInfo> = new Map();
 
 export interface Group {
     id: number; // 群组ID
+
     createTime: string; // 群组创建时间
     creator: BaseUserItem; // 群组创建者
     name: string; // 群组名称
     desc: string; // 群组描述
+    type:number; // 群组类型
     isPublic: boolean; // 是否公开群组
 }
