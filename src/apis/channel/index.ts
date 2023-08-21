@@ -6,6 +6,7 @@ import { PushType } from '@/types/channel/modules/push';
 import { MessageRecordFrom, ReplayMessageForm } from '@/types/channel/request/message';
 import { RecallRecord } from '@/types/channel/request/recall';
 import { ThumbType } from '@/types/channel/request/thumb';
+import { roomMembers } from '@/types/channel/response/message';
 
 /**
  * 获取聊天记录
@@ -26,7 +27,7 @@ const getChatRecordsAsync = async (page: number, room: string):
 /**
  * 获取在线人数
  */
-const getOnlineUsersAsync = async (roomID: string): APiResponse<PushType[]> =>
+const getOnlineUsersAsync = async (roomID: string): APiResponse<roomMembers> =>
 //     http://127.0.0.1:5173/api/chat/record/
   instance.get(
     {

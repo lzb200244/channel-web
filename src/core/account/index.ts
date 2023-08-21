@@ -12,10 +12,9 @@ import { useRouter } from 'vue-router';
 import { AccountFormAble } from '@/types/account';
 import { registerAsync, loginAsync } from '@/apis/account/';
 import { setToken } from '@/utils/cookies';
-  /**
+/**
    * Generate a random date
    */
-
 
 import useAccountStore from '@/store/account';
 
@@ -67,10 +66,9 @@ export default () => {
    * 注册
    */
   const Register = async (forms: AccountFormAble) => {
-    const res = await registerAsync(forms);
-    if (res.code === 1203) return;
+    await registerAsync(forms);
     message.info('注册成功');
-  //   用户更新头像和昵称
+    router.push('/login');
   };
   return {
     LoginFormState,

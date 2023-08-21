@@ -5,13 +5,12 @@ import { createPinia } from 'pinia';
 import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css';
 import 'virtual:windi.css';
 import VueVirtualScroller from 'vue3-virtual-scroller';
-
 import VueMarkdownEditor from '@kangc/v-md-editor';
 import vuepressTheme from '@kangc/v-md-editor/lib/theme/vuepress.js';
 import '@kangc/v-md-editor/lib/style/base-editor.css';
 import '@kangc/v-md-editor/lib/theme/style/vuepress.css';
 import '@kangc/v-md-editor/lib/plugins/copy-code/copy-code.css';
-
+import 'animate.css';
 import Prism from 'prismjs';
 import createCopyCodePlugin from '@kangc/v-md-editor/lib/plugins/copy-code/index';
 import App from './App.vue';

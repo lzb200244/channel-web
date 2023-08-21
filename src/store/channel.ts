@@ -9,7 +9,8 @@ import { PushType } from '@/types/channel/modules/push';
 import {
   Group, roomUserInfoMap, ThumbMessage,
 } from '@/types/channel';
-import { MessageRecord, ReplayMessage } from '@/types/channel/response/message';
+import { MessageRecord, ReplayMessage, roomMembers } from '@/types/channel/response/message';
+import { UserInfo } from '@/types/account';
 
 const useChannelStore = defineStore(
   'channel', {
@@ -17,7 +18,10 @@ const useChannelStore = defineStore(
     state: () => ({
       //   聊天消息列表
       messageList: [] as MessageRecord<ReplayMessage>[],
-      onlineList: [] as PushType[],
+      onlineList: {
+        online: [] as PushType[],
+        offline: [] as PushType[],
+      }as roomMembers, // 房间在线/离线情况
       userMap: roomUserInfoMap, // 记录用户id对应关系
       roomInfo: {} as Group,
       rooms: [] as Group[], // 所有的群聊
@@ -72,6 +76,7 @@ const useChannelStore = defineStore(
       clearRecord() {
         this.messageList = [];
       },
+
       /**
        *  更新加入群聊的新人
        * @param msg
@@ -92,11 +97,14 @@ const useChannelStore = defineStore(
        * @param status 状态
        */
       updateOnlineStatus(msg: PushType, status: boolean) {
-        this.onlineList.forEach((item) => {
-          if (item.user.userID === msg.user.userID) {
-            item.user.isActive = status;
-          }
-        });
+        const sourceList = status ? this.onlineList.offline : this.onlineList.online;
+        const targetList = status ? this.onlineList.online : this.onlineList.offline;
+        const userIndex = sourceList.findIndex((user_info) => user_info.user.userID === msg.user.userID);
+        if (userIndex !== -1) {
+          const user = sourceList.splice(userIndex, 1)[0];
+          user.user.isActive = status;
+          targetList.push(user);
+        }
       },
       /**
        * 获取当前在线人数
@@ -104,17 +112,17 @@ const useChannelStore = defineStore(
       async getOnline(roomID: string) {
         const res = await getOnlineUsersAsync(roomID);
         this.onlineList = res.data;
-        this.onlineList.forEach((item) => {
-          this.userMap.set(item.user.userID, {
-            username: item.user.username,
-            avatar: item.user.avatar,
-            desc: item.user.desc,
-            medals: item.user.medals,
-            email: item.user.email,
-            userID: item.user.userID,
+        const processUser = (user: UserInfo) => {
+          const {
+            username, avatar, desc, medals, email, userID,
+          } = user;
+
+          this.userMap.set(userID, {
+            username, avatar, desc, medals, email, userID,
           });
-        });
-        return res;
+        };
+        res.data.online.forEach((item) => processUser(item.user));
+        res.data.offline.forEach((item) => processUser(item.user));
       },
       /**
        * 获取历史记录
@@ -137,10 +145,8 @@ const useChannelStore = defineStore(
       updateRecordLikes(op: ThumbMessage) {
         for (let i = 0; i < this.messageList.length; i++) {
           const item = this.messageList[i];
-
           if (item.message.msgID === op.message.msgID) {
             item.message.messageStatus.likes += op.message.isLike === 1 ? 1 : -1;
-
             break; // 退出循环
           }
         }

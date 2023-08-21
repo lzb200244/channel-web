@@ -88,7 +88,7 @@
         @select="mentionSelect"
       >
         <a-mentions-option
-          v-for="item in mentionList"
+          v-for="item in roomMembers"
           :key="item.user.userID"
           :value="item.user.username"
         >
@@ -150,7 +150,8 @@ const mentionSelect = (opt: OptionProps) => {
     emits('mention', MessageTypeEnum.GPT);
   }
 };
-const mentionList = computed(() => channelStore.onlineList);
+const roomMembers = computed(
+  () => channelStore.onlineList.online.concat(channelStore.onlineList.offline));
 /**
  * 上床图片
  * @param file

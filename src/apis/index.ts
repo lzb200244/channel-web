@@ -2,7 +2,7 @@
 import { message } from 'ant-design-vue';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { RequestConfig, responseCode } from './type';
-import { getToken } from '@/utils/cookies';
+import { getToken, removeToken } from '@/utils/cookies';
 import router from '@/router';
 
 // @ts-ignore
@@ -37,12 +37,10 @@ class Request<T> {
             router.push('/login');
             return;
           }
-
           if (accessToken) {
             // 如果有令牌，将它添加到请求头中
             config.headers.Authorization = `Bearer ${accessToken}`;
           }
-
           return config;
         },
         (error) => Promise.reject(error),
@@ -52,12 +50,23 @@ class Request<T> {
         return data;
       }, (error) => {
         // 超出 2xx 范围的状态码都会触发该函数。
-        const { status, code } = error.response;
+        const { status } = error.response;
         const { data } = error.response;
         if (status >= responseCode.Error) {
           return message.error('服务端错误error');
         }
+        // 请求屏蔽需要进行认证
+        if (status >= responseCode.Forbidden) {
+          router.push('/login');
+          return;
+        }
         if (data.error) {
+          //   认证失败了
+          if (data.code === 1201) {
+            router.push('/login');
+            removeToken();
+            return;
+          }
           return message.info(data.error);
         }
 

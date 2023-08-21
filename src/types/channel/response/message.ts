@@ -1,4 +1,5 @@
 import { BaseMessage, BaseRecord, BaseUserItem } from '@/types/channel/response/base';
+import { PushType } from '@/types/channel/modules/push';
 
 export interface FileInfo {
     fileName: string;
@@ -37,4 +38,9 @@ export interface ReplayMessage extends MessageItem {
 export interface MessageRecord<T extends BaseMessage = BaseMessage> extends BaseRecord {
     message: T;
     user: BaseUserItem
+}
+
+export interface roomMembers{
+    online: PushType[],
+    offline: PushType[],
 }
