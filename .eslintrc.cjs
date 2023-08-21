@@ -42,6 +42,7 @@ module.exports = {
     'implicit-arrow-linebreak': 'off',
     'function-paren-newline': 'off',
     'vue/no-mutating-props': 'off',
+    'camelcase': 'off',
 
 
   }

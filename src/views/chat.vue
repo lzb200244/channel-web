@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import {
-  computed, provide, ref, watchEffect,
+  computed, onBeforeUnmount, onMounted, provide, ref, watchEffect,
 } from 'vue';
 import ChannelTip from '@/components/channel/channelTip.vue';
 import channelStatus from '@/components/channel/channelStatus.vue';
@@ -72,6 +72,11 @@ import WS from '@/utils/socket';
 import { BaseRecord, ReplayMessage, ThumbMessage } from '@/types/channel';
 import { PushTypeEnum } from '@/types/channel/enum';
 
+let socket: WS;
+
+let blinkInterval: any;
+// 记录旧的标题
+const originalTitle: string = document.title;
 const channel = useChannelStore();
 const route = useRoute();
 const router = useRouter();
@@ -82,7 +87,16 @@ const Loading = ref(true);
 const reLoading = ref(false);
 provide('Loading', Loading);
 provide('reLoading', reLoading);
-let socket: WS;
+const startBlinking = () => {
+  blinkInterval = setInterval(() => {
+    document.title = (document.title === originalTitle) ? '[ 新消息来了 ！！！]' : originalTitle;
+  }, 1000); // 闪烁间隔为1秒
+};
+
+const stopBlinking = () => {
+  clearInterval(blinkInterval);
+  document.title = originalTitle;
+};
 const handleMessage = (data:BaseRecord<ReplayMessage>) => {
   let message = data;
   switch (message.type) {
@@ -99,6 +113,7 @@ const handleMessage = (data:BaseRecord<ReplayMessage>) => {
     //   消息推送
     case PushTypeEnum.MESSAGE_PUSH: {
       channel.pushRecordMessage(message);
+      startBlinking();
       break;
     }
     // 回复
@@ -141,6 +156,15 @@ watchEffect(() => {
   });
 });
 
+onMounted(() => {
+  document.addEventListener('visibilitychange', () => {
+    stopBlinking();
+  });
+});
+
+onBeforeUnmount(() => {
+  stopBlinking();
+});
 </script>
 <style lang="scss" scoped>
 $screen-md: 992px;

@@ -99,7 +99,9 @@ const useChannelStore = defineStore(
       updateOnlineStatus(msg: PushType, status: boolean) {
         const sourceList = status ? this.onlineList.offline : this.onlineList.online;
         const targetList = status ? this.onlineList.online : this.onlineList.offline;
-        const userIndex = sourceList.findIndex((user_info) => user_info.user.userID === msg.user.userID);
+        const userIndex = sourceList.findIndex(
+          (user_info:PushType) => user_info.user.userID === msg.user.userID,
+        );
         if (userIndex !== -1) {
           const user = sourceList.splice(userIndex, 1)[0];
           user.user.isActive = status;
@@ -113,13 +115,7 @@ const useChannelStore = defineStore(
         const res = await getOnlineUsersAsync(roomID);
         this.onlineList = res.data;
         const processUser = (user: UserInfo) => {
-          const {
-            username, avatar, desc, medals, email, userID,
-          } = user;
-
-          this.userMap.set(userID, {
-            username, avatar, desc, medals, email, userID,
-          });
+          this.userMap.set(user.userID, user);
         };
         res.data.online.forEach((item) => processUser(item.user));
         res.data.offline.forEach((item) => processUser(item.user));
