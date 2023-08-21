@@ -135,10 +135,12 @@ const {
     margin: 0 auto;
     padding: 0 10px;
     height: 720px;
+
     .chatroom-messages {
         .virtual-list {
             scroll-behavior: smooth;
         }
+
         height: 600px;
         width: 100%;
         overflow-y: hidden;

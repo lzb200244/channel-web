@@ -29,10 +29,8 @@
         placement="topLeft"
         title="个人背包"
       >
-        <a-avatar
-          :size="40"
-
-          :src="userObj.avatar"
+        <account-avatar
+          :avatar="{src:userObj.avatar,username:userObj.username,size:40,length:1}"
           @click="updateInfo"
         />
       </a-tooltip>
@@ -81,10 +79,9 @@
   >
     <a-row justify="center">
       <a-col>
-        <a-avatar
-          :size="100"
-          style="border: 2px solid #fafafa"
-          :src="userinfo.avatar"
+        <account-avatar
+
+          :avatar="{src:userObj.avatar,username:userObj.username,size:100,length:1}"
           @click="showAvatarList=true"
         />
       </a-col>
@@ -207,6 +204,7 @@ import useCos from '@/hooks/tencent/cos';
 import ChannelStatus from '@/components/channel/channelStatus.vue';
 import { createValidateFileExtension, ImageTypes, isOverSize } from '@/utils/file/valide';
 import CreateRoom from '@/components/layout/model/createRoom.vue';
+import AccountAvatar from '@/components/account/accountAvatar.vue';
 
 const useAccount = useAccountStore();
 // 初始化用户

@@ -39,9 +39,12 @@
           </a-popover>
         </template>
         <template #avatar>
-          <a-avatar
-            :src="userMap.get(messageItem.user.userID)?.avatar"
-            :alt="userMap.get(messageItem.user.userID)?.username "
+          <account-avatar
+            :avatar="{
+              src:userMap.get(messageItem.user.userID)?.avatar,
+              username:userMap.get(messageItem.user.userID)?.username,
+              length:1
+            }"
           />
         </template>
         <template #content>
@@ -93,7 +96,6 @@
             <template v-else-if="messageItem.message.type===MessageTypeEnum.GPT">
               <v-md-editor
                 v-model="messageItem.message.content"
-
                 mode="preview"
               />
             </template>
@@ -104,6 +106,20 @@
           <a-tooltip :title="dayjs(messageItem.message.time).format('YYYY-MM-DD HH:mm:ss')">
             <span>{{ formatTime(messageItem.message.time) }}</span>
           </a-tooltip>
+          <a-tag
+            v-if="messageItem.user.userID===roomInfo.creator?.userID"
+            color="green"
+            style="margin-left: 5px;"
+          >
+            群主
+          </a-tag>
+          <a-tag
+            v-if="isSend"
+            color="blue"
+            style="margin-left: 5px;"
+          >
+            自己
+          </a-tag>
         </template>
       </a-comment>
       <template #overlay>
@@ -119,16 +135,6 @@
               复 制
             </a-button>
           </a-menu-item>
-          <!--          <a-menu-item key="call">-->
-          <!--            <a-button-->
-          <!--              size="small"-->
-          <!--              type="text"-->
-          <!--              style="font-size: 12px;"-->
-          <!--              @click="mentionUser(messageItem)"-->
-          <!--            >-->
-          <!--              @ 艾特Ta-->
-          <!--            </a-button>-->
-          <!--          </a-menu-item>-->
 
           <a-menu-item
             key="recall"
@@ -164,6 +170,7 @@ import useChannelStore from '@/store/channel';
 import RecordFile from '@/components/channel/record/recordFile.vue';
 import RecordImg from '@/components/channel/record/recordImg.vue';
 import AccountCard from '@/components/account/accountCard.vue';
+import AccountAvatar from '@/components/account/accountAvatar.vue';
 
 dayjs.extend(relativeTime);
 
@@ -185,6 +192,7 @@ defineProps({
  */
 const emit = defineEmits(['opt', 'mention']);
 const channelStore = useChannelStore();
+const roomInfo = computed(() => channelStore.roomInfo);
 const userMap = computed(() => channelStore.userMap);
 const route = useRoute();
 const roomID = <string>route.query.room ?? '1'; //

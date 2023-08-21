@@ -15,13 +15,14 @@
         {{ userInfo?.desc }}
       </template>
       <template #avatar>
-        <a-avatar :src="userInfo?.avatar" />
+        <account-avatar :avatar="{src:userInfo.avatar,username:userInfo.username,length:1}" />
       </template>
     </a-card-meta>
   </a-card>
 </template>
 <script lang="ts" setup>
 import { UserInfo } from '@/types/account';
+import AccountAvatar from '@/components/account/accountAvatar.vue';
 
 defineProps({
   userInfo: {

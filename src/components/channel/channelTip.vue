@@ -92,20 +92,9 @@
                     </router-link>
                   </template>
                   <template #avatar>
-                    <a-avatar
-                      v-if="item.avatar"
-                      :size="40"
-                      shape="square"
-                      :src="item.avatar"
+                    <account-avatar
+                      :avatar="{src:item.avatar,username:item.name,shape:'square',size:40,length:4}"
                     />
-                    <a-avatar
-                      v-else
-                      :size="40"
-                      shape="square"
-                      :style="{backgroundColor: bgColor}"
-                    >
-                      {{ item.name.slice(0,4) }}
-                    </a-avatar>
                   </template>
                 </a-list-item-meta>
                 <span style="color: #707070;font-size: 10px">
@@ -126,12 +115,13 @@ import {
 } from 'vue';
 import { CaretRightOutlined } from '@ant-design/icons-vue';
 import useAccountStore from '@/store/account';
+import AccountAvatar from '@/components/account/accountAvatar.vue';
 
 const useAccount = useAccountStore();
 
 const Loading = inject('Loading');
 
-const activeKey = ref('person');
+const activeKey = ref('group');
 const bgColor = computed(() => {
   const currentHour = new Date().getHours();
   const hue = (currentHour * 15) % 360; // Calculate hue value based on current hour

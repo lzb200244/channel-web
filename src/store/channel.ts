@@ -21,16 +21,16 @@ const useChannelStore = defineStore(
     }),
     actions: {
       /**
-        * 添加新的聊天记录
-        * @param item
-        */
+             * 添加新的聊天记录
+             * @param item
+             */
       pushRecordMessage(item: MessageRecord<ReplayMessage>) {
         this.messageList.unshift(item);
       },
       /**
-        * 进行撤回
-        * @param msg
-        */
+             * 进行撤回
+             * @param msg
+             */
       deleteRecord(msg: MessageRecord<ReplayMessage>): boolean {
         //   删除该条,需要是撤销功能有提示
         this.messageList.forEach((item) => {

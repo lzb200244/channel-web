@@ -2,7 +2,7 @@
  * 校验
  */
 const pattern = {
-  password: /^(?=.*[A-Za-z])(?=.*\d)[^]{6,16}$/,
+  password: /^[a-zA-Z0-9]{6,18}$/,
   username: /^[a-zA-Z0-9]{6,12}$/,
 };
 type valid<T = never | string> = { (rule: any, value: string): Promise<T> }
@@ -10,7 +10,7 @@ const loginValidator: valid = (rule, value) =>
   // 输入是异步回到返回Promise对象
   new Promise((resolve, reject) => {
     if (!pattern.username.test(value)) {
-      reject(new Error('账号长度在6-16'));
+      reject(new Error('账号长度在6-12'));
     } else {
       resolve('success');
     }
@@ -20,7 +20,7 @@ const passwordValidator: valid = (rule, value) =>
   // 输入是异步回到返回Promise对象
   new Promise((resolve, reject) => {
     if (!pattern.password.test(value)) {
-      reject(new Error('密码至少有1位字母且长度6-16'));
+      reject(new Error('密码长度在6-18'));
     } else {
       resolve('success');
     }

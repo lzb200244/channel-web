@@ -24,7 +24,6 @@
           <a-form-item
             label="用户名"
             name="username"
-            :rules="Rules.login.username"
           >
             <a-input
               v-model:value.trim="LoginFormState.username"
@@ -39,7 +38,6 @@
             label="密码"
             name="password"
             style="margin-bottom: 5px;"
-            :rules="Rules.login.password"
           >
             <a-input-password
               v-model:value.trim="LoginFormState.password"
@@ -51,12 +49,17 @@
             </a-input-password>
           </a-form-item>
 
-          <a-form-item style="margin-bottom: 5px;">
+          <a-form-item>
             <router-link
-              class="login-form-forgot float-right"
               to="/"
             >
               返回主页
+            </router-link>
+            <router-link
+              class="float-right"
+              to="register"
+            >
+              注册
             </router-link>
           </a-form-item>
           <a-form-item>
@@ -79,8 +82,6 @@
 <script lang='ts' setup>
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 import useAccount from '@/core/account';
-
-import Rules from '@/utils/rules/account';
 
 const {
   LoginFormState,

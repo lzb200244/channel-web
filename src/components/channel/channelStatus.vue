@@ -22,15 +22,14 @@
         >
           <a-list-item-meta>
             <template #title>
-              <a href="#">{{ item.user.username }}</a>
+              {{ item.user.username }}
             </template>
             <template
               #avatar
             >
-              <a-avatar
-                :src="item.user.avatar"
-                :size="35"
+              <account-avatar
                 :class="item.user.isActive?'avatar-online':'avatar-status'"
+                :avatar="{src:item.user.avatar,username:item.user.username,length:1,size:35}"
               />
             </template>
           </a-list-item-meta>
@@ -43,13 +42,14 @@
 import { computed, inject } from 'vue';
 import useChannelStore from '@/store/channel';
 import { PushType } from '@/types/channel/modules/push';
+import AccountAvatar from '@/components/account/accountAvatar.vue';
 
 const channelStore = useChannelStore();
 const Loading = inject('Loading');
 // 群成员
 const memberList = computed<PushType[]>(() => channelStore.onlineList);
 // 在线成员
-const onlineList = computed<PushType[]>(() => channelStore.onlineList.filter((item:PushType) =>
+const onlineList = computed<PushType[]>(() => channelStore.onlineList.filter((item: PushType) =>
   item.user.isActive));
 
 </script>
@@ -58,12 +58,15 @@ const onlineList = computed<PushType[]>(() => channelStore.onlineList.filter((it
 .chat-status-list {
     height: 680px;
     overflow-y: auto;
+
     .chat-status-item {
         padding: 8px;
     }
+
     .avatar-online {
         position: relative;
         display: inline-block;
+
         &::after {
             content: "";
             position: absolute;
@@ -76,9 +79,11 @@ const onlineList = computed<PushType[]>(() => channelStore.onlineList.filter((it
         }
 
     }
+
     .avatar-status {
         position: relative;
         display: inline-block;
+
         &::after {
             content: "";
             position: absolute;

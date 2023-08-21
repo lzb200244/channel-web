@@ -78,7 +78,19 @@
               </template>
             </a-input>
           </a-form-item>
-
+          <a-form-item>
+            <router-link
+              to="/"
+            >
+              返回主页
+            </router-link>
+            <router-link
+              class="float-right"
+              to="login"
+            >
+              登录
+            </router-link>
+          </a-form-item>
           <a-form-item>
             <a-button
               block
@@ -86,7 +98,7 @@
               html-type="submit"
               class="login-form-button "
             >
-              登录
+              注 册
             </a-button>
           </a-form-item>
         </a-form>
