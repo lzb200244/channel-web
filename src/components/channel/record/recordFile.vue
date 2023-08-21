@@ -1,5 +1,8 @@
 <template>
-  <a-card class="file-card">
+  <a-card
+    v-once
+    class="file-card"
+  >
     <a-row
       class="file-info"
       align="center"
@@ -15,7 +18,9 @@
         <a-typography-title :level="5">
           {{ getFileNameWithoutPrefix }}
         </a-typography-title>
-        <div>{{ fileInfo.fileSize }}</div>
+        <div>
+          {{ calFileSize(fileInfo.fileSize) }}
+        </div>
       </a-col>
       <a-col
         class="download-link"
@@ -41,7 +46,7 @@ const props = defineProps({
     default: {} as FileInfo,
   },
 });
-
+const calFileSize = (size:number) => (`${size.toFixed(2)}KB`);
 const getFileIcon = (fileName: string) => {
   const fileExtension = getFileExtension(fileName);
   const iconPath = '/files_type/';

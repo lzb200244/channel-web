@@ -1,7 +1,9 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 
 import isTimeElapsed from '@/utils/elapsed';
-import { getOnlineUsersAsync, getChatRecordsAsync, getRoomInformAsync } from '@/apis/channel';
+import {
+  getOnlineUsersAsync, getChatRecordsAsync, getRoomInformAsync, getRoomAsync,
+} from '@/apis/channel';
 
 import { PushType } from '@/types/channel/modules/push';
 import {
@@ -18,19 +20,20 @@ const useChannelStore = defineStore(
       onlineList: [] as PushType[],
       userMap: roomUserInfoMap, // 记录用户id对应关系
       roomInfo: {} as Group,
+      rooms: [] as Group[], // 所有的群聊
     }),
     actions: {
       /**
-             * 添加新的聊天记录
-             * @param item
-             */
+       * 添加新的聊天记录
+       * @param item
+       */
       pushRecordMessage(item: MessageRecord<ReplayMessage>) {
         this.messageList.unshift(item);
       },
       /**
-             * 进行撤回
-             * @param msg
-             */
+       * 进行撤回
+       * @param msg
+       */
       deleteRecord(msg: MessageRecord<ReplayMessage>): boolean {
         //   删除该条,需要是撤销功能有提示
         this.messageList.forEach((item) => {
@@ -45,16 +48,16 @@ const useChannelStore = defineStore(
         return false;
       },
       /**
-             * 请求跟多的历史记录
-             * @param itemList
-             */
+       * 请求跟多的历史记录
+       * @param itemList
+       */
       asyncPushMoreRecord(itemList: MessageRecord<ReplayMessage>[]) {
         this.setRecordMessage(itemList);
       },
       /**
-             * 设置历史记录
-             * @param itemList 列表
-             */
+       * 设置历史记录
+       * @param itemList 列表
+       */
       setRecordMessage(itemList: MessageRecord<ReplayMessage>[]) {
         itemList.forEach((item: MessageRecord<ReplayMessage>) => {
           // 是否过期2分钟
@@ -66,25 +69,28 @@ const useChannelStore = defineStore(
           }
         });
       },
+      clearRecord() {
+        this.messageList = [];
+      },
       /**
-             *  更新加入群聊的新人
-             * @param msg
-             */
+       *  更新加入群聊的新人
+       * @param msg
+       */
       pushOnline(msg: PushType) {
         this.updateOnlineStatus(msg, true);
       },
       /**
-             * 退出群聊通知
-             * @param msg
-             */
+       * 退出群聊通知
+       * @param msg
+       */
       popOnline(msg: PushType) {
         this.updateOnlineStatus(msg, false);
       },
       /**
-             * 实时更新在线状态
-             * @param msg
-             * @param status 状态
-             */
+       * 实时更新在线状态
+       * @param msg
+       * @param status 状态
+       */
       updateOnlineStatus(msg: PushType, status: boolean) {
         this.onlineList.forEach((item) => {
           if (item.user.userID === msg.user.userID) {
@@ -93,8 +99,8 @@ const useChannelStore = defineStore(
         });
       },
       /**
-             * 获取当前在线人数
-             */
+       * 获取当前在线人数
+       */
       async getOnline(roomID: string) {
         const res = await getOnlineUsersAsync(roomID);
         this.onlineList = res.data;
@@ -111,8 +117,8 @@ const useChannelStore = defineStore(
         return res;
       },
       /**
-             * 获取历史记录
-             */
+       * 获取历史记录
+       */
       async getRoomInfo(roomID: string) {
         const res = await getRoomInformAsync(roomID);
         this.roomInfo = res.data;
@@ -126,8 +132,8 @@ const useChannelStore = defineStore(
         return res;
       },
       /**
-             * 更新消息的赞数量
-             */
+       * 更新消息的赞数量
+       */
       updateRecordLikes(op: ThumbMessage) {
         for (let i = 0; i < this.messageList.length; i++) {
           const item = this.messageList[i];
@@ -138,6 +144,14 @@ const useChannelStore = defineStore(
             break; // 退出循环
           }
         }
+      },
+      /**
+       * 按页获取房间
+       * @param page
+       */
+      async asyncGetRooms(page:number) {
+        const res = await getRoomAsync(page);
+        this.rooms = res.data.results;
       },
     },
     getters: {

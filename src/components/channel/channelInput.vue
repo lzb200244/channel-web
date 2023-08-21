@@ -13,6 +13,7 @@
         >
           <template #content>
             <EmojiPicker
+              v-once
               style="box-shadow: none;width: 250px"
               :native="true"
               :hide-search="true"
@@ -44,7 +45,7 @@
             type="text"
             class="px-2"
           >
-            <file-image-outlined />
+            <file-image-outlined v-once />
           </a-button>
         </a-upload>
       </a-tooltip>
@@ -62,15 +63,14 @@
             type="text"
             class="px-2"
           >
-            <folder-add-outlined />
+            <folder-add-outlined v-once />
           </a-button>
         </a-upload>
       </a-tooltip>
 
       <a-button
-        :type="msg.length > 0 ?'primary':'text'"
+        :type="msg.trim().length > 0 ?'primary':'text'"
         style="margin-left: auto"
-
         @click="sendMessage"
       >
         发 送
@@ -111,7 +111,7 @@ import {
   FileImageOutlined, FolderAddOutlined,
 } from '@ant-design/icons-vue';
 import {
-  ref, defineExpose, computed, defineEmits,
+  ref, defineExpose, computed, defineEmits, onMounted, onBeforeMount,
 } from 'vue';
 import 'vue3-emoji-picker/css';
 import EmojiPicker from 'vue3-emoji-picker';
@@ -203,7 +203,6 @@ const handleCustomRequestFile = async (options: any) => {
   setTimeout(() => {
     emits('send-file-message', res, MessageTypeEnum.FILE);
   }, 100);
-  console.log(res);
 };
 /**
  * 调节输入框
@@ -215,9 +214,26 @@ const focus = () => {
  * 发送消息
  */
 const sendMessage = () => {
+  if (msg.value.trim() === '') return;
   emits('send-message', msg.value);
   msg.value = '';
 };
+
+onMounted(() => {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+});
+onBeforeMount(() => {
+//   卸载事件
+  document.removeEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+});
 
 defineExpose({
   focus,

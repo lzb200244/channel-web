@@ -65,73 +65,65 @@
           placeholder="搜索群聊：ID、名称进行搜索"
           enter-button
         />
-
-        <a-list
-          v-if="rooms.length!==0"
-          item-layout="horizontal"
-          :data-source="rooms"
-        >
-          <template
-
-            #renderItem="{ item }"
+        <template v-if="rooms.length===0">
+          <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" />
+        </template>
+        <template v-else>
+          <a-list
+            item-layout="horizontal"
+            :data-source="rooms"
           >
-            <a-list-item>
-              <a-list-item-meta
-                :description="item.desc"
-              >
-                <template #title>
-                  {{ item.name }}
+            <template
+
+              #renderItem="{ item }"
+            >
+              <a-list-item>
+                <a-list-item-meta
+                  :description="item.desc"
+                >
+                  <template #title>
+                    {{ item.name }}
+                  </template>
+                  <template #avatar>
+                    <account-avatar
+                      :avatar="{src:item.avatar,username:item.name,shape:'square',size:40,length:4}"
+                    />
+                  </template>
+                </a-list-item-meta>
+                <template
+                  v-if="item.isPublic"
+                  #actions
+                >
+                  <a-tag>
+                    公开
+                  </a-tag>
+                  <a
+                    key="list-loadmore-more"
+                    @click="joinRoom(item.id,item.password)"
+                  >加入</a>
                 </template>
-                <template #avatar>
-                  <a-avatar
-                    v-if="item.avatar"
-                    :size="40"
-                    shape="square"
-                    :src="item.avatar"
+                <template
+                  v-else
+                  #actions
+                >
+                  <a-tag>
+                    密码
+                  </a-tag>
+                  <a-input
+                    v-model:value="item.password"
+                    style="width: 80px;font-size: 10px"
+                    size="small"
+                    placeholder="输入房间密码。。"
                   />
-                  <a-avatar
-                    v-else
-                    :size="40"
-                    shape="square"
-                  >
-                    <!--                       :style="{backgroundColor: bgColor}"-->
-                    {{ item.name.slice(0, 4) }}
-                  </a-avatar>
+                  <a
+                    key="list-loadmore-more"
+                    @click="joinRoom(item.id,item.password)"
+                  >加入</a>
                 </template>
-              </a-list-item-meta>
-              <template
-                v-if="item.isPublic"
-                #actions
-              >
-                <a-tag>
-                  公开
-                </a-tag>
-                <a
-                  key="list-loadmore-more"
-                  @click="joinRoom(item.id,item.password)"
-                >加入</a>
-              </template>
-              <template
-                v-else
-                #actions
-              >
-                <a-tag>
-                  密码
-                </a-tag>
-                <a-input
-                  v-model:value="item.password"
-                  style="width: 80px;font-size: 10px"
-                  size="small"
-                  placeholder="输入房间密码。。"
-                />
-                <a
-                  key="list-loadmore-more"
-                  @click="joinRoom(item.id,item.password)"
-                >加入</a>
-              </template>
-            </a-list-item>
-          </template>
-        </a-list>
+              </a-list-item>
+            </template>
+          </a-list>
+        </template>
       </a-tab-pane>
     </a-tabs>
 
@@ -140,16 +132,18 @@
 </template>
 <script lang="ts" setup>
 import {
-  computed, defineEmits, reactive, ref,
+  defineEmits, reactive, ref, computed,
 } from 'vue';
-import { message } from 'ant-design-vue';
+import { Empty, message } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
-import { createChatRoomAsync, getRoomAsync, joinRoomAsync } from '@/apis/channel';
+import { createChatRoomAsync, joinRoomAsync } from '@/apis/channel';
 import useAccountStore from '@/store/account';
-import { Group } from '@/types/channel';
+import useChannelStore from '@/store/channel';
+import AccountAvatar from '@/components/account/accountAvatar.vue';
 
 const router = useRouter();
 const useAccount = useAccountStore();
+const useChannel = useChannelStore();
 const search = ref('');
 const props = defineProps({
   value: {
@@ -157,11 +151,14 @@ const props = defineProps({
     default: () => false,
   },
 });
+useChannel.asyncGetRooms(1);
 const emits = defineEmits(['update:value']);
-const rooms = computed<Group[]>(() => []);
-getRoomAsync(1).then((res) => {
-  rooms.value.push(...res.data.results);
-});
+const rooms = computed(
+  () => useChannel.rooms.filter(
+    (item) => item.name.includes(search.value) || item.id.toString() === search.value,
+  ),
+);
+
 const closeModal = () => {
   emits('update:value', false);
 };

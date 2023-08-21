@@ -1,5 +1,5 @@
 <template>
-  <div class="group-chat-panel">
+  <div>
     <div class="info-section">
       <div class="info-row">
         <span class="info-label">创建者：</span>

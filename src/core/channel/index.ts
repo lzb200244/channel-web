@@ -1,5 +1,5 @@
 import {
-  computed, nextTick, onMounted, onUnmounted, reactive,
+  computed, onMounted, onUnmounted, reactive,
 } from 'vue';
 import { message } from 'ant-design-vue';
 import { useRoute } from 'vue-router';
@@ -13,8 +13,12 @@ import { getChatRecordsAsync, recallMessageAsync, sendMessageAsync } from '@/api
 import useChannelStore from '@/store/channel';
 import useAccountStore from '@/store/account';
 import isTimeElapsed from '@/utils/elapsed';
+
+// @ts-ignore
 import { FileInfoForm, MessageRecordFrom, ReplayMessageForm } from '@/types/channel/request/message';
+// @ts-ignore
 import { RecallRecord } from '@/types/channel/request/recall';
+// @ts-ignore
 import { MessageRecord, ReplayMessage } from '@/types/channel/response/message';
 
 const useChannelMessage = () => {
@@ -62,11 +66,13 @@ const useChannelMessage = () => {
     // 由于是虚拟列表渲染，高度不固定，默认每次进来加载滑动到底部给定一个最大值
     virtual.scrollTop = Number.MAX_SAFE_INTEGER;
   };
-    /**
-     * 加载更多数据
-     */
+
+  /**
+   * 加载更多数据
+   */
   const LoadMoreRecord = async () => {
     const { scrollTop } = virtual;
+
     // 检查是否满足加载更多的条件
     if (!pageConf.stop && scrollTop === 0 && !pageConf.isLoading) {
       pageConf.isLoading = true; // 设置加载状态为 true
@@ -77,7 +83,7 @@ const useChannelMessage = () => {
         pageConf.isLoading = false; // 加载完成后，将加载状态设置为 false
       }, 500);
       if (res.data.count < 10) {
-        message.info('喵的！not more more history');
+        message.info('没有更多记录');
         // 没有更多记录
         pageConf.stop = true;
         // 这里建议将 isLoading 设置为 true，表示不再继续加载
@@ -214,10 +220,6 @@ const useChannelMessage = () => {
     }
   };
   onMounted(async () => {
-    //   每次加载页面到底部
-    await nextTick(() => {
-      setTimeout(scrollToBottom, 200);
-    });
     virtual = document.querySelector('.virtual-list') as HTMLElement;
     virtual.addEventListener('scroll', LoadMoreRecord);
   });
@@ -237,6 +239,7 @@ const useChannelMessage = () => {
     cancelReplay,
     sendMessage,
     sendFileMessage,
+    scrollToBottom,
 
   };
 };

@@ -13,29 +13,17 @@
           key="person"
           style="border: none;"
           :show-arrow="true"
-
-          :bordered="false"
+          header="个人消息"
         >
-          <template #header>
-            <span>个人</span>
-          </template>
           <a-list
             item-layout="horizontal"
-            :data-source="rooms"
+            :data-source="rooms.private_rooms"
           >
-            <a-skeleton
-              v-for="i in 5"
-              :key="i"
-              avatar
-              :title="false"
-              :loading="Loading"
-              active
-            />
             <template
               v-if="!Loading"
               #renderItem="{ item }"
             >
-              <a-list-item v-if="item.type === 1">
+              <a-list-item>
                 <a-list-item-meta
                   :description="item.desc"
                 >
@@ -45,20 +33,9 @@
                     </router-link>
                   </template>
                   <template #avatar>
-                    <a-avatar
-                      v-if="item.avatar"
-                      :size="40"
-                      shape="square"
-                      :src="item.avatar"
+                    <account-avatar
+                      :avatar="{src:item.avatar,username:item.name,shape:'square',size:40,length:4}"
                     />
-                    <a-avatar
-                      v-else
-                      :size="40"
-                      shape="square"
-                      :style="{backgroundColor: bgColor}"
-                    >
-                      {{ item.name.slice(0,4) }}
-                    </a-avatar>
                   </template>
                 </a-list-item-meta>
                 <span style="color: #707070;font-size: 10px">
@@ -76,13 +53,13 @@
         >
           <a-list
             item-layout="horizontal"
-            :data-source="rooms"
+            :data-source="rooms.group_rooms"
           >
             <template
               v-if="!Loading"
               #renderItem="{ item }"
             >
-              <a-list-item v-if="item.type === 2">
+              <a-list-item>
                 <a-list-item-meta
                   :description="item.desc"
                 >
@@ -114,20 +91,15 @@ import {
 
 } from 'vue';
 import { CaretRightOutlined } from '@ant-design/icons-vue';
+import { Empty } from 'ant-design-vue';
 import useAccountStore from '@/store/account';
 import AccountAvatar from '@/components/account/accountAvatar.vue';
 
 const useAccount = useAccountStore();
-
+useAccount.asyncGetUserJoinRooms();
 const Loading = inject('Loading');
 
 const activeKey = ref('group');
-const bgColor = computed(() => {
-  const currentHour = new Date().getHours();
-  const hue = (currentHour * 15) % 360; // Calculate hue value based on current hour
-
-  return `hsl(${hue}, 50%, 60%)`;
-});
 
 const rooms = computed(() => useAccount.rooms);
 

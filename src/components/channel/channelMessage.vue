@@ -1,6 +1,5 @@
 <template>
   <a-card
-
     size="small"
     style="height: 800px"
   >
@@ -9,7 +8,10 @@
         placement="topLeft"
       >
         <template #content>
-          <room-desc :room-info="roomInfo" />
+          <room-desc
+            v-once
+            :room-info="roomInfo"
+          />
         </template>
         <div style="font-size: 18px;cursor: pointer">
           {{ roomInfo.name }}
@@ -34,13 +36,13 @@
         <a-skeleton
           v-for="i in 5"
           :key="i"
-          :loading="Loading"
+          :loading="reLoading"
           avatar
           :paragraph="{ rows: 2 }"
         />
 
         <dynamic-scroller
-          v-show="!Loading"
+          v-show="!reLoading"
           :items="messageList"
           :min-item-size="60"
           style="height: 600px"
@@ -89,6 +91,12 @@
           >
             @ {{ msg.message.replay?.username }}
           </a-tag>
+          <a-tag
+            style="position: absolute;bottom: 130px;right: 10px;cursor: pointer;border: 0"
+            @click="scrollToBottom"
+          >
+            <caret-down-outlined />
+          </a-tag>
           <channel-input
             v-model:value="msg.message.content"
             style="margin-bottom:  auto;"
@@ -105,12 +113,13 @@
 
 <script setup lang="ts">
 import { inject } from 'vue';
+import { CaretDownOutlined } from '@ant-design/icons-vue';
 import useChannelMessage from '@/core/channel';
 import ChannelCard from '@/components/channel/channelCard.vue';
 import ChannelInput from '@/components/channel/channelInput.vue';
 import roomDesc from '@/components/channel/room/roomInfo.vue';
 
-const Loading = inject('Loading');
+const reLoading = inject('reLoading');
 const {
   pageConf,
   user,
@@ -123,6 +132,7 @@ const {
   sendMessage,
   sendFileMessage,
   handleMention,
+  scrollToBottom,
 } = useChannelMessage();
 
 </script>

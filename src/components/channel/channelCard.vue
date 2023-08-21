@@ -2,7 +2,7 @@
   <a-row
     v-if="Object.keys(messageItem).length!==0"
     :id="'record:'+messageItem.message.msgID"
-    style="margin-bottom: 5px;width: 100%"
+    style="width: 100%"
     class="hover"
   >
     <a-dropdown :trigger="['contextmenu']">
@@ -49,7 +49,7 @@
         </template>
         <template #content>
           <div
-            style="position: relative;margin-top: 20px"
+            style="position: relative;margin-top: 10px"
           >
             <!-- TODO   存在回复对象-->
             <a-anchor-link
@@ -94,10 +94,7 @@
               <record-file :file-info="messageItem.message.fileInfo" />
             </template>
             <template v-else-if="messageItem.message.type===MessageTypeEnum.GPT">
-              <v-md-editor
-                v-model="messageItem.message.content"
-                mode="preview"
-              />
+              <record-text :content="messageItem.message.content" />
             </template>
           </div>
         </template>
@@ -171,6 +168,7 @@ import RecordFile from '@/components/channel/record/recordFile.vue';
 import RecordImg from '@/components/channel/record/recordImg.vue';
 import AccountCard from '@/components/account/accountCard.vue';
 import AccountAvatar from '@/components/account/accountAvatar.vue';
+import RecordText from '@/components/channel/record/recordText.vue';
 
 dayjs.extend(relativeTime);
 

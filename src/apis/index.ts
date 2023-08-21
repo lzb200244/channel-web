@@ -2,18 +2,22 @@
 import { message } from 'ant-design-vue';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { RequestConfig, responseCode } from './type';
+import { getToken } from '@/utils/cookies';
+import router from '@/router';
 
 // @ts-ignore
 interface Response<T> {
     data: T, // 请求的数据，用泛型
     msg: string | null // 返回状态码的信息，如请求成功等
     code: number
-    error?:any
+    error?: any
 }
+
 export interface ResultData<T> {
     results: T,
     count: number
 }
+
 export type APiResponse<T> = Promise<Response<T>>;
 
 class Request<T> {
@@ -22,10 +26,27 @@ class Request<T> {
     constructor(config: AxiosRequestConfig) {
       this._instance = axios.create(config);
       // 添加拦截器
-      this._instance.interceptors.request.use((config) =>
 
-        config,
-      (error) => Promise.reject(error));
+      this._instance.interceptors.request.use(
+        (config: any) => {
+          const accessToken = getToken();
+
+          if (config.isAuth && !accessToken) {
+            // 如果请求需要认证，但用户没有令牌
+            message.info('需要登录，才能进行操作哦');
+            router.push('/login');
+            return;
+          }
+
+          if (accessToken) {
+            // 如果有令牌，将它添加到请求头中
+            config.headers.Authorization = `Bearer ${accessToken}`;
+          }
+
+          return config;
+        },
+        (error) => Promise.reject(error),
+      );
       this._instance.interceptors.response.use((response) => {
         const { data } = response;
         return data;
@@ -101,5 +122,7 @@ const conf: RequestConfig = {
   baseURL: '/api',
   timeout: 1000,
   withCredentials: true,
+  isAuth: false,
+
 };
 export default new Request(conf);

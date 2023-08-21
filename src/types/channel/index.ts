@@ -98,3 +98,8 @@ export interface Group {
     type:number; // 群组类型
     isPublic: boolean; // 是否公开群组
 }
+
+export interface Groups {
+    private_rooms: Group[];
+    group_rooms: Group[];
+}

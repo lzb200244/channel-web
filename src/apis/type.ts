@@ -22,5 +22,6 @@ export const enum responseCode {
 }
 
 export interface RequestConfig extends RawAxiosRequestConfig{
- 'jwt-token'?:string
+ 'jwt-token'?:string,
+  isAuth:boolean
 }

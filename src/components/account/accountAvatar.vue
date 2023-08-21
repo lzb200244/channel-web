@@ -1,21 +1,24 @@
 <template>
-  <template v-if="!avatar.src">
-    <a-avatar
-      :style="{backgroundColor:bgColor}"
-      :shape="avatar.shape"
-      :size="avatar.size"
-    >
-      {{ avatar.username.slice(0,avatar.length) }}
-    </a-avatar>
-  </template>
-  <template v-else>
-    <a-avatar
-      :style="{backgroundColor:bgColor}"
-      :src="avatar.src"
-      :shape="avatar.shape"
-      :size="avatar.size"
-    />
-  </template>
+  <!--v-once 确保渲染一次,之后不会进行修改-->
+  <div v-once>
+    <template v-if="!avatar.src">
+      <a-avatar
+        :style="{backgroundColor:bgColor}"
+        :shape="avatar.shape"
+        :size="avatar.size"
+      >
+        {{ avatar.username?.slice(0,avatar.length) }}
+      </a-avatar>
+    </template>
+    <template v-else>
+      <a-avatar
+        :style="{backgroundColor:bgColor}"
+        :src="avatar.src"
+        :shape="avatar.shape"
+        :size="avatar.size"
+      />
+    </template>
+  </div>
 </template>
 
 <script  lang="ts" setup>

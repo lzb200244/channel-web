@@ -19,6 +19,7 @@ defineProps({
 
 <template>
   <a-image
+    v-once
     :style="style"
     :src="fileInfo?.filePath"
     :alt="fileInfo?.fileName"

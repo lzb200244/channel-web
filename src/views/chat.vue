@@ -44,6 +44,7 @@
             <channel-message />
           </a-col>
           <a-col
+
             :xs="0"
             :sm="0"
             :md="0"
@@ -75,8 +76,12 @@ const channel = useChannelStore();
 const route = useRoute();
 const router = useRouter();
 const roomID = computed(() => <string>route.params.roomID ?? '1');
+// 第一次请求
 const Loading = ref(true);
+// 第二次请求/切换房间。
+const reLoading = ref(false);
 provide('Loading', Loading);
+provide('reLoading', reLoading);
 let socket: WS;
 const handleMessage = (data:BaseRecord<ReplayMessage>) => {
   let message = data;
@@ -114,23 +119,25 @@ const handleMessage = (data:BaseRecord<ReplayMessage>) => {
 
 // 监听房间ID的变化
 watchEffect(() => {
+  reLoading.value = true;
   //   关闭旧的 socket 连接
   if (socket) socket.close();
-
   //   创建新的 socket 连接
   socket = new WS(`ws://127.0.0.1:8000/room/${roomID.value}/`);
   socket.connect();
   socket.onMessage(handleMessage);
+  channel.clearRecord(); // 清空房间历史记录
   Promise.all([
     channel.getOnline(roomID.value),
-    channel.getRoomInfo(roomID.value).catch(() => router.push('/')),
+    channel.getRoomInfo(roomID.value),
     channel.asyncRecord(1, roomID.value),
   ]).then(([onlineUsers, roomInfo, chatRecords]) => {
     //     请求成功
     Loading.value = false;
+    reLoading.value = false;
   }).catch((error) => {
     console.log(error);
-    Loading.value = true;
+    router.push('/');
   });
 });
 

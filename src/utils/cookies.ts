@@ -7,7 +7,7 @@ type Key = string
  * 获取cookies
  * @param key
  */
-export function getToken(key: Key = 'jwt-token'): string {
+export function getToken(key: Key = 'access_token'): string {
   return Cookies.get(key);
 }
 

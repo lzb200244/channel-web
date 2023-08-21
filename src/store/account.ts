@@ -4,7 +4,7 @@ import { Account, UserInfo, UserMedalsList } from '@/types/account';
 import {
   getAccountAsync, getUserJoinRoomsAsync, getMedalsAsync, updateInfoAsync,
 } from '@/apis/account';
-import { Group } from '@/types/channel';
+import { Group, Groups } from '@/types/channel';
 
 const useAccountStore = defineStore(
   'account', {
@@ -14,8 +14,10 @@ const useAccountStore = defineStore(
       isAdmin: true,
       // 用户
       medals: [] as UserMedalsList[],
-      rooms: [] as Group[],
-
+      rooms: {
+        private_rooms: [],
+        group_rooms: [],
+      }as Groups,
     }),
     getters: {
       channelUser: (state) => ({
@@ -65,20 +67,18 @@ const useAccountStore = defineStore(
         });
       },
       async asyncGetUserJoinRooms() {
-        // 二次请求
-        if (this.rooms.length !== 0) {
-          return;
-        }
         // 如果是未登录用户就不进行请求
 
         const res = await getUserJoinRoomsAsync();
         // 非响应式的
-        res.data.forEach((item) => {
-          this.rooms.push(Object.freeze(item));
-        });
+        this.rooms = Object.freeze(res.data);
       },
       joinRoom(room: Group) {
-        this.rooms.push(Object.freeze(room));
+        if (room.type === 1) {
+          this.rooms.private_rooms.push(Object.freeze(room));
+        } else if (room.type === 2) {
+          this.rooms.group_rooms.push(Object.freeze(room));
+        }
       },
     },
   },
