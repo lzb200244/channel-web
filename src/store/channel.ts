@@ -139,13 +139,13 @@ const useChannelStore = defineStore(
        * 更新消息的赞数量
        */
       updateRecordLikes(op: ThumbMessage) {
-        for (let i = 0; i < this.messageList.length; i++) {
-          const item = this.messageList[i];
-          if (item.message.msgID === op.message.msgID) {
-            item.message.messageStatus.likes += op.message.isLike === 1 ? 1 : -1;
-            break; // 退出循环
-          }
-        }
+        // for (let i = 0; i < this.messageList.length; i++) {
+        //   const item = this.messageList[i];
+        //   if (item.message.msgID === op.message.msgID) {
+        //     item.message.messageStatus.likes += op.message.isLike === 1 ? 1 : -1;
+        //     break; // 退出循环
+        //   }
+        // }
       },
       /**
        * 按页获取房间

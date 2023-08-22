@@ -69,6 +69,7 @@ declare module '@vue/runtime-core' {
     RecordFile: typeof import('./src/components/channel/record/recordFile.vue')['default']
     RecordImg: typeof import('./src/components/channel/record/recordImg.vue')['default']
     RecordText: typeof import('./src/components/channel/record/recordText.vue')['default']
+    RecordThumb: typeof import('./src/components/channel/record/recordThumb.vue')['default']
     RoomInfo: typeof import('./src/components/channel/room/roomInfo.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

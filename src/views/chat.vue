@@ -121,13 +121,17 @@ const handleMessage = (data:BaseRecord<ReplayMessage>) => {
       channel.pushRecordMessage(message);
       break;
     }
+    // 撤回
     case PushTypeEnum.RECALL_PUSH: {
       channel.deleteRecord(message);
       break;
     }
+    /*
     case PushTypeEnum.THUMB_PUSH:
       channel.updateRecordLikes(message as unknown as ThumbMessage);
       break;
+
+     */
   }
   // 放入store
 };

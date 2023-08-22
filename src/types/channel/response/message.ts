@@ -11,7 +11,7 @@ export interface MessageStatus {
     drop: string;
     likes: number;
     isDrop: boolean;
-    isLike: number;
+    members: number[];
 }
 
 export interface ReplayItem extends BaseMessage {

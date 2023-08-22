@@ -15,7 +15,7 @@ export interface MessageStatus {
     drop: string;
     likes: number;
     isDrop: boolean;
-    isLike: LikeStatus;
+    members: number[]
 }
 
 export interface BaseMessage {
@@ -48,7 +48,7 @@ export interface UserMessage {
 export interface RecordItemType {
     type: PushTypeEnum;
     message: BaseMessage;
-    roomID:string
+    roomID: string
 }
 
 export interface ReplayItem {
@@ -78,7 +78,6 @@ export interface BaseRecord<T extends BaseMessage = BaseMessage> {
 
 interface ThumbOpt {
     msgID: number; // 唯一消息ID
-    isLike: LikeStatus; // 点赞状态
 }
 
 export interface ThumbMessage {
@@ -86,6 +85,7 @@ export interface ThumbMessage {
     message: ThumbOpt;
     roomID: number;
 }
+
 export const roomUserInfoMap: Map<UserID, UserInfo> = new Map();
 
 export interface Group {
@@ -95,7 +95,7 @@ export interface Group {
     creator: BaseUserItem; // 群组创建者
     name: string; // 群组名称
     desc: string; // 群组描述
-    type:number; // 群组类型
+    type: number; // 群组类型
     isPublic: boolean; // 是否公开群组
 }
 

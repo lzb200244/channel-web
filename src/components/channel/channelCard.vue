@@ -10,22 +10,38 @@
         <template #actions>
           <span key="comment-basic-like">
             <a-tooltip title="Like">
-              <template v-if="messageItem.message.messageStatus.isLike===1">
-                <LikeFilled @click="likeStatus(messageItem,1)" />
+              <template v-if="messageItem.message.messageStatus.members.includes(user.userID)">
+                <LikeFilled />
               </template>
               <template v-else>
-                <LikeOutlined @click="likeStatus(messageItem,1)" />
+                <LikeOutlined @click="likeStatus(messageItem,true)" />
               </template>
             </a-tooltip>
             <span style="padding-left: 8px; cursor: auto">
               {{ messageItem.message.messageStatus.likes }}
             </span>
           </span>
+          <span key="comment-basic-dislike">
+            <a-tooltip title="Dislike">
+              <template
+                v-if="messageItem.message.messageStatus.members.includes(user.userID)"
+              >
+                <span @click="likeStatus(messageItem,false)">取消点赞</span>
+              </template>
+            </a-tooltip>
 
+          </span>
           <span
             key="comment-basic-reply-to"
             @click="Opt(messageItem,PushTypeEnum.REPLAY_PUSH)"
-          >Reply to</span>
+          >回 复</span>
+
+          <span
+            v-if="messageItem.message.messageStatus.members.length!==0"
+            style="position: absolute;right: 100px;bottom: 30px;"
+          >
+            <record-thumb :members="messageItem.message.messageStatus.members" />
+          </span>
         </template>
         <template #author>
           <a-popover>
@@ -160,15 +176,17 @@ import {
 } from '@ant-design/icons-vue';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRoute } from 'vue-router';
-import { BaseRecord, ReplayMessage, LikeStatus } from '@/types/channel';
+import { BaseRecord, ReplayMessage } from '@/types/channel';
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 import { sendThumbActionAsync } from '@/apis/channel';
 import useChannelStore from '@/store/channel';
+import useAccount from '@/store/account';
 import RecordFile from '@/components/channel/record/recordFile.vue';
 import RecordImg from '@/components/channel/record/recordImg.vue';
 import AccountCard from '@/components/account/accountCard.vue';
 import AccountAvatar from '@/components/account/accountAvatar.vue';
 import RecordText from '@/components/channel/record/recordText.vue';
+import RecordThumb from '@/components/channel/record/recordThumb.vue';
 
 dayjs.extend(relativeTime);
 
@@ -195,6 +213,8 @@ const userMap = computed(() => channelStore.userMap);
 const route = useRoute();
 const roomID = <string>route.query.room ?? '1'; //
 const oneDayTimestamp = 24 * 60 * 60 * 1000; // 一天的时间戳，单位为毫秒
+const userStore = useAccount();
+const user = computed(() => userStore.user);
 /**
  * 判断是否前一天以上,
  * @param timestamp 时间戳
@@ -239,14 +259,22 @@ const copyUrl = (content: string) => {
 /**
  * LikeStatus 点赞与取消
  */
-const likeStatus = async (item: BaseRecord<ReplayMessage>, isLike: LikeStatus) => {
+const likeStatus = async (item: BaseRecord<ReplayMessage>, status: boolean) => {
   //   如果重复操作返回
-  if (item.message.messageStatus.isLike === isLike) return;
-  item.message.messageStatus.isLike = isLike;
-  item.message.messageStatus.likes += 1;
+  // if (item.message.messageStatus.members.includes(user.value.userID)) return;
+  if (status) {
+    item.message.messageStatus.members.push(user.value.userID);
+    item.message.messageStatus.likes += 1;
+  } else {
+    // 删除
+    item.message.messageStatus.members = item.message.messageStatus.members.filter(
+      (id) => id !== user.value.userID,
+    );
+    item.message.messageStatus.likes -= 1;
+  }
   await sendThumbActionAsync({
     type: PushTypeEnum.THUMB_PUSH,
-    message: { msgID: item.message.msgID, isLike },
+    message: { msgID: item.message.msgID },
     roomID,
   });
 };
@@ -269,6 +297,10 @@ const likeStatus = async (item: BaseRecord<ReplayMessage>, isLike: LikeStatus) =
   background-color: #fff0f0;
   transition: all .4s ease-in-out
 }
+
 //git checkout -b new-branch-name
 //
+.ant-comment-actions {
+  position: relative;
+}
 </style>
