@@ -80,7 +80,6 @@
     <a-row justify="center">
       <a-col>
         <account-avatar
-
           :avatar="{src:userObj.avatar,username:userObj.username,size:100,length:1}"
           @click="showAvatarList=true"
         />
@@ -90,7 +89,7 @@
       <a-col>
         <a-typography-paragraph
           v-model:content="userinfo.username"
-          :editable="userinfo.isModify"
+          :editable="true"
         />
       </a-col>
     </a-row>
@@ -112,7 +111,6 @@
           :title="i.acquire?`已经获得：${i.create_time}`:'还未获得'"
         >
           <a-avatar
-
             :key="i.title"
             :class="{'gray-image':!i.acquire}"
             :size="100"
@@ -225,7 +223,7 @@ const userinfo = reactive<UserInfo>({
   userID: 0,
   username: '',
   avatar: '',
-  isModify: false,
+
 } as UserInfo);
 const isRow = ref(false);
 /**

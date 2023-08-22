@@ -4,13 +4,16 @@ interface User {
     avatar: string;
     username: string;
 }
-
+interface Medals {
+    id:number,
+    title:string
+}
 // 登录返回的信息
 export interface Account extends User {
     email: string;
     desc: string;
-    isModify?: boolean;
-    medals: number[];
+    // isModify?: boolean;
+    medals: Medals[];
     token?: string;
 }
 

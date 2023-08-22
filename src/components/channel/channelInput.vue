@@ -67,13 +67,13 @@
           </a-button>
         </a-upload>
       </a-tooltip>
-
       <a-button
-        :type="msg.trim().length > 0 ?'primary':'text'"
-        style="margin-left: auto"
+        type="text"
+        :class="{send:msg.trim().length !==0,'send-btn':true}"
+
         @click="sendMessage"
       >
-        发 送
+        <send-outlined />
       </a-button>
     </el-row>
     <el-row
@@ -108,7 +108,7 @@
 <script setup lang="ts">
 
 import {
-  FileImageOutlined, FolderAddOutlined,
+  FileImageOutlined, FolderAddOutlined, SendOutlined,
 } from '@ant-design/icons-vue';
 import {
   ref, defineExpose, computed, defineEmits, onMounted, onBeforeMount,
@@ -242,9 +242,14 @@ defineExpose({
 </script>
 <style scoped>
 
-.rotate-icon {
-    background-color: #afff1f;
+.send {
+    background-color: #70bfff;
     color: white;
+}
+.send-btn{
+    padding: 0  10px;
+    margin-left: auto;
+    margin-right: 10px;
 }
 
 .disabled-element {

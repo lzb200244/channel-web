@@ -77,11 +77,10 @@ const useChannelMessage = () => {
     if (!pageConf.stop && scrollTop === 0 && !pageConf.isLoading) {
       pageConf.isLoading = true; // 设置加载状态为 true
       const res = await getChatRecordsAsync(++pageConf.currentPage, roomID.value);
-
       setTimeout(() => {
         channelStore.asyncPushMoreRecord(res.data.results);
         pageConf.isLoading = false; // 加载完成后，将加载状态设置为 false
-      }, 500);
+      }, 200);
       if (res.data.count < 10) {
         message.info('没有更多记录');
         // 没有更多记录
@@ -170,6 +169,7 @@ const useChannelMessage = () => {
     await sendMessageAsync(msg);
     // socket.send(msg);
     msg.message.content = '';
+    msg.message.type = MessageTypeEnum.TEXT;
     cancelReplay();
     setTimeout(() => {
       // 延迟一段时间再滚动到底部
