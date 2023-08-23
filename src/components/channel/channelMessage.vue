@@ -1,7 +1,7 @@
 <template>
   <a-card
     size="small"
-    style="height: 800px"
+    class="h-800px"
   >
     <template #title>
       <a-popover
@@ -13,20 +13,22 @@
             :room-info="roomInfo"
           />
         </template>
-        <div style="font-size: 18px;cursor: pointer">
+        <div
+          class="text-lg cursor-pointer"
+        >
           {{ roomInfo.name }}
         </div>
       </a-popover>
     </template>
 
-    <div class="chatroom-container">
+    <div class="w-full my-auto py-10px h-720px">
       <div
-        class="chatroom-messages"
+        class="rounded-sm  h-600px w-full overflow-y-hidden  "
         @scroll="LoadMoreRecord"
       >
         <div
           v-if="pageConf.isLoading && !pageConf.stop"
-          style="text-align: center;color: #4ba8ff;position: absolute;"
+          class=" absolute right-10"
         >
           <a-spin
             tip="Loading..."
@@ -45,8 +47,7 @@
           v-show="!reLoading"
           :items="messageList"
           :min-item-size="60"
-          style="height: 600px"
-          class="virtual-list"
+          class="scroll-smooth h-600px"
         >
           <template #default="{ item, index, active }">
             <dynamic-scroller-item
@@ -62,7 +63,7 @@
                   v-if="item.message.messageStatus.isDrop"
                 >
                   <div
-                    class="drop-record"
+                    class="text-center w-full text-xs text-gray-400 py-15px"
                   >
                     {{ item.message.messageStatus.drop }}
                   </div>
@@ -81,25 +82,26 @@
         </dynamic-scroller>
       </div>
       <div>
-        <div style="position: relative">
+        <div class="relative">
           <a-tag
             v-if="msg.message.replay"
-            style="position: absolute;bottom: 120px"
             closable
+            class="absolute bottom-120px"
             color="processing"
             @close="cancelReplay"
           >
             @ {{ msg.message.replay?.username }}
           </a-tag>
           <a-tag
-            style="position: absolute;bottom: 130px;right: 10px;cursor: pointer;border: 0"
+            style="border: none"
+            class="absolute bottom-130px right-10px cursor-pointer  "
             @click="scrollToBottom"
           >
             <caret-down-outlined />
           </a-tag>
           <channel-input
             v-model:value="msg.message.content"
-            style="margin-bottom:  auto;"
+            class="mb-auto"
             :is-login="user.isActive"
             @send-message="sendMessage"
             @mention="handleMention"
@@ -136,37 +138,3 @@ const {
 } = useChannelMessage();
 
 </script>
-
-<style scoped>
-
-.chatroom-container {
-
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 10px;
-    height: 720px;
-
-    .chatroom-messages {
-        .virtual-list {
-            scroll-behavior: smooth;
-        }
-
-        height: 600px;
-        width: 100%;
-        overflow-y: hidden;
-        padding: 10px 2px;
-        border-radius: 6px;
-
-        .drop-record {
-            text-align: center;
-            font-size: 8px;
-            color: #999999;
-            width: 100%;
-            padding: 15px;
-
-        }
-    }
-
-}
-
-</style>

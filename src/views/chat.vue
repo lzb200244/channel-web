@@ -126,6 +126,7 @@ const handleMessage = (data:BaseRecord<ReplayMessage>) => {
       channel.deleteRecord(message);
       break;
     }
+    // 点赞
     /*
     case PushTypeEnum.THUMB_PUSH:
       channel.updateRecordLikes(message as unknown as ThumbMessage);

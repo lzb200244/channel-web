@@ -23,7 +23,3 @@ const props = defineProps({
     mode="preview"
   />
 </template>
-
-<style scoped>
-
-</style>

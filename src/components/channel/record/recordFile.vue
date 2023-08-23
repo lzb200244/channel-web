@@ -1,10 +1,9 @@
 <template>
   <a-card
     v-once
-    class="file-card"
   >
     <a-row
-      class="file-info"
+      class="items-center"
       align="center"
     >
       <a-col>
@@ -23,8 +22,7 @@
         </div>
       </a-col>
       <a-col
-        class="download-link"
-        :style="{ marginLeft: 'auto' }"
+        class=" ml-auto"
       >
         <a :href="fileInfo.filePath">
           <download-outlined />
@@ -59,18 +57,3 @@ const getFileIcon = (fileName: string) => {
  */
 const getFileNameWithoutPrefix = computed(() => props.fileInfo.fileName.split(':')[1]);
 </script>
-
-<style scoped>
-.file-card {
-    background-color: white;
-    width: auto;
-}
-
-.file-info {
-    align-items: center;
-}
-
-.download-link {
-    margin-left: auto;
-}
-</style>

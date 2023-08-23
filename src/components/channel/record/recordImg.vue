@@ -26,7 +26,3 @@ defineProps({
     fallback="/error.png"
   />
 </template>
-
-<style scoped>
-
-</style>

@@ -49,11 +49,11 @@ onUnmounted(() => {
 <template>
   <a-popover title="谁点赞了">
     <template #content>
-      <div class="thumb-box">
+      <div class="min-h-80px min-w-80px max-w-80px">
         <account-avatar
           v-for="userID in members"
           :key="userID"
-          style="float: left;margin-right: 10px;"
+          class="float-left ml-1"
           :avatar="{
             src:userMap.get(userID)?.avatar,
             username:userMap.get(userID)?.username,
@@ -62,13 +62,13 @@ onUnmounted(() => {
         />
       </div>
     </template>
-    <div class="avatar-stack">
+    <div class="relative">
       <template
         v-for="userID in members.slice(0,3)"
         :key="userID"
       >
         <account-avatar
-          class="avatar"
+          class="avatar absolute z-1000"
           :avatar="{
             src:userMap.get(userID)?.avatar,
             username:userMap.get(userID)?.username,
@@ -76,14 +76,17 @@ onUnmounted(() => {
           }"
         />
       </template>
-      <div style="position: absolute;left: 60px">
+      <div
+
+        class="absolute left-15"
+      >
         <span>+{{ members.length }}</span>
       </div>
     </div>
     <transition name="like-animation">
       <div
         v-if="showState"
-        class="like-animation"
+        class="like-animation absolute text-yellow-200 "
       >
         {{ stateVal }}
       </div>
@@ -92,14 +95,6 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.avatar-stack{
-    position: relative;
-}
-.avatar {
-    position: absolute;
-    object-fit: cover;
-    z-index: 1000;
-}
 
 .avatar:nth-child(2) {
     left: 15px;
@@ -108,15 +103,10 @@ onUnmounted(() => {
 .avatar:nth-child(3) {
     left: 30px;
 }
-.thumb-box{
-    min-width: 150px;max-width: 180px;min-height: 70px
-}
+
 .like-animation {
-    position: absolute;
     top: -20px;
     left: 60px;
-    font-size: 14px;
-    color: green;
     animation: likeUp 1s ease-out;
 }
 

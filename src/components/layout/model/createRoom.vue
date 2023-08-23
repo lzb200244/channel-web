@@ -45,7 +45,7 @@
           >
             <a-input-password v-model:value="roomState.password" />
           </a-form-item>
-          <a-form-item style="float: right">
+          <a-form-item class="float-right">
             <a-button
               type="primary"
               html-type="submit"
@@ -111,7 +111,7 @@
                   </a-tag>
                   <a-input
                     v-model:value="item.password"
-                    style="width: 80px;font-size: 10px"
+                    class="w-80px "
                     size="small"
                     placeholder="输入房间密码。。"
                   />
@@ -174,7 +174,7 @@ interface RoomState {
 const joinRoom = async (roomID: number, password: string) => {
   const res = await joinRoomAsync(roomID, password);
   // 加入到我的群聊
-  useAccount.rooms.push(res.data);
+  useAccount.rooms.group_rooms.push(res.data);
   message.success('加入成功');
   emits('update:value', false);
   await router.push(`/room/${roomID}`);

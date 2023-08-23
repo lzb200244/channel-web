@@ -2,11 +2,12 @@
   <a-row
     v-if="Object.keys(messageItem).length!==0"
     :id="'record:'+messageItem.message.msgID"
-    style="width: 100%"
-    class="hover"
+    class="hover w-full"
   >
     <a-dropdown :trigger="['contextmenu']">
-      <a-comment style="padding-right: 10px;width: 100%">
+      <a-comment
+        class="w-full pr-5"
+      >
         <template #actions>
           <span key="comment-basic-like">
             <a-tooltip title="Like">
@@ -17,7 +18,9 @@
                 <LikeOutlined @click="likeStatus(messageItem,true)" />
               </template>
             </a-tooltip>
-            <span style="padding-left: 8px; cursor: auto">
+            <span
+              class="pl-3 cursor-auto"
+            >
               {{ messageItem.message.messageStatus.likes }}
             </span>
           </span>
@@ -38,7 +41,7 @@
 
           <span
             v-if="messageItem.message.messageStatus.members.length!==0"
-            style="position: absolute;right: 100px;bottom: 30px;"
+            class="absolute right-20 bottom-6"
           >
             <record-thumb :members="messageItem.message.messageStatus.members" />
           </span>
@@ -49,8 +52,7 @@
               <account-card :user-info="userMap.get(messageItem.user.userID)" />
             </template>
             <a
-              :class="isSend?'isSend':''"
-              style="font-size: 14px;"
+              :class="{isSend:isSend}"
             >{{ userMap.get(messageItem.user.userID)?.username }}</a>
           </a-popover>
         </template>
@@ -65,7 +67,7 @@
         </template>
         <template #content>
           <div
-            style="position: relative;margin-top: 10px"
+            class="relative mt-5"
           >
             <!-- TODO   存在回复对象-->
             <a-anchor-link
@@ -83,7 +85,7 @@
               <!--    回复图片-->
               <template v-else-if="messageItem.message?.replay.type===MessageTypeEnum.IMAGE">
                 <record-img
-                  :style="{maxWidth:'220px'}"
+                  class="max-w-220px"
                   :file-info="messageItem.message.replay.fileInfo"
                 />
               </template>
@@ -102,7 +104,7 @@
             <!--          图片类型-->
             <template v-else-if="messageItem.message.type===MessageTypeEnum.IMAGE">
               <record-img
-                :style="{maxWidth:'320px'}"
+                class="max-w-320px"
                 :file-info="messageItem.message.fileInfo"
               />
             </template>
@@ -129,7 +131,6 @@
           <a-tag
             v-if="isSend"
             color="blue"
-            style="margin-left: 5px;"
           >
             自己
           </a-tag>
@@ -287,7 +288,6 @@ const likeStatus = async (item: BaseRecord<ReplayMessage>, status: boolean) => {
   margin-bottom: 15px;
 
 }
-
 .isSend {
   font-weight: bolder;
   color: #494949 !important;
@@ -298,9 +298,4 @@ const likeStatus = async (item: BaseRecord<ReplayMessage>, status: boolean) => {
   transition: all .4s ease-in-out
 }
 
-//git checkout -b new-branch-name
-//
-.ant-comment-actions {
-  position: relative;
-}
 </style>

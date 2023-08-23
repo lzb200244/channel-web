@@ -1,7 +1,7 @@
 <template>
   <a-card
     :bordered="false"
-    style="width: 220px"
+    class="w-60"
   >
     <template #actions>
       <div>关注</div>
@@ -17,8 +17,7 @@
         </div>
 
         <div
-          class="medal"
-          style="margin: 5px 0 "
+          class="medal my-2"
         >
           <a-tag
             v-for="medal in userInfo?.medals"
@@ -47,10 +46,10 @@ defineProps({
   },
 });
 // 随机一个颜色
-const colors = computed(() => ['#ffbc89', '#b5b0f3', '#fdd048'][Math.floor(Math.random() * 3)]);
+const colors = computed(() => ['bg-amber-300', 'bg-cyan-400', 'bg-rose-300'][Math.floor(Math.random() * 3)]);
 </script>
 <style scoped>
 ::v-deep .ant-card-body {
-    padding: 12px;
+    padding: 0 !important;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <el-row
-      :class="{'disabled-element':!isLogin,'flex':true,}"
+      :class="{'cursor-not-allowed':!isLogin,'flex':true,}"
     >
       <a-tooltip placement="topLeft">
         <template #title>
@@ -16,6 +16,7 @@
               v-once
               style="box-shadow: none;width: 250px"
               :native="true"
+              class="shadow-none"
               :hide-search="true"
               :display-recent="true"
               :disable-skin-tones="true"
@@ -69,7 +70,7 @@
       </a-tooltip>
       <a-button
         type="text"
-        :class="{send:msg.trim().length !==0,'send-btn':true}"
+        :class="{send:msg.trim().length !==0,' ml-auto mr-10px':true}"
 
         @click="sendMessage"
       >
@@ -245,15 +246,6 @@ defineExpose({
 .send {
     background-color: #70bfff;
     color: white;
-}
-.send-btn{
-    padding: 0  10px;
-    margin-left: auto;
-    margin-right: 10px;
-}
-
-.disabled-element {
-    pointer-events: none;
 }
 
 .overlay-text {

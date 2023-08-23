@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="info-section">
-      <div class="info-row">
-        <span class="info-label">创建者：</span>
+    <div class="flex flex-col">
+      <div class="mb-2">
+        <span class="font-bold">创建者：</span>
       </div>
       <div
-        class="info-row"
+        class="mb-2"
         style="margin-left: 20px;margin-bottom: 20px"
       >
         <a-card-meta
@@ -16,26 +16,26 @@
           </template>
         </a-card-meta>
       </div>
-      <div class="info-row">
-        <span class="info-label">是否公开：</span>
+      <div class="mb-2">
+        <span class="font-bold">是否公开：</span>
         <span>{{ roomInfo.isPublic ? '是' : '否' }}</span>
       </div>
 
-      <div class="info-row">
-        <span class="info-label">群聊ID：</span>
+      <div class="mb-2">
+        <span class="font-bold">群聊ID：</span>
         <span>{{ roomInfo.id }}</span>
       </div>
 
-      <div class="info-row">
-        <span class="info-label">群聊人数：</span>
+      <div class="mb-2">
+        <span class="font-bold">群聊人数：</span>
         <span>{{ 11 }}</span>
       </div>
-      <div class="info-row">
-        <span class="info-label">创建时间：</span>
+      <div class="mb-2">
+        <span class="font-bold">创建时间：</span>
         <span>{{ roomInfo.createTime }}</span>
       </div>
-      <div class="info-row">
-        <span class="info-label">群描述：</span>
+      <div class="mb-2">
+        <span class="font-bold">群描述：</span>
         <span>{{ roomInfo.desc || "无" }}</span>
       </div>
     </div>
@@ -55,19 +55,3 @@ defineProps({
   },
 });
 </script>
-
-<style>
-
-.info-section {
-    display: flex;
-    flex-direction: column;
-}
-
-.info-row {
-    margin-bottom: 8px;
-}
-
-.info-label {
-    font-weight: bold;
-}
-</style>

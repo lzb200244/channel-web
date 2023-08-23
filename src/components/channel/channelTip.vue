@@ -1,5 +1,5 @@
 <template>
-  <a-card class="tip-list-height tip-box">
+  <a-card class="h-800px overflow-y-auto">
     <a-layout-content>
       <a-collapse
         v-model:activeKey="activeKey"
@@ -38,7 +38,9 @@
                     />
                   </template>
                 </a-list-item-meta>
-                <span style="color: #707070;font-size: 10px">
+                <span
+                  class="text-gray-400 text-sm"
+                >
                   {{ new Date().getHours() + ':' + new Date().getMinutes() }}
                 </span>
               </a-list-item>
@@ -74,7 +76,7 @@
                     />
                   </template>
                 </a-list-item-meta>
-                <span style="color: #707070;font-size: 10px">
+                <span class="text-gray-400 text-sm">
                   {{ new Date().getHours() + ':' + new Date().getMinutes() }}
                 </span>
               </a-list-item>
@@ -105,20 +107,13 @@ const rooms = computed(() => useAccount.rooms);
 
 </script>
 <style scoped>
-.tip-box {
-    overflow-y: auto;
-}
 
 ::v-deep  .ant-card-body {
     padding:10px !important;
 }
 
-.tip-list-height {
-    height: 800px;
-}
-
 @media (max-width: 992px) {
-    .tip-list-height {
+    .h-800px {
         height: auto;
         max-height: 250px;
     }
