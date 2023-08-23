@@ -1,5 +1,6 @@
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 import { UserInfo } from '@/types/account';
+import { roomID } from '@/types/channel/response/base';
 
 export type LikeStatus = 0 | 1 | 2;
 
@@ -43,6 +44,7 @@ export interface BaseUserItem {
 export interface UserMessage {
     type: PushTypeEnum;
     user: UserInfo;
+    roomID: roomID;
 }
 
 export interface RecordItemType {
@@ -73,7 +75,7 @@ export interface BaseRecord<T extends BaseMessage = BaseMessage> {
     user: {
         userID: UserID;
     };
-    roomID: string;
+    roomID: roomID;
 }
 
 interface ThumbOpt {

@@ -1,5 +1,6 @@
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 
+export type roomID =number;
 export interface BaseMessage {
     type: MessageTypeEnum;
 }
@@ -10,5 +11,5 @@ export interface BaseUserItem {
 
 export interface BaseRecord {
     type: PushTypeEnum;
-    roomID: string;
+    roomID: roomID;
 }

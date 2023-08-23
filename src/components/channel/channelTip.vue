@@ -11,11 +11,13 @@
         </template>
         <a-collapse-panel
           key="person"
+
           style="border: none;"
           :show-arrow="true"
           header="个人消息"
         >
           <a-list
+            class="m-h-300px"
             item-layout="horizontal"
             :data-source="rooms.private_rooms"
           >
@@ -62,18 +64,33 @@
               #renderItem="{ item }"
             >
               <a-list-item>
-                <a-list-item-meta
-                  :description="item.desc"
-                >
+                <a-list-item-meta>
+                  <template #description>
+                    <a-typography-paragraph
+                      style="font-size: 8px;color: #707070;"
+
+                      :ellipsis="true"
+                    >
+                      {{ getNotify(item.id) }}
+                    </a-typography-paragraph>
+                  </template>
                   <template #title>
                     <router-link :to="'/room/'+item.id">
                       {{ item.name }}
                     </router-link>
                   </template>
                   <template #avatar>
-                    <account-avatar
-                      :avatar="{src:item.avatar,username:item.name,shape:'square',size:40,length:4}"
-                    />
+                    <a-badge
+                      :dot="item.id!==roomID && getNotify(item.id)"
+                    >
+                      <account-avatar
+                        :avatar="{src:item.avatar,
+                                  username:item.name,
+                                  shape:'square',
+                                  size:40,length:4
+                        }"
+                      />
+                    </a-badge>
                   </template>
                 </a-list-item-meta>
                 <span class="text-gray-400 text-sm">
@@ -93,23 +110,28 @@ import {
 
 } from 'vue';
 import { CaretRightOutlined } from '@ant-design/icons-vue';
-import { Empty } from 'ant-design-vue';
+import { useRoute } from 'vue-router';
 import useAccountStore from '@/store/account';
 import AccountAvatar from '@/components/account/accountAvatar.vue';
+import useChannelStore from '@/store/channel';
 
 const useAccount = useAccountStore();
 useAccount.asyncGetUserJoinRooms();
 const Loading = inject('Loading');
-
 const activeKey = ref('group');
-
+const route = useRoute();
+const roomID = computed(
+  () => (Number.isNaN(Number(route.params.roomID)) ? 1 : Number(route.params.roomID)),
+);
 const rooms = computed(() => useAccount.rooms);
+const cache = useChannelStore();
+const getNotify = (roomID:number) => cache.getNewMsgByRoomID(roomID);
 
 </script>
 <style scoped>
 
-::v-deep  .ant-card-body {
-    padding:10px !important;
+::v-deep .ant-card-body {
+    padding: 10px !important;
 }
 
 @media (max-width: 992px) {

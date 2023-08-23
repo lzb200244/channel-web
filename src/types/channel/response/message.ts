@@ -38,9 +38,13 @@ export interface ReplayMessage extends MessageItem {
 export interface MessageRecord<T extends BaseMessage = BaseMessage> extends BaseRecord {
     message: T;
     user: BaseUserItem
+
 }
 
 export interface roomMembers{
     online: PushType[],
     offline: PushType[],
+}
+export interface notifyMessage {
+    content: string;
 }

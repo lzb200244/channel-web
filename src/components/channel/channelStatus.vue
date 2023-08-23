@@ -80,17 +80,24 @@
 import {
   computed, inject, onMounted, ref,
 } from 'vue';
-import useChannelStore from '@/store/channel';
+import { useRoute } from 'vue-router';
 import { PushType } from '@/types/channel/modules/push';
 import AccountAvatar from '@/components/account/accountAvatar.vue';
+import useChannelStore from '@/store/channel';
 
 const first = ref(true);
-const channelStore = useChannelStore();
+const useChannel = useChannelStore();
+const route = useRoute();
+const roomID = computed(
+  () => (Number.isNaN(Number(route.params.roomID)) ? 1 : Number(route.params.roomID)),
+);
 const Loading = inject('Loading');
 // 群成员
-const offlineList = computed<PushType[]>(() => channelStore.onlineList.offline);
+const offlineList = computed<PushType[]>(
+  () => useChannel.getOnlineByRoomID(roomID.value)?.offline ?? []);
 // 在线成员
-const onlineList = computed<PushType[]>(() => channelStore.onlineList.online);
+const onlineList = computed<PushType[]>(
+  () => useChannel.getOnlineByRoomID(roomID.value)?.online ?? []);
 onMounted(() => {
   first.value = false;
 });

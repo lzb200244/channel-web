@@ -22,6 +22,7 @@ export interface UserInfo extends Account {
     isActive?: boolean;
 }
 
+export type UserMap = Map<number, UserInfo>; // Trying to use UserMap as a type
 // 登录与注册接口
 export interface AccountFormAble {
     username: string;

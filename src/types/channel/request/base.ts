@@ -10,5 +10,5 @@ export interface BaseUserItem {
 
 export interface BaseRecord {
     type: PushTypeEnum;
-    roomID: string;
+    roomID: number;
 }

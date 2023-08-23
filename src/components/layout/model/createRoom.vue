@@ -138,8 +138,8 @@ import { Empty, message } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { createChatRoomAsync, joinRoomAsync } from '@/apis/channel';
 import useAccountStore from '@/store/account';
-import useChannelStore from '@/store/channel';
 import AccountAvatar from '@/components/account/accountAvatar.vue';
+import useChannelStore from '@/store/channel';
 
 const router = useRouter();
 const useAccount = useAccountStore();
@@ -151,6 +151,7 @@ const props = defineProps({
     default: () => false,
   },
 });
+
 useChannel.asyncGetRooms(1);
 const emits = defineEmits(['update:value']);
 const rooms = computed(

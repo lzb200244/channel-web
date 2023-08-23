@@ -7,13 +7,15 @@ import { MessageRecordFrom, ReplayMessageForm } from '@/types/channel/request/me
 import { RecallRecord } from '@/types/channel/request/recall';
 import { ThumbType } from '@/types/channel/request/thumb';
 import { roomMembers } from '@/types/channel/response/message';
+import { roomID } from '@/types/channel/response/base';
 
 /**
  * 获取聊天记录
  * @param page 页
  * @param room 房间id 0代表大厅房间
  */
-const getChatRecordsAsync = async (page: number, room: string):
+const getChatRecordsAsync = async (page: number, room: roomID):
+
     APiResponse<ResultData<BaseRecord<ReplayMessage>[]>> =>
   instance.get(
     {
@@ -27,7 +29,7 @@ const getChatRecordsAsync = async (page: number, room: string):
 /**
  * 获取在线人数
  */
-const getOnlineUsersAsync = async (roomID: string): APiResponse<roomMembers> =>
+const getOnlineUsersAsync = async (roomID: number): APiResponse<roomMembers> =>
 //     http://127.0.0.1:5173/api/chat/record/
   instance.get(
     {
@@ -99,7 +101,7 @@ const createChatRoomAsync = (data: any): APiResponse<Group> => instance.post({
  * 获取房间信息，不存在的话就跳到404页面，房间不存在
  * @param roomID 房间id
  */
-const getRoomInformAsync = (roomID: string): APiResponse<Group> => instance.get({
+const getRoomInformAsync = (roomID: roomID): APiResponse<Group> => instance.get({
   url: '/chat/room/',
   params: {
     roomID,

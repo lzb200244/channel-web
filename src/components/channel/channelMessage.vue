@@ -35,6 +35,7 @@
             size="small"
           />
         </div>
+
         <a-skeleton
           v-for="i in 5"
           :key="i"
@@ -42,12 +43,11 @@
           avatar
           :paragraph="{ rows: 2 }"
         />
-
         <dynamic-scroller
           v-show="!reLoading"
           :items="messageList"
           :min-item-size="60"
-          class="scroll-smooth h-600px"
+          class="virtual-list scroll-smooth  h-600px"
         >
           <template #default="{ item, index, active }">
             <dynamic-scroller-item
@@ -93,8 +93,9 @@
             @ {{ msg.message.replay?.username }}
           </a-tag>
           <a-tag
-            style="border: none"
-            class="absolute bottom-130px right-10px cursor-pointer  "
+            style="border: none;position: absolute"
+            class=" bottom-140px right-10px cursor-pointer  "
+
             @click="scrollToBottom"
           >
             <caret-down-outlined />
@@ -116,7 +117,7 @@
 <script setup lang="ts">
 import { inject } from 'vue';
 import { CaretDownOutlined } from '@ant-design/icons-vue';
-import useChannelMessage from '@/core/channel';
+import useChannelStoreMessage from '@/core/channel';
 import ChannelCard from '@/components/channel/channelCard.vue';
 import ChannelInput from '@/components/channel/channelInput.vue';
 import roomDesc from '@/components/channel/room/roomInfo.vue';
@@ -135,6 +136,6 @@ const {
   sendFileMessage,
   handleMention,
   scrollToBottom,
-} = useChannelMessage();
+} = useChannelStoreMessage();
 
 </script>

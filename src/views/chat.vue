@@ -69,18 +69,19 @@ import channelMessage from '@/components/channel/channelMessage.vue';
 import headerLayout from '@/components/layout/headerLayout.vue';
 import useChannelStore from '@/store/channel';
 import WS from '@/utils/socket';
-import { BaseRecord, ReplayMessage, ThumbMessage } from '@/types/channel';
+import { BaseRecord, ReplayMessage } from '@/types/channel';
 import { PushTypeEnum } from '@/types/channel/enum';
-
-let socket: WS;
 
 let blinkInterval: any;
 // 记录旧的标题
 const originalTitle: string = document.title;
-const channel = useChannelStore();
+const useChannel = useChannelStore();
+const { lruWsMap } = useChannel;
 const route = useRoute();
 const router = useRouter();
-const roomID = computed(() => <string>route.params.roomID ?? '1');
+const roomID = computed(
+  () => (Number.isNaN(Number(route.params.roomID)) ? 1 : Number(route.params.roomID)));
+
 // 第一次请求
 const Loading = ref(true);
 // 第二次请求/切换房间。
@@ -102,28 +103,28 @@ const handleMessage = (data:BaseRecord<ReplayMessage>) => {
   switch (message.type) {
     //  上线推送
     case PushTypeEnum.ONLINE_PUSH: {
-      channel.pushOnline(message);
+      useChannel.pushOnline(<any>message);
       break;
     }
     // 下线
     case PushTypeEnum.LEVEL_PUSH: {
-      channel.popOnline(message);
+      useChannel.popOnline(<any>message);
       break;
     }
     //   消息推送
     case PushTypeEnum.MESSAGE_PUSH: {
-      channel.pushRecordMessage(message);
+      useChannel.pushRecordMessage(message);
       startBlinking();
       break;
     }
     // 回复
     case PushTypeEnum.REPLAY_PUSH: {
-      channel.pushRecordMessage(message);
+      useChannel.pushRecordMessage(message);
       break;
     }
     // 撤回
     case PushTypeEnum.RECALL_PUSH: {
-      channel.deleteRecord(message);
+      useChannel.deleteRecord(message);
       break;
     }
     // 点赞
@@ -141,24 +142,35 @@ const handleMessage = (data:BaseRecord<ReplayMessage>) => {
 watchEffect(() => {
   reLoading.value = true;
   //   关闭旧的 socket 连接
-  if (socket) socket.close();
-  //   创建新的 socket 连接
-  socket = new WS(`ws://127.0.0.1:8000/room/${roomID.value}/`);
-  socket.connect();
-  socket.onMessage(handleMessage);
-  channel.clearRecord(); // 清空房间历史记录
-  Promise.all([
-    channel.getOnline(roomID.value),
-    channel.getRoomInfo(roomID.value),
-    channel.asyncRecord(1, roomID.value),
-  ]).then(([onlineUsers, roomInfo, chatRecords]) => {
-    //     请求成功
-    Loading.value = false;
+  // if (socket) socket.close();
+
+  if (lruWsMap.get(roomID.value)) {
+    // 清空最新的消息
+    useChannel.deleteNewMsg(roomID.value);
     reLoading.value = false;
-  }).catch((error) => {
-    console.log(error);
-    router.push('/');
-  });
+  } else {
+    //   创建新的 socket 连接
+    const socket = new WS(`ws://127.0.0.1:8000/room/${roomID.value}/`);
+
+    lruWsMap.put(roomID.value, socket, (roomID:number) => {
+      useChannel.removeCatch(roomID);
+    });
+    socket.connect();
+    socket.onMessage(handleMessage);
+
+    Promise.all([
+      useChannel.getOnline(roomID.value),
+      useChannel.getRoomInfo(roomID.value),
+      useChannel.asyncRecord(1, roomID.value),
+    ]).then(([onlineUsers, roomInfo, chatRecords]) => {
+      //     请求成功
+      Loading.value = false;
+      reLoading.value = false;
+    }).catch((error) => {
+      console.log(error);
+      router.push('/');
+    });
+  }
 });
 
 onMounted(() => {

@@ -10,7 +10,6 @@ import {
 } from '@/types/channel';
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 import { getChatRecordsAsync, recallMessageAsync, sendMessageAsync } from '@/apis/channel';
-import useChannelStore from '@/store/channel';
 import useAccountStore from '@/store/account';
 import isTimeElapsed from '@/utils/elapsed';
 
@@ -20,24 +19,40 @@ import { FileInfoForm, MessageRecordFrom, ReplayMessageForm } from '@/types/chan
 import { RecallRecord } from '@/types/channel/request/recall';
 // @ts-ignore
 import { MessageRecord, ReplayMessage } from '@/types/channel/response/message';
+import useChannelStore from '@/store/channel';
 
-const useChannelMessage = () => {
+const useChannelStoreMessage = () => {
   let virtual: HTMLElement;
-  const channelStore = useChannelStore();
+  const useChannel = useChannelStore();
   const accountStore = useAccountStore();
   const route = useRoute();
-  const roomID = computed(() => <string>route.params.roomID ?? '1');
+  const roomID = computed(
+    () => (Number.isNaN(Number(route.params.roomID)) ? 1 : Number(route.params.roomID)),
+  );
   // 未携带room默认为0房(大厅
 
   /**
      * 聊天记录，进行翻转
      */
   const messageList = computed<MessageRecord<ReplayMessage>[]>(
-    () => channelStore.messageList.map((item,
-      idx) =>
-      ({ ...item, id: idx + 1 }), // 使用展开语法创建一个新对象，添加唯一ID
-    ).reverse());
-  const roomInfo = computed<Group>(() => channelStore.roomInfo);
+    () => {
+      const messages = useChannel.getMessageByRoomID(roomID.value);
+      if (messages !== undefined) {
+        return messages.map((item,
+          idx) =>
+          ({ ...item, id: idx + 1 }), // 使用展开语法创建一个新对象，添加唯一ID
+        ).reverse();
+      }
+      return [] as MessageRecord<ReplayMessage>[];
+    },
+  );
+  const roomInfo = computed<Group>(() => {
+    const Info = useChannel.getRoomInfoByRoomID(roomID.value);
+    if (Info !== undefined) {
+      return Info;
+    }
+    return {} as Group;
+  });
   const user = computed<BaseUserItem>(() => accountStore.channelUser);
   // 当前页数
   const pageConf = reactive({
@@ -77,8 +92,9 @@ const useChannelMessage = () => {
     if (!pageConf.stop && scrollTop === 0 && !pageConf.isLoading) {
       pageConf.isLoading = true; // 设置加载状态为 true
       const res = await getChatRecordsAsync(++pageConf.currentPage, roomID.value);
+
       setTimeout(() => {
-        channelStore.asyncPushMoreRecord(res.data.results);
+        useChannel.asyncPushMoreRecord(res.data.results, roomID.value);
         pageConf.isLoading = false; // 加载完成后，将加载状态设置为 false
       }, 200);
       if (res.data.count < 10) {
@@ -125,7 +141,7 @@ const useChannelMessage = () => {
       msg.message.replay = {
         type: obj.message.type, // 回复的消息类型
         msgID: obj.message.msgID,
-        username: <string>channelStore.getUserNameByUserName(obj.user.userID),
+        username: <string>useChannel.getUserNameByUserName(roomID.value, obj.user.userID),
         userID: obj.user.userID,
       };
     }
@@ -243,4 +259,4 @@ const useChannelMessage = () => {
 
   };
 };
-export default useChannelMessage;
+export default useChannelStoreMessage;

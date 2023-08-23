@@ -49,18 +49,18 @@
         <template #author>
           <a-popover>
             <template #content>
-              <account-card :user-info="userMap.get(messageItem.user.userID)" />
+              <account-card :user-info="userMap?.get(messageItem.user.userID)" />
             </template>
             <a
               :class="{isSend:isSend}"
-            >{{ userMap.get(messageItem.user.userID)?.username }}</a>
+            >{{ userMap?.get(messageItem.user.userID)?.username }}</a>
           </a-popover>
         </template>
         <template #avatar>
           <account-avatar
             :avatar="{
-              src:userMap.get(messageItem.user.userID)?.avatar,
-              username:userMap.get(messageItem.user.userID)?.username,
+              src:userMap?.get(messageItem.user.userID)?.avatar,
+              username:userMap?.get(messageItem.user.userID)?.username,
               length:1
             }"
           />
@@ -122,7 +122,7 @@
             <span>{{ formatTime(messageItem.message.time) }}</span>
           </a-tooltip>
           <a-tag
-            v-if="messageItem.user.userID===roomInfo.creator?.userID"
+            v-if="messageItem.user.userID===roomInfo?.creator?.userID"
             color="green"
             style="margin-left: 5px;"
           >
@@ -180,7 +180,7 @@ import { useRoute } from 'vue-router';
 import { BaseRecord, ReplayMessage } from '@/types/channel';
 import { MessageTypeEnum, PushTypeEnum } from '@/types/channel/enum';
 import { sendThumbActionAsync } from '@/apis/channel';
-import useChannelStore from '@/store/channel';
+
 import useAccount from '@/store/account';
 import RecordFile from '@/components/channel/record/recordFile.vue';
 import RecordImg from '@/components/channel/record/recordImg.vue';
@@ -188,6 +188,7 @@ import AccountCard from '@/components/account/accountCard.vue';
 import AccountAvatar from '@/components/account/accountAvatar.vue';
 import RecordText from '@/components/channel/record/recordText.vue';
 import RecordThumb from '@/components/channel/record/recordThumb.vue';
+import useChannelStore from '@/store/channel';
 
 dayjs.extend(relativeTime);
 
@@ -207,15 +208,25 @@ defineProps({
  * 操作：
  *  撤回，点赞，回复，@
  */
+const useChannel = useChannelStore();
 const emit = defineEmits(['opt', 'mention']);
-const channelStore = useChannelStore();
-const roomInfo = computed(() => channelStore.roomInfo);
-const userMap = computed(() => channelStore.userMap);
+
 const route = useRoute();
-const roomID = <string>route.query.room ?? '1'; //
+const roomID = computed(
+  () => (Number.isNaN(Number(route.params.roomID)) ? 1 : Number(route.params.roomID)),
+);
 const oneDayTimestamp = 24 * 60 * 60 * 1000; // 一天的时间戳，单位为毫秒
 const userStore = useAccount();
 const user = computed(() => userStore.user);
+
+const roomInfo = computed(() => useChannel.getRoomInfoByRoomID(roomID.value));
+const userMap = computed(() => {
+  const userInfo = useChannel.getUserByRoomID(roomID.value);
+  if (userInfo) {
+    return userInfo;
+  }
+  return new Map();
+});
 /**
  * 判断是否前一天以上,
  * @param timestamp 时间戳
@@ -276,7 +287,7 @@ const likeStatus = async (item: BaseRecord<ReplayMessage>, status: boolean) => {
   await sendThumbActionAsync({
     type: PushTypeEnum.THUMB_PUSH,
     message: { msgID: item.message.msgID },
-    roomID,
+    roomID: roomID.value,
   });
 };
 </script>

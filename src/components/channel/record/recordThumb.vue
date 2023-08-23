@@ -4,7 +4,9 @@ import {
   computed, onUnmounted, ref, watch,
 } from 'vue';
 
+import { useRoute } from 'vue-router';
 import AccountAvatar from '@/components/account/accountAvatar.vue';
+
 import useChannelStore from '@/store/channel';
 
 const props = defineProps({
@@ -16,10 +18,14 @@ const props = defineProps({
 
 });
 let timer:any;
-const channelStore = useChannelStore();
+const route = useRoute();
+const roomID = computed(
+  () => (Number.isNaN(Number(route.params.roomID)) ? 1 : Number(route.params.roomID)),
+);
+const useChannel = useChannelStore();
 const showState = ref(false);
 const stateVal = ref('');
-const userMap = computed(() => channelStore.userMap);
+const userMap = computed(() => useChannel.getUserByRoomID(roomID.value));
 watch(
   () => props.members?.length, // 监听的源
   (newMembers, oldMembers) => {
@@ -55,8 +61,8 @@ onUnmounted(() => {
           :key="userID"
           class="float-left ml-1"
           :avatar="{
-            src:userMap.get(userID)?.avatar,
-            username:userMap.get(userID)?.username,
+            src:userMap?.get(userID)?.avatar,
+            username:userMap?.get(userID)?.username,
             length: 1, size: 25
           }"
         />
@@ -70,8 +76,8 @@ onUnmounted(() => {
         <account-avatar
           class="avatar absolute z-1000"
           :avatar="{
-            src:userMap.get(userID)?.avatar,
-            username:userMap.get(userID)?.username,
+            src:userMap?.get(userID)?.avatar,
+            username:userMap?.get(userID)?.username,
             length: 1, size: 20
           }"
         />

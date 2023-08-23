@@ -118,10 +118,12 @@ import 'vue3-emoji-picker/css';
 import EmojiPicker from 'vue3-emoji-picker';
 import { message } from 'ant-design-vue';
 import { OptionProps } from 'ant-design-vue/lib/vc-select/Option';
+import { useRoute } from 'vue-router';
 import useCos from '@/hooks/tencent/cos';
-import useChannelStore from '@/store/channel';
+
 import { createValidateFileExtension, isOverSize, ImageTypes } from '@/utils/file/valide';
 import { MessageTypeEnum } from '@/types/channel/enum';
+import useChannelStore from '@/store/channel';
 
 defineProps({
   value: {
@@ -139,8 +141,12 @@ const emits = defineEmits(['update:value', 'send-message', 'send-file-message', 
 const toFocus = ref();
 const show = ref(false);
 const msg = ref('');
+const route = useRoute();
+const roomID = computed(
+  () => (Number.isNaN(Number(route.params.roomID)) ? 1 : Number(route.params.roomID)),
+);
 
-const channelStore = useChannelStore();
+const useChannel = useChannelStore();
 /**
  * @description '@'操作符时
  * @param opt
@@ -152,7 +158,11 @@ const mentionSelect = (opt: OptionProps) => {
   }
 };
 const roomMembers = computed(
-  () => channelStore.onlineList.online.concat(channelStore.onlineList.offline));
+  () => {
+    const members = useChannel.getOnlineByRoomID(roomID.value);
+    return members?.online.concat(members?.offline);
+  },
+);
 /**
  * 上床图片
  * @param file
