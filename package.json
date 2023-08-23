@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --mode development",
     "build": "vue-tsc && vite build --mode production",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint --fix --ext .js,.vue ./"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^6.1.0",

@@ -44,7 +44,7 @@ const props = defineProps({
     default: {} as FileInfo,
   },
 });
-const calFileSize = (size:number) => (`${size.toFixed(2)}KB`);
+const calFileSize = (size:number) => (`${size?.toFixed(2)}KB`);
 const getFileIcon = (fileName: string) => {
   const fileExtension = getFileExtension(fileName);
   const iconPath = '/files_type/';

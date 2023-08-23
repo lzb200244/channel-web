@@ -21,13 +21,6 @@ export function setToken(key: Key, token: string): any {
   return Cookies.set(key, token, { expires: 60 * 24 * 24 * 14 });
 }
 
-/*
-type setToken= { (key: Key, token: string): void }
-export const setToken:setToken = function (key, token) {
-  return Cookies.set(key, token, { expires: 60 * 24 * 24 * 14 })
-}
- */
-
 /**
  * 删除token
  * @param key

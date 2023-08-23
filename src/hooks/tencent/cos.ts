@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { getCosCredentialAsync } from '@/apis/channel';
 
 export function getFileExtension(filename:string) {
-  return filename.slice(filename.lastIndexOf('.') + 1);
+  return filename?.slice(filename.lastIndexOf('.') + 1);
 }
 const useCos = (back:string = 'chat/file/', policy :string) => {
   const cos = new COS({

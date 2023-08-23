@@ -43,6 +43,7 @@ module.exports = {
     'function-paren-newline': 'off',
     'vue/no-mutating-props': 'off',
     'camelcase': 'off',
+    'vue/no-v-html': 'off',
 
 
   }

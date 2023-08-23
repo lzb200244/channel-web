@@ -59,6 +59,7 @@ const useChannelStoreMessage = () => {
     isLoading: false, // 是否加载
     currentPage: 1, // 当前页
     stop: false, // 是否停止
+    pageSize: 10,
   });
     // 回复消息体
   const msg = reactive<MessageRecordFrom<ReplayMessageForm>>({
@@ -97,7 +98,8 @@ const useChannelStoreMessage = () => {
         useChannel.asyncPushMoreRecord(res.data.results, roomID.value);
         pageConf.isLoading = false; // 加载完成后，将加载状态设置为 false
       }, 200);
-      if (res.data.count < 10) {
+      // 超过最大数量，说明没有更多数据了
+      if (res.data.count < pageConf.currentPage * pageConf.pageSize) {
         message.info('没有更多记录');
         // 没有更多记录
         pageConf.stop = true;

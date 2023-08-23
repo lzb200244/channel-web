@@ -56,7 +56,7 @@ class Request<T> {
           return message.error('服务端错误error');
         }
         // 请求屏蔽需要进行认证
-        if (status >= responseCode.Forbidden) {
+        if (status === responseCode.Forbidden) {
           router.push('/login');
           return;
         }

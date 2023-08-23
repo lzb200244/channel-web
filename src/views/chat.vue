@@ -162,7 +162,7 @@ watchEffect(() => {
       useChannel.getOnline(roomID.value),
       useChannel.getRoomInfo(roomID.value),
       useChannel.asyncRecord(1, roomID.value),
-    ]).then(([onlineUsers, roomInfo, chatRecords]) => {
+    ]).then(() => {
       //     请求成功
       Loading.value = false;
       reLoading.value = false;
