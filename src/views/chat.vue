@@ -161,7 +161,7 @@ watchEffect(() => {
     Promise.all([
       useChannel.getOnline(roomID.value),
       useChannel.getRoomInfo(roomID.value),
-      useChannel.asyncRecord(1, roomID.value),
+      useChannel.asyncRecord(roomID.value),
     ]).then(() => {
       //     请求成功
       Loading.value = false;

@@ -37,12 +37,24 @@ const useChannelStoreMessage = () => {
   const messageList = computed<MessageRecord<ReplayMessage>[]>(
 
     () => {
+      /* 读多写少
       const messages = useChannel.getMessageByRoomID(roomID.value);
       if (messages !== undefined) {
         return messages.map((item,
           idx) =>
           ({ ...item, id: idx + 1 }), // 添加唯一ID
         ).reverse();
+      }
+      return [] as MessageRecord<ReplayMessage>[];
+
+       */
+      // 写多读少
+      const messages = useChannel.getMessageByRoomID(roomID.value);
+      if (messages !== undefined) {
+        return messages.map((item,
+          idx) =>
+          ({ ...item, id: idx + 1 }), // 添加唯一ID
+        );
       }
       return [] as MessageRecord<ReplayMessage>[];
     },
@@ -94,10 +106,10 @@ const useChannelStoreMessage = () => {
     // 检查是否满足加载更多的条件
     if (!pageConf.stop && scrollTop === 0 && !pageConf.isLoading) {
       pageConf.isLoading = true; // 设置加载状态为 true
-      const res = await getChatRecordsAsync(++pageConf.currentPage, roomID.value);
+      const res = await getChatRecordsAsync(roomID.value, ++pageConf.currentPage);
 
       setTimeout(() => {
-        useChannel.asyncPushMoreRecord(res.data.results, roomID.value);
+        useChannel.asyncPushMoreRecord(roomID.value, res.data.results);
         pageConf.isLoading = false; // 加载完成后，将加载状态设置为 false
       }, 200);
       // 超过最大数量，说明没有更多数据了

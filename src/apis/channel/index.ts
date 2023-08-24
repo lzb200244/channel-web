@@ -2,7 +2,6 @@ import instance, { APiResponse, ResultData } from '@/apis/index';
 import {
   BaseRecord, Group, ReplayMessage,
 } from '@/types/channel';
-import { PushType } from '@/types/channel/modules/push';
 import { MessageRecordFrom, ReplayMessageForm } from '@/types/channel/request/message';
 import { RecallRecord } from '@/types/channel/request/recall';
 import { ThumbType } from '@/types/channel/request/thumb';
@@ -14,14 +13,14 @@ import { roomID } from '@/types/channel/response/base';
  * @param page 页
  * @param room 房间id 0代表大厅房间
  */
-const getChatRecordsAsync = async (page: number, room: roomID):
+const getChatRecordsAsync = async (room: roomID, page: number):
 
     APiResponse<ResultData<BaseRecord<ReplayMessage>[]>> =>
   instance.get(
     {
       url: 'chat/record/',
       params: {
-        page, room,
+        room, page,
       },
       isAuth: false,
     },
@@ -29,12 +28,12 @@ const getChatRecordsAsync = async (page: number, room: roomID):
 /**
  * 获取在线人数
  */
-const getOnlineUsersAsync = async (roomID: number): APiResponse<roomMembers> =>
+const getOnlineUsersAsync = async (room: number): APiResponse<roomMembers> =>
 //     http://127.0.0.1:5173/api/chat/record/
   instance.get(
     {
       url: 'chat/online/',
-      params: { roomID },
+      params: { room },
       isAuth: false,
     },
   );
@@ -99,12 +98,12 @@ const createChatRoomAsync = (data: any): APiResponse<Group> => instance.post({
 });
 /**
  * 获取房间信息，不存在的话就跳到404页面，房间不存在
- * @param roomID 房间id
+ * @param room 房间id
  */
-const getRoomInformAsync = (roomID: roomID): APiResponse<Group> => instance.get({
+const getRoomInformAsync = (room: roomID): APiResponse<Group> => instance.get({
   url: '/chat/room/',
   params: {
-    roomID,
+    room,
   },
   isAuth: false,
 });
@@ -124,7 +123,6 @@ const joinRoomAsync = (id:number, password:string):APiResponse<Group> => instanc
 });
 
 export {
-  // eslint-disable-next-line import/prefer-default-export
   getChatRecordsAsync,
   getOnlineUsersAsync,
   sendMessageAsync,

@@ -1,6 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 
-import isTimeElapsed from '@/utils/elapsed';
 import {
   getChatRecordsAsync, getOnlineUsersAsync, getRoomAsync, getRoomInformAsync,
 } from '@/apis/channel';
@@ -92,7 +91,7 @@ const useChannelStore = defineStore(
        * 进行撤回
        * @param msg
        */
-      deleteRecord(msg: MessageRecord<ReplayMessage>): boolean {
+      deleteRecord(msg: MessageRecord<ReplayMessage>):boolean {
         const messageList = this.getMessageByRoomID(msg.roomID);
         //   删除该条,需要是撤销功能有提示
         messageList?.forEach((item) => {
@@ -134,24 +133,26 @@ const useChannelStore = defineStore(
 
         //  添加新的聊天记录，
         // fix: O(n)的操作。如果聊天记录太多，非常的慢。
-        this.getMessageByRoomID(msg.roomID)?.unshift(msg);
-        //   修改为push操作,针对发言多,查询历史记录少的情况
-        // this.getMessageByRoomID(msg.roomID)?.push(msg);
+        // this.getMessageByRoomID(msg.roomID)?.unshift(msg);
+        // 修改为push操作,针对发言多,查询历史记录少的情况
+        this.getMessageByRoomID(msg.roomID)?.push(msg);
       },
       /**
        * 请求跟多的历史记录
        * @param itemList
        * @param roomID 房间号
        */
-      asyncPushMoreRecord(itemList: MessageRecord<ReplayMessage>[], roomID:roomID) {
-        this.setRecordMessage(itemList, roomID);
+      asyncPushMoreRecord(roomID:roomID, itemList: MessageRecord<ReplayMessage>[]) {
+        this.setRecordMessage(roomID, itemList);
       },
       /**
        * 设置历史记录
        * @param itemList 列表
        * @param roomID
        */
-      setRecordMessage(itemList: MessageRecord<ReplayMessage>[], roomID:roomID = 1) {
+      setRecordMessage(roomID:roomID = 1, itemList: MessageRecord<ReplayMessage>[]) {
+        /**
+         // fix: O(n)的操作。如果聊天记录太多，非常的慢。
         const roomMessage = this.getMessageByRoomID(roomID);
         itemList.forEach((item: MessageRecord<ReplayMessage>) => {
           // 是否过期2分钟
@@ -162,6 +163,19 @@ const useChannelStore = defineStore(
             roomMessage?.push(item);
           }
         });
+         */
+        // FIX： 修改为push操作,针对发言多,查询历史记录少的情况
+        const roomMessage = this.getMessageByRoomID(roomID);
+        roomMessage?.unshift(...itemList);
+        // itemList.forEach((item: MessageRecord<ReplayMessage>) => {
+        //   // 是否过期2分钟
+        //   if (isTimeElapsed(item.message.time, 2)) {
+        //     // 过期了就不支持撤回了
+        //     roomMessage?.unshift(Object.freeze(item));
+        //   } else {
+        //     roomMessage?.unshift(item);
+        //   }
+        // });
       },
       /**
        *  更新加入群聊的新人
@@ -178,10 +192,10 @@ const useChannelStore = defineStore(
         this.updateOnlineStatus(msg, false);
       },
       /**
-             * 实时更新在线状态
-             * @param msg
-             * @param status 状态
-             */
+     * 实时更新在线状态
+     * @param msg
+     * @param status 状态
+     */
       updateOnlineStatus(msg: PushType, status: boolean) {
         const onlineList = this.getOnlineByRoomID(msg.roomID);
         if (onlineList === undefined) return;
@@ -220,12 +234,10 @@ const useChannelStore = defineStore(
       },
       /**
        * 获取某个房间聊天记录
-       * @param page
-       * @param roomID 软件id
        */
-      async asyncRecord(page: number = 1, roomID: roomID = 1) {
-        const res = await getChatRecordsAsync(page, roomID);
-        this.setRecordMessage(res.data.results, roomID);
+      async asyncRecord(roomID: roomID = 1, page: number = 1) {
+        const res = await getChatRecordsAsync(roomID, page);
+        this.setRecordMessage(roomID, res.data.results);
         return res;
       },
       /**
