@@ -1,5 +1,5 @@
 import {
-  computed, onMounted, onUnmounted, reactive,
+  computed, onMounted, onUnmounted, reactive, watch,
 } from 'vue';
 import { message } from 'ant-design-vue';
 import { useRoute } from 'vue-router';
@@ -35,17 +35,19 @@ const useChannelStoreMessage = () => {
      * 聊天记录，进行翻转
      */
   const messageList = computed<MessageRecord<ReplayMessage>[]>(
+
     () => {
       const messages = useChannel.getMessageByRoomID(roomID.value);
       if (messages !== undefined) {
         return messages.map((item,
           idx) =>
-          ({ ...item, id: idx + 1 }), // 使用展开语法创建一个新对象，添加唯一ID
+          ({ ...item, id: idx + 1 }), // 添加唯一ID
         ).reverse();
       }
       return [] as MessageRecord<ReplayMessage>[];
     },
   );
+
   const roomInfo = computed<Group>(() => {
     const Info = useChannel.getRoomInfoByRoomID(roomID.value);
     if (Info !== undefined) {

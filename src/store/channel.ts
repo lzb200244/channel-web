@@ -89,36 +89,6 @@ const useChannelStore = defineStore(
         this.newMessageMap.delete(roomID);
       },
       /**
-       * 满5个ws了，添加删除最近最不常用的websocket
-       * @param roomID
-       */
-      removeCatch(roomID: roomID) {
-        // 关闭websocket
-
-        // 删除缓存
-        this.messagesMap.delete(roomID);
-        this.onlineMap.delete(roomID);
-        this.userMap.delete(roomID);
-        this.roomInfoMap.delete(roomID);
-      },
-      /**
-     * 添加新的聊天记录
-     * @param msg
-     */
-      pushRecordMessage(msg: MessageRecord<ReplayMessage>) {
-        if (msg.message.type === MessageTypeEnum.TEXT || msg.message.type === MessageTypeEnum.GPT) {
-          // 消息
-          this.newMessageMap.set(msg.roomID, `新消息：${<string>msg.message.content}`);
-        } else if (msg.message.type === MessageTypeEnum.FILE) {
-          // 文件
-          this.newMessageMap.set(msg.roomID, <string>msg.message.fileInfo?.fileName);
-        }
-        // 更新房间的最新消息
-
-        //   添加新的聊天记录
-        this.getMessageByRoomID(msg.roomID)?.unshift(msg);
-      },
-      /**
        * 进行撤回
        * @param msg
        */
@@ -134,6 +104,39 @@ const useChannelStore = defineStore(
           }
         });
         return false;
+      },
+      /**
+       * 满5个ws了，添加删除最近最不常用的websocket
+       * @param roomID
+       */
+      removeCatch(roomID: roomID) {
+        // 关闭websocket
+
+        // 删除缓存
+        this.messagesMap.delete(roomID);
+        this.onlineMap.delete(roomID);
+        this.userMap.delete(roomID);
+        this.roomInfoMap.delete(roomID);
+      },
+      /**
+     * 添加新的一条聊天记录
+     * @param msg
+     */
+      pushRecordMessage(msg: MessageRecord<ReplayMessage>) {
+        if (msg.message.type === MessageTypeEnum.TEXT || msg.message.type === MessageTypeEnum.GPT) {
+          // 消息
+          this.newMessageMap.set(msg.roomID, `新消息：${<string>msg.message.content}`);
+        } else if (msg.message.type === MessageTypeEnum.FILE) {
+          // 文件
+          this.newMessageMap.set(msg.roomID, <string>msg.message.fileInfo?.fileName);
+        }
+        // 更新房间的最新消息
+
+        //  添加新的聊天记录，
+        // fix: O(n)的操作。如果聊天记录太多，非常的慢。
+        this.getMessageByRoomID(msg.roomID)?.unshift(msg);
+        //   修改为push操作,针对发言多,查询历史记录少的情况
+        // this.getMessageByRoomID(msg.roomID)?.push(msg);
       },
       /**
        * 请求跟多的历史记录
@@ -161,9 +164,9 @@ const useChannelStore = defineStore(
         });
       },
       /**
-             *  更新加入群聊的新人
-             * @param msg
-             */
+       *  更新加入群聊的新人
+       * @param msg
+       */
       pushOnline(msg: PushType) {
         this.updateOnlineStatus(msg, true);
       },
@@ -226,7 +229,7 @@ const useChannelStore = defineStore(
         return res;
       },
       /**
-       * 按页获取某个房间聊天记录
+       * 获取全部群聊
        * @param page
        */
       async asyncGetRooms(page: number) {

@@ -1,6 +1,7 @@
 <template>
   <a-row
     v-if="Object.keys(messageItem).length!==0"
+
     :id="'record:'+messageItem.message.msgID"
     class="hover w-full"
   >
