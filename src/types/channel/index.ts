@@ -55,7 +55,6 @@ export interface RecordItemType {
 
 export interface ReplayItem {
     username: string; // 发送者用户名
-    time: number; // 重播时间戳
     msgID: number; // 唯一消息ID
     type: number; // 重播类型
     userID: number; // 唯一用户ID

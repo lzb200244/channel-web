@@ -9,7 +9,6 @@
       >
         <template #content>
           <room-desc
-            v-once
             :room-info="roomInfo"
           />
         </template>
@@ -35,7 +34,6 @@
             size="small"
           />
         </div>
-
         <a-skeleton
           v-for="i in 5"
           :key="i"
@@ -63,7 +61,6 @@
                   v-if="item.message.messageStatus.isDrop"
                 >
                   <div
-
                     class="text-center w-full text-xs text-gray-400 py-15px"
                   >
                     {{ item.message.messageStatus.drop }}
@@ -71,7 +68,6 @@
                 </template>
                 <template v-else>
                   <channel-card
-
                     :message-item="item"
                     :is-send="item.user?.userID===user.userID"
                     @opt="handleOpt"

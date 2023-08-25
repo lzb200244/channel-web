@@ -76,11 +76,10 @@
               class="replay"
               :href="'#record:'+messageItem.message.replay.msgID"
               :title="'@'+ messageItem.message.replay.username"
-              @click="findRecordLight(messageItem.message.replay.msgID)"
             >
               <template v-if="messageItem.message.replay.type ===MessageTypeEnum.TEXT">
                 <a-typography-paragraph
-                  v-html="messageItem.message?.replay.content"
+                  v-xss="messageItem.message?.replay.content"
                 />
               </template>
               <!--    回复图片-->
@@ -99,7 +98,7 @@
               v-if="messageItem.message.type===MessageTypeEnum.TEXT "
             >
               <a-typography-paragraph
-                v-html="messageItem.message.content"
+                v-xss="messageItem.message.content"
               />
             </template>
             <!--          图片类型-->
@@ -245,17 +244,6 @@ const formatTime = (timestamp: number) => (timestamp + oneDayTimestamp < Date.no
 const Opt = (message: BaseRecord<ReplayMessage>, tp: number) => {
   emit('opt', message, tp);
 };
-/**
- * 点击@是进行语法高亮
- *
- */
-const findRecordLight = (id: number) => {
-  let domID = `record:${id}`;
-  console.log(domID);
-  // let dom = document.getElementById(domID);
-  // console.log(dom);
-  // dom.style.background = 'red';
-};
 
 /**
  * 复制1内容
@@ -291,6 +279,7 @@ const likeStatus = async (item: BaseRecord<ReplayMessage>, status: boolean) => {
     roomID: roomID.value,
   });
 };
+
 </script>
 <style lang="scss">
 .replay {

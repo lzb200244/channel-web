@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-once>
     <div class="flex flex-col">
       <div class="mb-2">
         <span class="font-bold">创建者：</span>

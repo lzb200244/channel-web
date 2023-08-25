@@ -3,11 +3,10 @@
 import {
   computed, onUnmounted, ref, watch,
 } from 'vue';
-
 import { useRoute } from 'vue-router';
 import AccountAvatar from '@/components/account/accountAvatar.vue';
-
 import useChannelStore from '@/store/channel';
+import AccountCard from '@/components/account/accountCard.vue';
 
 const props = defineProps({
   //   是否是回复
@@ -41,8 +40,6 @@ watch(
     timer = setTimeout(() => {
       showState.value = false;
     }, 200);
-
-    // 在这里你可以执行任何你想要的操作，比如更新数据、触发动画等
   },
 );
 onUnmounted(() => {

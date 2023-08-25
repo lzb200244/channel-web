@@ -14,6 +14,7 @@ import { roomID } from '@/types/channel/response/base';
 import LRUCache from '@/utils/lru';
 import WS from '@/utils/socket';
 import { MessageTypeEnum } from '@/types/channel/enum';
+import isTimeElapsed from '@/utils/elapsed';
 
 const useChannelStore = defineStore(
   'channel', {
@@ -166,16 +167,13 @@ const useChannelStore = defineStore(
          */
         // FIX： 修改为push操作,针对发言多,查询历史记录少的情况
         const roomMessage = this.getMessageByRoomID(roomID);
-        roomMessage?.unshift(...itemList);
-        // itemList.forEach((item: MessageRecord<ReplayMessage>) => {
-        //   // 是否过期2分钟
-        //   if (isTimeElapsed(item.message.time, 2)) {
-        //     // 过期了就不支持撤回了
-        //     roomMessage?.unshift(Object.freeze(item));
-        //   } else {
-        //     roomMessage?.unshift(item);
-        //   }
-        // });
+        itemList.forEach((item: MessageRecord<ReplayMessage>) => {
+          if (isTimeElapsed(item.message.time, 2)) {
+            roomMessage?.unshift(Object.freeze(item));
+          } else {
+            roomMessage?.unshift(item);
+          }
+        });
       },
       /**
        *  更新加入群聊的新人
@@ -185,9 +183,9 @@ const useChannelStore = defineStore(
         this.updateOnlineStatus(msg, true);
       },
       /**
-             * 退出群聊通知
-             * @param msg
-             */
+       * 退出群聊通知
+       * @param msg
+       */
       popOnline(msg: PushType) {
         this.updateOnlineStatus(msg, false);
       },
