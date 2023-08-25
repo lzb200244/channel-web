@@ -1,18 +1,112 @@
-# Vue 3 + TypeScript + Vite
+# Easy-Channel
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-## Recommended IDE Setup
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+<center><img src="./assets/chat.png" alt="chat" style="zoom:40%;" /></center>
 
-## Type Support For `.vue` Imports in TS
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+<div style="text-align: center;font-family: 'SimSun', sans-serif;font-size: 36px;color: #f9f9f9;line-height: 1.5;">
+畅 聊</div>
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+
+
+引言
+
+> 该项目是用于2023年秋季的毕设。基于drf+vue3以及相关技术栈开发。
+> 支持群聊、私聊、@GPT等功能，探索并实现基于websocket协议的即时通讯系统。
+> 熟悉一些常见设计模式与架构思想等。
+
+## 技术选型
+
+### [ 前端](https://github.com/lzb200244/easychannel-back)
+
+-   vue3+ts+eslint
+-   vue-router
+-   pinia
+-   ant-design-vue3
+-   axios
+-   vite
+
+### [后端](https://github.com/lzb200244/easychannel-back)
+
+-   drf+channels
+-   mysql
+
+### 中间件
+
+-   redis
+-   rabbitmq
+
+### 第三方
+
+-   腾讯cos
+-   百度大模型（文心一言）
+
+## 项目仓库
+
+[前端地址]()
+
+[后端地址]()
+
+## 实现功能
+
+```markdown
+
+- 多环境发布
+  - dev
+  - prod
+  
+- 全局功能
+  - Svg Sprite 图标
+  - 自适应收缩侧边栏
+  
+- 编辑器
+  - 富文本
+  - Markdown
+  
+- 错误页面
+  - 404
+  
+- 用户
+  - 登录 / 注销
+  - 头像上传
+  - 更新账户
+  - 关注与粉丝
+  - 个人成就
+  - ... 
+
+- 聊天
+  - 发消息
+  	- 文本
+  	- 表情
+  	- 文件、图片
+  - @（艾特） 
+  - @ AI
+  - 撤回
+  - 点赞
+  - 历史聊天记录
+  - 图片、文件
+  - 创建群聊/加入群聊
+  - 用户上下状态线推送
+  - 附近的人
+  - ... 
+
+```
+
+
+
+
+
+## 构建
+
+---
+
+### 方式1
+
+
+
+### 方式2
+
+
+
