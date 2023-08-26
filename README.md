@@ -2,22 +2,17 @@
 
 
 
-<center><img src="./assets/chat.png" alt="chat" style="zoom:40%;" /></center>
+<center>
+    <img src="./assets/chat.png" alt="chat" style="zoom:40%;" />
 
-
-
-<div style="text-align: center;font-family: 'SimSun', sans-serif;font-size: 36px;color: #f9f9f9;line-height: 1.5;">
-畅 聊</div>
-
-
+## 畅 聊
 ![Build Status](https://img.shields.io/badge/build-passing-green.svg)
 ![Version 1.0.0](https://img.shields.io/badge/version-1.0.0-yellow.svg)
 ![License](https://img.shields.io/badge/license-GPL3.0-blue.svg)
 
+</center>
 
-
-引言
-
+### 引言
 > 该项目是用于2023年秋季的毕设。基于drf+vue3以及相关技术栈开发。
 > 支持群聊、私聊、@GPT等功能，探索并实现基于websocket协议的即时通讯系统。
 > 熟悉一些常见设计模式与架构思想等。
