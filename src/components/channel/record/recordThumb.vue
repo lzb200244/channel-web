@@ -6,12 +6,11 @@ import {
 import { useRoute } from 'vue-router';
 import AccountAvatar from '@/components/account/accountAvatar.vue';
 import useChannelStore from '@/store/channel';
-import AccountCard from '@/components/account/accountCard.vue';
 
 const props = defineProps({
   //   是否是回复
   members: {
-    type: Array,
+    type: Array as () => number[],
     default: () => [],
   },
 
@@ -58,8 +57,8 @@ onUnmounted(() => {
           :key="userID"
           class="float-left ml-1"
           :avatar="{
-            src:userMap?.get(userID)?.avatar,
-            username:userMap?.get(userID)?.username,
+            src:userMap.get(userID)?.avatar,
+            username:userMap.get(userID)?.username,
             length: 1, size: 25
           }"
         />
@@ -73,8 +72,8 @@ onUnmounted(() => {
         <account-avatar
           class="avatar absolute z-1000"
           :avatar="{
-            src:userMap?.get(userID)?.avatar,
-            username:userMap?.get(userID)?.username,
+            src:userMap.get(userID)?.avatar,
+            username:userMap.get(userID)?.username,
             length: 1, size: 20
           }"
         />

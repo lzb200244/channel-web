@@ -60,6 +60,7 @@ const useAccountStore = defineStore(
         }
         const res = await getMedalsAsync();
         res.data.forEach((item) => {
+          // @ts-ignore
           if (this.user.medals.includes(item.id)) {
             item.acquire = true;
           }

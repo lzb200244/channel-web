@@ -81,7 +81,6 @@
       :class="{'blur-1':!isLogin,'flex':true,'mt-3':true}"
     >
       <a-mentions
-        ref="toFocus"
         v-model:value="msg"
         :disabled="!isLogin"
         placeholder="输入消息..."
@@ -112,7 +111,7 @@ import {
   FileImageOutlined, FolderAddOutlined, SendOutlined,
 } from '@ant-design/icons-vue';
 import {
-  ref, defineExpose, computed, defineEmits, onMounted, onBeforeMount,
+  ref, computed, onMounted, onBeforeMount,
 } from 'vue';
 import 'vue3-emoji-picker/css';
 import EmojiPicker from 'vue3-emoji-picker';
@@ -138,7 +137,6 @@ defineProps({
 });
 
 const emits = defineEmits(['update:value', 'send-message', 'send-file-message', 'mention']);
-const toFocus = ref();
 const show = ref(false);
 const msg = ref('');
 const route = useRoute();
@@ -219,9 +217,7 @@ const handleCustomRequestFile = async (options: any) => {
 /**
  * 调节输入框
  */
-const focus = () => {
-  toFocus.value.focus();
-};
+
 /**
  * 发送消息
  */
@@ -247,9 +243,6 @@ onBeforeMount(() => {
   });
 });
 
-defineExpose({
-  focus,
-});
 </script>
 <style scoped>
 

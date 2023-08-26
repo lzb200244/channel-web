@@ -45,34 +45,37 @@ const useChannelStore = defineStore(
        * 获取某个房间的在线人
        * @param roomID
        */
-      getOnlineByRoomID(roomID: roomID): roomMembers|undefined {
+      getOnlineByRoomID(roomID: roomID): roomMembers {
         if (this.onlineMap.has(roomID)) {
-          return this.onlineMap.get(roomID);
+          return this.onlineMap.get(roomID)!;
         }
-        this.onlineMap.set(roomID, { online: [], offline: [] });
-        return this.onlineMap.get(roomID);
+        const onlineMap = { online: [], offline: [] }as roomMembers;
+        this.onlineMap.set(roomID, onlineMap);
+        return onlineMap;
       },
       /**
        * 获取某个房间用户映射表
        * @param roomID
        */
-      getUserByRoomID(roomID: roomID): UserMap|undefined {
+      getUserByRoomID(roomID: roomID): UserMap {
         if (this.userMap.has(roomID)) {
-          return this.userMap.get(roomID);
+          return this.userMap.get(roomID)!;
         }
-        this.userMap.set(roomID, new Map());
-        return this.userMap.get(roomID);
+        const userMap = new Map<roomID, UserInfo>();
+        this.userMap.set(roomID, userMap);
+        return userMap;
       },
       /**
        * 获取某个房间信息
        * @param roomID
        */
-      getRoomInfoByRoomID(roomID: roomID): Group|undefined {
+      getRoomInfoByRoomID(roomID: roomID): Group {
         if (this.roomInfoMap.has(roomID)) {
-          return this.roomInfoMap.get(roomID);
+          return this.roomInfoMap.get(roomID)!;
         }
-        this.roomInfoMap.set(roomID, {} as Group);
-        return this.roomInfoMap.get(roomID);
+        const roomInfo = {} as Group;
+        this.roomInfoMap.set(roomID, roomInfo);
+        return roomInfo;
       },
       /**
        * 每个房间的最新消息，实现状态提醒

@@ -24,7 +24,6 @@ module.exports = {
     'prefer-const': 'off',
     //关闭自动推断类型
     '@typescript-eslint/no-inferrable-types': 'off',
-    'no-console': 'off',
     '@typescript-eslint/ban-types': 'off',
     "import/no-extraneous-dependencies": 'off',
     //导入css的import
@@ -44,7 +43,9 @@ module.exports = {
     'vue/no-mutating-props': 'off',
     'camelcase': 'off',
     'vue/no-v-html': 'off',
-
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
+    "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
 
   }
   // rules: {
