@@ -10,6 +10,11 @@
 畅 聊</div>
 
 
+![Build Status](https://img.shields.io/badge/build-passing-green.svg)
+![Version 1.0.0](https://img.shields.io/badge/version-1.0.0-yellow.svg)
+![License](https://img.shields.io/badge/license-GPL3.0-blue.svg)
+
+
 
 引言
 
@@ -19,7 +24,7 @@
 
 ## 技术选型
 
-### [ 前端](https://github.com/lzb200244/easychannel-back)
+### 前端
 
 -   vue3+ts+eslint
 -   vue-router
@@ -27,8 +32,9 @@
 -   ant-design-vue3
 -   axios
 -   vite
+-   websocket
 
-### [后端](https://github.com/lzb200244/easychannel-back)
+### 后端
 
 -   drf+channels
 -   mysql
@@ -47,7 +53,7 @@
 
 [前端地址]()
 
-[后端地址]()
+[后端地址](https://github.com/lzb200244/easychannel-back/tree/dev)
 
 ## 实现功能
 
@@ -110,3 +116,6 @@
 
 
 
+## 更多
+
+- [开发文档](https://note.youdao.com/s/2o2RLOit)
