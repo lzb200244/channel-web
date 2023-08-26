@@ -3,7 +3,7 @@
 
 
 <center>
-    <img src="./assets/chat.png" alt="chat" style="zoom:40%;" />
+    <img src="./assets/chat.png" alt="chat" style="width:40%;" />
 
 ## 畅 聊
 ![Build Status](https://img.shields.io/badge/build-passing-green.svg)
