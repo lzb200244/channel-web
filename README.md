@@ -19,32 +19,36 @@
 
 ## 技术选型
 
-### 前端
-
--   vue3+ts+eslint
--   vue-router
--   pinia
--   ant-design-vue3
--   axios
--   vite
--   websocket
-
 ### 后端
 
--   drf+channels
--   mysql
+| **技术**        | **说明**                                         | **官网**                                                    |
+| --------------- | ------------------------------------------------ | ----------------------------------------------------------- |
+| Django          | web开发必备框架                                  | https://www.djangoproject.com/                              |
+| Drf             | 使用Django Rest Framework更好地支持RESTful API。 | https://q1mi.github.io/Django-REST-framework-documentation/ |
+| Channels        | 使用Channels支持WebSocket连接。                  | https://channels.readthedocs.io/en/latest/                  |
+| Rabbitmq        | 处理异步任务                                     | https://www.rabbitmq.com/                                   |
+| Redis           | 缓存加速，多数据结构支持业务功能                 | [https://redis.io](https://redis.io/)                       |
+| Nginx           | 负载均衡，https配置，websocket升级，ip频控       | [https://nginx.org](https://nginx.org/)                     |
+| Docker          | 应用容器引擎                                     | [https://www.docker.com](https://www.docker.com/)           |
+| 腾讯cos         | 对象存储                                         | https://cloud.tencent.com/product/cos                       |
+| Jwt             | 用户登录，认证方案                               | [https://jwt.io](https://jwt.io/)                           |
+| GPT（文心一言） | 支持Ai回复                                       | https://yiyan.baidu.com/                                    |
+| Swagger-UI      | API文档生成工具                                  | https://github.com/swagger-api/swagger-ui                   |
 
-### 中间件
+### 前端
 
--   redis
--   rabbitmq
+| **技术**      | **说明**                                        | **官网**                                              |
+| ------------- | ----------------------------------------------- | ----------------------------------------------------- |
+| Vue3          | 前端流行开发框架                                | [https://cn.vuejs.org](https://cn.vuejs.org/)         |
+| Pinia         | vue3 官方推荐状态管理框架                       | [https://pinia.vuejs.org](https://pinia.vuejs.org/)   |
+| Vue-router    | Vue 的官方路由                                  | [https://router.vuejs.org](https://router.vuejs.org/) |
+| TypeScript    | 让 JS 具备类型声明                              | https://www.typescriptlang.org/                       |
+| Ant Design v3 | 基于 vue3 的组件库                              | https://3x.antdv.com/components/overview-cn           |
+| Axios         | Axios 使用简单,包尺寸小且提供了易于扩展的接口。 | https://www.axios-http.cn/                            |
+| Vite          | 极速的前端打包构建工具                          | [https://cn.vitejs.dev](https://cn.vitejs.dev/)       |
+| Pnpm          | 速度快、节省磁盘空间的软件包管理器              | [https://www.pnpm.cn](https://www.pnpm.cn/)           |
 
-### 第三方
-
--   腾讯cos
--   百度大模型（文心一言）
-
-## 项目仓库
+## 项目地址
 
 [前端地址]()
 
